@@ -1,0 +1,43 @@
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
+<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
+<!-- * * * * * * * * * * and can be replaced. * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * Delete the template below * * * * * * * * * * -->
+<!-- * * * * * * * to get started with your project! * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<div class="flex h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <div class="w-64 bg-white shadow-lg">
+    <div class="p-4 border-b">
+      <h1 class="text-xl font-bold text-gray-800">LeadManager Pro</h1>
+    </div>
+    
+    <nav class="p-4">
+      <ul class="space-y-2">
+        <li *ngFor="let item of menuItems">
+          <button 
+            class="flex items-center w-full p-2 rounded-lg"
+            [ngClass]="activeTab === item.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'"
+            (click)="activeTab = item.id"
+          >
+            <i [class]="item.icon + ' mr-3'"></i>
+            {{ item.label }}
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <app-header></app-header>
+    
+    <ng-container [ngSwitch]="activeTab">
+      <app-dashboard *ngSwitchCase="'dashboard'"></app-dashboard>
+      <app-companies *ngSwitchCase="'companies'"></app-companies>
+      <app-leads *ngSwitchCase="'leads'"></app-leads>
+      <app-meetings *ngSwitchCase="'meetings'"></app-meetings>
+    </ng-container>
+  </div>
+</div>

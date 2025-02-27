@@ -1,0 +1,152 @@
+<main class="flex-1 overflow-auto p-6">
+    <div class="mb-6 flex justify-between items-center">
+      <h1 class="text-2xl font-semibold text-gray-800">Meetings</h1>
+      <button 
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700"
+        (click)="createNewMeeting()"
+      >
+        <i class="fas fa-plus"></i>
+        <span>Schedule Meeting</span>
+      </button>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm">
+      <!-- Filters & View Toggle -->
+      <div class="p-4 border-b flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="relative">
+            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+            <input
+              type="text"
+              placeholder="Search meetings..."
+              class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="searchTerm"
+              (input)="filterMeetings()"
+            >
+          </div>
+          <select 
+            class="border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="selectedType"
+            (change)="filterMeetings()"
+          >
+            <option *ngFor="let type of meetingTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="flex items-center space-x-2 border rounded-lg">
+          <button 
+            class="px-4 py-2 rounded-lg"
+            [ngClass]="viewType === 'list' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'"
+            (click)="viewType = 'list'"
+          >
+            List
+          </button>
+          <button 
+            class="px-4 py-2 rounded-lg"
+            [ngClass]="viewType === 'calendar' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'"
+            (click)="viewType = 'calendar'"
+          >
+            Calendar
+          </button>
+        </div>
+      </div>
+
+      <!-- Meetings List View -->
+      <div *ngIf="viewType === 'list'" class="divide-y">
+        <div *ngFor="let dateGroup of groupedMeetings | keyvalue" class="p-4">
+          <h3 class="text-lg font-medium text-gray-800 mb-4">
+            {{ formatDate(dateGroup.key) }}
+          </h3>
+          <div class="space-y-4">
+            <div 
+              *ngFor="let meeting of dateGroup.value"
+              class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+              (click)="openMeetingDetail(meeting)"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                  <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-calendar text-blue-600"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-medium text-gray-800">{{ meeting.title }}</h4>
+                    <div class="flex items-center space-x-2 text-sm text-gray-500">
+                      <span>{{ meeting.time }}</span>
+                      <span>•</span>
+                      <span>{{ meeting.duration }}</span>
+                      <span>•</span>
+                      <span>{{ meeting.company }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                  <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                    {{ meeting.type }}
+                  </span>
+                  <div class="flex -space-x-2">
+                    <div 
+                      *ngFor="let attendee of meeting.attendees.slice(0, 3)"
+                      class="h-8 w-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600"
+                      [title]="attendee.name + ' (' + attendee.role + ')'"
+                    >
+                      {{ getInitials(attendee.name) }}
+                    </div>
+                    <div 
+                      *ngIf="meeting.attendees.length > 3"
+                      class="h-8 w-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-600"
+                    >
+                      +{{ meeting.attendees.length - 3 }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar View -->
+      <div *ngIf="viewType === 'calendar'" class="p-4">
+        <div class="grid grid-cols-7 gap-2">
+          <div *ngFor="let day of weekDays" class="border rounded-lg">
+            <div class="p-2 bg-gray-50 border-b text-center">
+              <p class="font-medium">{{ day }}</p>
+              <p class="text-xs text-gray-500">Feb {{ getDateForDay(day) }}</p>
+            </div>
+            <div class="p-2 min-h-32">
+              <div 
+                *ngFor="let meeting of getMeetingsForDay(day)" 
+                class="text-xs bg-blue-50 p-1 rounded mb-1 border-l-4 border-blue-500 truncate cursor-pointer"
+                [title]="meeting.title"
+                (click)="openMeetingDetail(meeting)"
+              >
+                {{ meeting.time }} - {{ meeting.title }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredMeetings.length === 0" class="p-8 text-center">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-calendar text-gray-400 text-xl"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-800 mb-1">No meetings found</h3>
+        <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
+        <button 
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          (click)="createNewMeeting()"
+        >
+          Schedule Meeting
+        </button>
+      </div>
+    </div>
+
+    <!-- Meeting Detail Modal -->
+    <app-meeting-detail
+      [meeting]="selectedMeeting"
+      [isOpen]="isMeetingDetailOpen"
+      (onClose)="closeMeetingDetail()"
+      (onSave)="saveMeeting($event)"
+    ></app-meeting-detail>
+  </main>
