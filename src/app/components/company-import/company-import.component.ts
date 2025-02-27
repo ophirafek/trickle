@@ -20,6 +20,16 @@ export class CompanyImportComponent {
   previewHeaders: string[] = [];
   fieldMapping: { [key: string]: string } = {};
   
+  // Track current step in the import process
+  currentStep: 'file-selection' | 'field-mapping' | 'review' = 'file-selection';
+  
+  // Track which rows are selected for import
+  selectedRows: boolean[] = [];
+  allRowsSelected: boolean = true;
+  
+  // Track which rows have issues (missing required fields, etc.)
+  rowIssues: { index: number, issues: string[] }[] = [];
+  
   requiredFields = [
     { key: 'name', label: 'Company Name' },
     { key: 'industry', label: 'Industry' },
@@ -28,15 +38,27 @@ export class CompanyImportComponent {
     { key: 'website', label: 'Website' }
   ];
 
-  private fileData: any[] = [];
+  public fileData: any[] = [];
   private selectedFile: File | null = null;
 
-  get canImport(): boolean {
-    // Check if all required fields are mapped
-    return this.requiredFields.every(field => !!this.fieldMapping[field.key]) && 
-           this.fileSelected && 
+  get canProceedToMapping(): boolean {
+    return this.fileSelected && 
            this.previewData.length > 0 && 
            !this.parseError;
+  }
+  
+  get canProceedToReview(): boolean {
+    // Check if all required fields are mapped
+    return this.requiredFields.every(field => !!this.fieldMapping[field.key]);
+  }
+  
+  get canImport(): boolean {
+    return this.selectedRows.some(row => row) && 
+           this.currentStep === 'review';
+  }
+  
+  get selectedRowCount(): number {
+    return this.selectedRows.filter(selected => selected).length;
   }
 
   onFileSelected(event: Event): void {
@@ -73,6 +95,10 @@ export class CompanyImportComponent {
     this.fieldMapping = {};
     this.fileData = [];
     this.selectedFile = null;
+    this.currentStep = 'file-selection';
+    this.selectedRows = [];
+    this.allRowsSelected = true;
+    this.rowIssues = [];
   }
 
   parseFile(): void {
@@ -134,6 +160,8 @@ export class CompanyImportComponent {
     }
     
     this.previewData = this.fileData.slice(0, 5); // Show first 5 rows for preview
+    this.selectedRows = new Array(this.fileData.length).fill(true);
+    this.allRowsSelected = true;
   }
 
   parseJSON(content: string): void {
@@ -153,15 +181,69 @@ export class CompanyImportComponent {
       
       this.previewHeaders = Array.from(headerSet);
       this.previewData = this.fileData.slice(0, 5); // Show first 5 rows for preview
+      this.selectedRows = new Array(this.fileData.length).fill(true);
+      this.allRowsSelected = true;
     } catch (error) {
       this.parseError = 'Invalid JSON format';
     }
   }
 
+  proceedToMapping(): void {
+    this.currentStep = 'field-mapping';
+  }
+  
+  proceedToReview(): void {
+    this.currentStep = 'review';
+    this.validateRows();
+  }
+  
+  goBack(): void {
+    if (this.currentStep === 'field-mapping') {
+      this.currentStep = 'file-selection';
+    } else if (this.currentStep === 'review') {
+      this.currentStep = 'field-mapping';
+    }
+  }
+  
+  validateRows(): void {
+    this.rowIssues = [];
+    
+    this.fileData.forEach((row, index) => {
+      const issues: string[] = [];
+      
+      this.requiredFields.forEach(field => {
+        const sourceField = this.fieldMapping[field.key];
+        const value = row[sourceField];
+        
+        if (!value || value.trim() === '') {
+          issues.push(`Missing ${field.label}`);
+        }
+      });
+      
+      if (issues.length > 0) {
+        this.rowIssues.push({ index, issues });
+      }
+    });
+  }
+
+  toggleAllRows(): void {
+    this.selectedRows.fill(this.allRowsSelected);
+  }
+  
+  toggleRow(index: number): void {
+    this.selectedRows[index] = !this.selectedRows[index];
+    this.updateAllRowsSelectedState();
+  }
+  
+  updateAllRowsSelectedState(): void {
+    this.allRowsSelected = this.selectedRows.every(selected => selected);
+  }
+
   importCompanies(): void {
     if (!this.canImport) return;
     
-    const mappedCompanies: Company[] = this.fileData.map(row => {
+    const selectedData = this.fileData.filter((_, index) => this.selectedRows[index]);
+    const mappedCompanies: Company[] = selectedData.map(row => {
       const company: any = {};
       
       this.requiredFields.forEach(field => {
@@ -189,5 +271,28 @@ export class CompanyImportComponent {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+  
+  // Get row class based on validation and selection state
+  getRowClass(index: number): string {
+    const hasIssues = this.rowIssues.some(issue => issue.index === index);
+    const isSelected = this.selectedRows[index];
+    
+    if (hasIssues) {
+      return isSelected ? 'bg-red-50' : 'bg-red-50 opacity-50';
+    }
+    
+    return isSelected ? '' : 'opacity-50';
+  }
+  
+  // Check if a row has issues
+  hasIssues(index: number): boolean {
+    return this.rowIssues.some(issue => issue.index === index);
+  }
+  
+  // Get issues for a specific row
+  getIssues(index: number): string[] {
+    const issue = this.rowIssues.find(issue => issue.index === index);
+    return issue ? issue.issues : [];
   }
 }
