@@ -1,4 +1,6 @@
 <main class="flex-1 overflow-auto p-6">
+  <!-- List View -->
+  <div *ngIf="viewMode === 'list'">
     <div class="mb-6 flex justify-between items-center">
       <h1 class="text-2xl font-semibold text-gray-800">Companies</h1>
       <button 
@@ -104,19 +106,37 @@
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Company Detail Modal -->
+  <!-- Detail View -->
+  <div *ngIf="viewMode === 'detail'">
+    <div class="mb-6 flex justify-between items-center">
+      <div class="flex items-center">
+        <button 
+          class="mr-3 p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full"
+          (click)="closeCompanyDetail()"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h1 class="text-2xl font-semibold text-gray-800">
+          {{ isCompanyDetailVisible && selectedCompany ? 'Edit ' + selectedCompany.name : 'Add Company' }}
+        </h1>
+      </div>
+    </div>
+
+    <!-- Company Detail Component -->
     <app-company-detail
       [company]="selectedCompany"
-      [isOpen]="isCompanyDetailOpen"
+      [isVisible]="isCompanyDetailVisible"
       (onClose)="closeCompanyDetail()"
       (onSave)="saveCompany($event)"
     ></app-company-detail>
+  </div>
 
-    <!-- Company Import Modal -->
-    <app-company-import
-      [isOpen]="isImportOpen"
-      (onClose)="closeImport()"
-      (onImport)="handleImportedCompanies($event)"
-    ></app-company-import>
-  </main>
+  <!-- Company Import Modal -->
+  <app-company-import
+    [isOpen]="isImportOpen"
+    (onClose)="closeImport()"
+    (onImport)="handleImportedCompanies($event)"
+  ></app-company-import>
+</main>

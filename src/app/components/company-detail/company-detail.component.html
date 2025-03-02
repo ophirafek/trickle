@@ -1,183 +1,245 @@
-<div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center" *ngIf="isOpen">
-    <div class="relative bg-white rounded-lg shadow-xl mx-auto max-w-4xl w-full max-h-4/5 overflow-auto">
-      <!-- Header -->
-      <div class="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-b">
-        <h2 class="text-xl font-semibold text-gray-800">
-          {{ isNewCompany ? 'Add Company' : 'Edit Company' }}
-        </h2>
-        <button 
-          class="p-2 text-gray-400 hover:text-gray-600 rounded-full"
-          (click)="close()"
-        >
-          <i class="fas fa-times"></i>
-        </button>
+<div class="animated-slide-in bg-white rounded-lg shadow-sm" *ngIf="isVisible">
+  <!-- Header -->
+  <div class="flex justify-between items-center p-4 border-b">
+    <h2 class="text-xl font-semibold text-gray-800">
+      {{ isNewCompany ? 'Add Company' : 'Edit Company' }}
+    </h2>
+    <button 
+      class="p-2 text-gray-400 hover:text-gray-600 rounded-full"
+      (click)="close()"
+    >
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  
+  <!-- Content -->
+  <div class="p-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- First column -->
+      <div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.name"
+            placeholder="Company name"
+          >
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.industry"
+            placeholder="Industry"
+          >
+        </div>
       </div>
       
-      <!-- Content -->
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- First column -->
-          <div>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-              <input 
-                type="text" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingCompany.name"
-                placeholder="Company name"
-              >
-            </div>
-            
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
-              <input 
-                type="text" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingCompany.industry"
-                placeholder="Industry"
-              >
-            </div>
-          </div>
-          
-          <!-- Second column -->
-          <div>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-              <select 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingCompany.size"
-              >
-                <option value="1-50 employees">1-50 employees</option>
-                <option value="50-100 employees">50-100 employees</option>
-                <option value="100-500 employees">100-500 employees</option>
-                <option value="500-1000 employees">500-1000 employees</option>
-                <option value="1000-5000 employees">1000-5000 employees</option>
-                <option value="5000+ employees">5000+ employees</option>
-              </select>
-            </div>
-            
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-              <input 
-                type="text" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingCompany.location"
-                placeholder="City, State"
-              >
-            </div>
-          </div>
-          
-          <!-- Third column -->
-          <div>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
-              <input 
-                type="text" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingCompany.website"
-                placeholder="www.example.com"
-              >
-            </div>
-            
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Active">Active</option>
-                <option value="Prospect">Prospect</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-          </div>
+      <!-- Second column -->
+      <div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+          <select 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.size"
+          >
+            <option value="1-50 employees">1-50 employees</option>
+            <option value="50-100 employees">50-100 employees</option>
+            <option value="100-500 employees">100-500 employees</option>
+            <option value="500-1000 employees">500-1000 employees</option>
+            <option value="1000-5000 employees">1000-5000 employees</option>
+            <option value="5000+ employees">5000+ employees</option>
+          </select>
         </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.location"
+            placeholder="City, State"
+          >
+        </div>
+      </div>
+      
+      <!-- Third column -->
+      <div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.website"
+            placeholder="www.example.com"
+          >
+        </div>
+        
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="Active">Active</option>
+            <option value="Prospect">Prospect</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-        <!-- Tabbed Sections -->
-        <div class="mt-6">
-          <div class="border-b border-gray-200">
-            <nav class="flex -mb-px">
-              <button class="py-2 px-4 border-b-2 border-blue-500 text-blue-600 font-medium">
-                Address
-              </button>
-              <button class="py-2 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                Contacts
-              </button>
-              <button class="py-2 px-4 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                Notes
-              </button>
-            </nav>
+    <!-- Tabbed Sections -->
+    <div class="mt-6">
+      <div class="border-b border-gray-200">
+        <nav class="flex -mb-px">
+          <button 
+            class="py-2 px-4 border-b-2 font-medium"
+            [class.border-blue-500]="activeTab === 'address'"
+            [class.text-blue-600]="activeTab === 'address'"
+            [class.border-transparent]="activeTab !== 'address'"
+            [class.text-gray-500]="activeTab !== 'address'"
+            (click)="setActiveTab('address')"
+          >
+            Address
+          </button>
+          <button 
+            class="py-2 px-4 border-b-2 font-medium"
+            [class.border-blue-500]="activeTab === 'contacts'"
+            [class.text-blue-600]="activeTab === 'contacts'"
+            [class.border-transparent]="activeTab !== 'contacts'"
+            [class.text-gray-500]="activeTab !== 'contacts'"
+            (click)="setActiveTab('contacts')"
+          >
+            Contacts
+          </button>
+          <button 
+            class="py-2 px-4 border-b-2 font-medium"
+            [class.border-blue-500]="activeTab === 'notes'"
+            [class.text-blue-600]="activeTab === 'notes'"
+            [class.border-transparent]="activeTab !== 'notes'"
+            [class.text-gray-500]="activeTab !== 'notes'"
+            (click)="setActiveTab('notes')"
+          >
+            Notes
+          </button>
+        </nav>
+      </div>
+      
+      <!-- Address Tab Content -->
+      <div class="py-4" *ngIf="activeTab === 'address'">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="123 Main St"
+            >
           </div>
-          
-          <!-- Address Tab Content -->
-          <div class="py-4">
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
-                <input 
-                  type="text" 
-                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="123 Main St"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Suite/Unit</label>
-                <input 
-                  type="text" 
-                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Suite 100"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
-                <input 
-                  type="text" 
-                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="City"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
-                <input 
-                  type="text" 
-                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="State"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
-                <input 
-                  type="text" 
-                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Postal Code"
-                >
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                <input 
-                  type="text" 
-                  class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Country"
-                >
-              </div>
-            </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Suite/Unit</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Suite 100"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="City"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="State"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Postal Code"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Country"
+            >
           </div>
         </div>
       </div>
       
-      <!-- Footer -->
-      <div class="sticky bottom-0 bg-white z-10 flex justify-end space-x-2 p-4 border-t">
-        <button 
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-          (click)="close()"
-        >
-          Cancel
-        </button>
-        <button 
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          (click)="save()"
-        >
-          Save Company
-        </button>
+      <!-- Contacts Tab Content -->
+      <div class="py-4" *ngIf="activeTab === 'contacts'">
+        <div class="mb-4 flex justify-end">
+          <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
+            <i class="fas fa-plus mr-1"></i> Add Contact
+          </button>
+        </div>
+        <div class="border rounded-lg overflow-hidden">
+          <table class="min-w-full">
+            <thead>
+              <tr class="bg-gray-50 border-b">
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Title</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
+                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Phone</th>
+                <th class="px-4 py-2 text-center text-sm font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b">
+                <td class="px-4 py-3 text-sm">No contacts added yet</td>
+                <td class="px-4 py-3 text-sm"></td>
+                <td class="px-4 py-3 text-sm"></td>
+                <td class="px-4 py-3 text-sm"></td>
+                <td class="px-4 py-3 text-sm"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Notes Tab Content -->
+      <div class="py-4" *ngIf="activeTab === 'notes'">
+        <div class="mb-4 flex justify-end">
+          <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
+            <i class="fas fa-plus mr-1"></i> Add Note
+          </button>
+        </div>
+        <div class="border rounded-lg p-4 text-gray-500 text-center">
+          No notes added yet
+        </div>
       </div>
     </div>
   </div>
+  
+  <!-- Footer -->
+  <div class="flex justify-end space-x-2 p-4 border-t bg-gray-50">
+    <button 
+      class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+      (click)="close()"
+    >
+      Cancel
+    </button>
+    <button 
+      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      (click)="save()"
+    >
+      Save Company
+    </button>
+  </div>
+</div>

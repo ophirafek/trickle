@@ -14,10 +14,13 @@ export class CompaniesComponent implements OnInit {
 
   // Company detail
   selectedCompany: Company | null = null;
-  isCompanyDetailOpen: boolean = false;
+  isCompanyDetailVisible: boolean = false;
   
   // Import functionality
   isImportOpen: boolean = false;
+  
+  // View state
+  viewMode: 'list' | 'detail' = 'list';
 
   constructor(private dataService: DataService) {}
 
@@ -43,17 +46,20 @@ export class CompaniesComponent implements OnInit {
   // Company detail methods
   openCompanyDetail(company: Company): void {
     this.selectedCompany = company;
-    this.isCompanyDetailOpen = true;
+    this.isCompanyDetailVisible = true;
+    this.viewMode = 'detail';
   }
   
   createNewCompany(): void {
     this.selectedCompany = null; // Null indicates a new company
-    this.isCompanyDetailOpen = true;
+    this.isCompanyDetailVisible = true;
+    this.viewMode = 'detail';
   }
   
   closeCompanyDetail(): void {
-    this.isCompanyDetailOpen = false;
+    this.isCompanyDetailVisible = false;
     this.selectedCompany = null;
+    this.viewMode = 'list';
   }
   
   saveCompany(company: Company): void {
@@ -73,6 +79,10 @@ export class CompaniesComponent implements OnInit {
     
     // Refresh the view
     this.filterCompanies();
+    
+    // Return to list view
+    this.viewMode = 'list';
+    this.isCompanyDetailVisible = false;
   }
   
   // Import methods
