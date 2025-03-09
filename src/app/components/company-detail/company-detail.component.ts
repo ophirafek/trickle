@@ -9,12 +9,12 @@ import { Company } from '../../../model/types';
 export class CompanyDetailComponent implements OnInit {
   @Input() company: Company | null = null;
   @Input() isVisible: boolean = false;
+  @Input() activeTab: 'general' | 'address' | 'contacts' | 'notes' = 'general';
   @Output() onClose = new EventEmitter<void>();
   @Output() onSave = new EventEmitter<Company>();
 
   editingCompany: Company = this.getEmptyCompany();
   isNewCompany: boolean = true;
-  activeTab: 'address' | 'contacts' | 'notes' = 'address';
 
   ngOnInit(): void {
     this.resetForm();
@@ -45,9 +45,7 @@ export class CompanyDetailComponent implements OnInit {
     };
   }
 
-  setActiveTab(tab: 'address' | 'contacts' | 'notes'): void {
-    this.activeTab = tab;
-  }
+
 
   close(): void {
     this.onClose.emit();

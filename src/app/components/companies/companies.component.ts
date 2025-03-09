@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Company } from '../../../model/types';
 import { DataService } from '../../services/data.service';
+import { CompanyDetailComponent } from '../company-detail/company-detail.component';
 
 @Component({
   selector: 'app-companies',
@@ -8,6 +9,8 @@ import { DataService } from '../../services/data.service';
   styleUrls: ['./companies.component.css']
 })
 export class CompaniesComponent implements OnInit {
+  @ViewChild(CompanyDetailComponent) companyDetailComponent!: CompanyDetailComponent;
+  
   companies: Company[] = [];
   filteredCompanies: Company[] = [];
   searchTerm: string = '';
@@ -21,6 +24,7 @@ export class CompaniesComponent implements OnInit {
   
   // View state
   viewMode: 'list' | 'detail' = 'list';
+  activeTab: 'general' | 'address' | 'contacts' | 'notes' = 'general';
 
   constructor(private dataService: DataService) {}
 
@@ -45,15 +49,17 @@ export class CompaniesComponent implements OnInit {
 
   // Company detail methods
   openCompanyDetail(company: Company): void {
-    this.selectedCompany = company;
+    this.selectedCompany = { ...company };
     this.isCompanyDetailVisible = true;
     this.viewMode = 'detail';
+    this.activeTab = 'general';
   }
   
   createNewCompany(): void {
     this.selectedCompany = null; // Null indicates a new company
     this.isCompanyDetailVisible = true;
     this.viewMode = 'detail';
+    this.activeTab = 'general';
   }
   
   closeCompanyDetail(): void {
@@ -62,16 +68,33 @@ export class CompaniesComponent implements OnInit {
     this.viewMode = 'list';
   }
   
+  setActiveTab(tab: 'general' | 'address' | 'contacts' | 'notes'): void {
+    this.activeTab = tab;
+  }
+  
+  onSaveCompany(): void {
+    // Access the edited company from the child component
+    // The component might not be initialized immediately, so we need to check
+    if (this.companyDetailComponent) {
+      const company = this.companyDetailComponent.editingCompany;
+      this.saveCompany(company);
+    }
+  }
+  
   saveCompany(company: Company): void {
+    if (!company || !company.name.trim()) return;
+    
     // Find if this company already exists
-    const existingIndex = this.companies.findIndex(c => c.name === company.name);
+    const existingIndex = this.selectedCompany ? 
+      this.companies.findIndex(c => c.name === this.selectedCompany?.name) :
+      this.companies.findIndex(c => c.name === company.name);
     
     if (existingIndex >= 0) {
       // Update existing company
-      this.companies[existingIndex] = company;
+      this.companies[existingIndex] = { ...company };
     } else {
       // Add new company
-      this.companies.push(company);
+      this.companies.push({ ...company });
     }
     
     // In a real app, would call the data service to persist changes
@@ -119,5 +142,15 @@ export class CompaniesComponent implements OnInit {
     
     // Show success message - in a real app, use a proper notification service
     alert(`Successfully imported ${importedCompanies.length} companies`);
+  }
+  
+  getEmptyCompany(): Company {
+    return {
+      name: '',
+      industry: '',
+      size: '100-500 employees',
+      location: '',
+      website: ''
+    };
   }
 }

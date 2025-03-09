@@ -1,245 +1,328 @@
-<div class="animated-slide-in bg-white rounded-lg shadow-sm" *ngIf="isVisible">
-  <!-- Header -->
-  <div class="flex justify-between items-center p-4 border-b">
-    <h2 class="text-xl font-semibold text-gray-800">
-      {{ isNewCompany ? 'Add Company' : 'Edit Company' }}
-    </h2>
-    <button 
-      class="p-2 text-gray-400 hover:text-gray-600 rounded-full"
-      (click)="close()"
-    >
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  
+<div class="animated-slide-in bg-white rounded-lg shadow-sm h-full flex flex-col" *ngIf="isVisible">
   <!-- Content -->
-  <div class="p-6">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <!-- First column -->
-      <div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-          <input 
-            type="text" 
-            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [(ngModel)]="editingCompany.name"
-            placeholder="Company name"
-          >
+  <div class="p-6 flex-1 overflow-auto">
+    <!-- General Info Tab -->
+    <div *ngIf="activeTab === 'general'">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- First column -->
+        <div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.name"
+              placeholder="Company name"
+            >
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.industry"
+              placeholder="Industry"
+            >
+          </div>
         </div>
         
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Industry</label>
-          <input 
-            type="text" 
-            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [(ngModel)]="editingCompany.industry"
-            placeholder="Industry"
-          >
+        <!-- Second column -->
+        <div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
+            <select 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.size"
+            >
+              <option value="1-50 employees">1-50 employees</option>
+              <option value="50-100 employees">50-100 employees</option>
+              <option value="100-500 employees">100-500 employees</option>
+              <option value="500-1000 employees">500-1000 employees</option>
+              <option value="1000-5000 employees">1000-5000 employees</option>
+              <option value="5000+ employees">5000+ employees</option>
+            </select>
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.location"
+              placeholder="City, State"
+            >
+          </div>
+        </div>
+        
+        <!-- Third column -->
+        <div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.website"
+              placeholder="www.example.com"
+            >
+          </div>
+          
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="Active">Active</option>
+              <option value="Prospect">Prospect</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
         </div>
       </div>
       
-      <!-- Second column -->
-      <div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Size</label>
-          <select 
-            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [(ngModel)]="editingCompany.size"
-          >
-            <option value="1-50 employees">1-50 employees</option>
-            <option value="50-100 employees">50-100 employees</option>
-            <option value="100-500 employees">100-500 employees</option>
-            <option value="500-1000 employees">500-1000 employees</option>
-            <option value="1000-5000 employees">1000-5000 employees</option>
-            <option value="5000+ employees">5000+ employees</option>
-          </select>
+      <div class="mt-6">
+        <h3 class="font-medium text-gray-800 mb-4">Additional Information</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn Profile</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="LinkedIn URL"
+            >
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Founding Year</label>
+            <input 
+              type="number" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Year founded"
+            >
+          </div>
         </div>
         
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Location</label>
-          <input 
-            type="text" 
-            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [(ngModel)]="editingCompany.location"
-            placeholder="City, State"
-          >
-        </div>
-      </div>
-      
-      <!-- Third column -->
-      <div>
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Website</label>
-          <input 
-            type="text" 
-            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            [(ngModel)]="editingCompany.website"
-            placeholder="www.example.com"
-          >
-        </div>
-        
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          <select 
-            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="Active">Active</option>
-            <option value="Prospect">Prospect</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+        <div class="mt-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <textarea 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
+            placeholder="Company description..."
+          ></textarea>
         </div>
       </div>
     </div>
 
-    <!-- Tabbed Sections -->
-    <div class="mt-6">
-      <div class="border-b border-gray-200">
-        <nav class="flex -mb-px">
-          <button 
-            class="py-2 px-4 border-b-2 font-medium"
-            [class.border-blue-500]="activeTab === 'address'"
-            [class.text-blue-600]="activeTab === 'address'"
-            [class.border-transparent]="activeTab !== 'address'"
-            [class.text-gray-500]="activeTab !== 'address'"
-            (click)="setActiveTab('address')"
+    <!-- Address Tab Content -->
+    <div *ngIf="activeTab === 'address'">
+      <h3 class="font-medium text-gray-800 mb-6">Address Information</h3>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="123 Main St"
           >
-            Address
-          </button>
-          <button 
-            class="py-2 px-4 border-b-2 font-medium"
-            [class.border-blue-500]="activeTab === 'contacts'"
-            [class.text-blue-600]="activeTab === 'contacts'"
-            [class.border-transparent]="activeTab !== 'contacts'"
-            [class.text-gray-500]="activeTab !== 'contacts'"
-            (click)="setActiveTab('contacts')"
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Suite/Unit</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Suite 100"
           >
-            Contacts
-          </button>
-          <button 
-            class="py-2 px-4 border-b-2 font-medium"
-            [class.border-blue-500]="activeTab === 'notes'"
-            [class.text-blue-600]="activeTab === 'notes'"
-            [class.border-transparent]="activeTab !== 'notes'"
-            [class.text-gray-500]="activeTab !== 'notes'"
-            (click)="setActiveTab('notes')"
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="City"
           >
-            Notes
-          </button>
-        </nav>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="State"
+          >
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Postal Code"
+          >
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Country"
+          >
+        </div>
       </div>
       
-      <!-- Address Tab Content -->
-      <div class="py-4" *ngIf="activeTab === 'address'">
+      <div class="mt-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Billing Address (if different)</label>
+        <div class="flex items-center mb-4">
+          <input type="checkbox" id="same-address" class="mr-2">
+          <label for="same-address" class="text-sm text-gray-600">Same as company address</label>
+        </div>
+        
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Billing Street</label>
             <input 
               type="text" 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="123 Main St"
+              placeholder="Billing street"
             >
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Suite/Unit</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Billing City</label>
             <input 
               type="text" 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Suite 100"
+              placeholder="Billing city"
             >
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Billing Postal Code</label>
             <input 
               type="text" 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="City"
+              placeholder="Billing postal code"
             >
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">State/Province</label>
-            <input 
-              type="text" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="State"
-            >
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
-            <input 
-              type="text" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Postal Code"
-            >
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
-            <input 
-              type="text" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Country"
-            >
-          </div>
-        </div>
-      </div>
-      
-      <!-- Contacts Tab Content -->
-      <div class="py-4" *ngIf="activeTab === 'contacts'">
-        <div class="mb-4 flex justify-end">
-          <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
-            <i class="fas fa-plus mr-1"></i> Add Contact
-          </button>
-        </div>
-        <div class="border rounded-lg overflow-hidden">
-          <table class="min-w-full">
-            <thead>
-              <tr class="bg-gray-50 border-b">
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Title</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
-                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Phone</th>
-                <th class="px-4 py-2 text-center text-sm font-medium text-gray-700">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="border-b">
-                <td class="px-4 py-3 text-sm">No contacts added yet</td>
-                <td class="px-4 py-3 text-sm"></td>
-                <td class="px-4 py-3 text-sm"></td>
-                <td class="px-4 py-3 text-sm"></td>
-                <td class="px-4 py-3 text-sm"></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <!-- Notes Tab Content -->
-      <div class="py-4" *ngIf="activeTab === 'notes'">
-        <div class="mb-4 flex justify-end">
-          <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
-            <i class="fas fa-plus mr-1"></i> Add Note
-          </button>
-        </div>
-        <div class="border rounded-lg p-4 text-gray-500 text-center">
-          No notes added yet
         </div>
       </div>
     </div>
-  </div>
-  
-  <!-- Footer -->
-  <div class="flex justify-end space-x-2 p-4 border-t bg-gray-50">
-    <button 
-      class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-      (click)="close()"
-    >
-      Cancel
-    </button>
-    <button 
-      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-      (click)="save()"
-    >
-      Save Company
-    </button>
+    
+    <!-- Contacts Tab Content -->
+    <div *ngIf="activeTab === 'contacts'">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="font-medium text-gray-800">Contact Information</h3>
+        <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
+          <i class="fas fa-plus mr-1"></i> Add Contact
+        </button>
+      </div>
+      
+      <div class="border rounded-lg overflow-hidden">
+        <table class="min-w-full">
+          <thead>
+            <tr class="bg-gray-50 border-b">
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Name</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Title</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Email</th>
+              <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Phone</th>
+              <th class="px-4 py-2 text-center text-sm font-medium text-gray-700">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b">
+              <td class="px-4 py-3 text-sm">No contacts added yet</td>
+              <td class="px-4 py-3 text-sm"></td>
+              <td class="px-4 py-3 text-sm"></td>
+              <td class="px-4 py-3 text-sm"></td>
+              <td class="px-4 py-3 text-sm"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Contact Form (placeholder) -->
+      <div class="mt-6 border rounded-lg p-4 bg-gray-50">
+        <h4 class="font-medium text-gray-700 mb-3">New Contact</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Full name"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Job title"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input 
+              type="email" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Email address"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input 
+              type="tel" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Phone number"
+            >
+          </div>
+        </div>
+        <div class="flex justify-end mt-4">
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Save Contact
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Notes Tab Content -->
+    <div *ngIf="activeTab === 'notes'">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="font-medium text-gray-800">Notes</h3>
+        <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
+          <i class="fas fa-plus mr-1"></i> Add Note
+        </button>
+      </div>
+      
+      <!-- Empty state -->
+      <div class="border rounded-lg p-8 text-center text-gray-500">
+        <div class="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-3 flex items-center justify-center">
+          <i class="fas fa-sticky-note text-gray-400 text-xl"></i>
+        </div>
+        <p>No notes have been added yet</p>
+        <p class="text-sm mt-1">Notes help you keep track of important information about this company</p>
+      </div>
+      
+      <!-- Note form (placeholder) -->
+      <div class="mt-6 border rounded-lg p-4 bg-gray-50">
+        <h4 class="font-medium text-gray-700 mb-3">New Note</h4>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+            placeholder="Note title"
+          >
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+          <textarea 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+            placeholder="Note content..."
+          ></textarea>
+        </div>
+        <div class="flex justify-end mt-4">
+          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Save Note
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
