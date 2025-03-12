@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Company, Lead, Meeting } from '../../model/types';
+import { Lead, Meeting } from '../../model/types';
 
 @Injectable({
   providedIn: 'root'
@@ -7,43 +7,6 @@ import { Company, Lead, Meeting } from '../../model/types';
 export class DataService {
 
   constructor() { }
-  private companies: Company[] = [
-    { 
-      name: 'Acme Corporation', 
-      industry: 'Technology', 
-      size: '500-1000 employees',
-      location: 'San Francisco, CA',
-      website: 'www.acme.com'
-    },
-    { 
-      name: 'Global Industries', 
-      industry: 'Manufacturing', 
-      size: '1000-5000 employees',
-      location: 'Chicago, IL',
-      website: 'www.global-ind.com'
-    },
-    { 
-      name: 'Tech Innovations', 
-      industry: 'Software', 
-      size: '100-500 employees',
-      location: 'Austin, TX',
-      website: 'www.techinno.com'
-    },
-    { 
-      name: 'Future Systems', 
-      industry: 'Technology', 
-      size: '50-100 employees',
-      location: 'Seattle, WA',
-      website: 'www.futuresys.com'
-    },
-    { 
-      name: 'Smart Solutions', 
-      industry: 'Consulting', 
-      size: '200-500 employees',
-      location: 'Boston, MA',
-      website: 'www.smartsol.com'
-    }
-  ];
 
   private meetings: Meeting[] = [
     {
@@ -122,10 +85,7 @@ export class DataService {
     }
   ];
 
-  getCompanies(): Company[] {
-    return this.companies;
-  }
-
+  
   getMeetings(): Meeting[] {
     return this.meetings;
   }

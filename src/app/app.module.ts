@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -15,6 +16,7 @@ import { MeetingDetailComponent } from './components/meeting-detail/meeting-deta
 import { CompanyDetailComponent } from './components/company-detail/company-detail.component';
 import { CompanyImportComponent } from './components/company-import/company-import.component';
 import { LeadDetailComponent } from './components/lead-detail/lead-detail.component';
+import { LoadingIndicatorComponent } from './components/loading-indicator/loading-indicator.component';
 
 @NgModule({
   declarations: [
@@ -28,13 +30,15 @@ import { LeadDetailComponent } from './components/lead-detail/lead-detail.compon
     MeetingDetailComponent,
     CompanyDetailComponent,
     CompanyImportComponent,
-    LeadDetailComponent
+    LeadDetailComponent,
+    LoadingIndicatorComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     CommonModule,
-    FormsModule
+    FormsModule,
+    HttpClientModule  // Add HttpClientModule for API communication
   ],
   providers: [],
   bootstrap: [AppComponent]

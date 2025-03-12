@@ -1,14 +1,6 @@
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced. * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * * -->
-<!-- * * * * * * * to get started with your project! * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <div class="flex h-screen bg-gray-100">
-  <!-- Sidebar -->
-  <div class="w-64 bg-white shadow-lg">
+  <!-- Main Sidebar Menu (only shown when not in detail view) -->
+  <div class="w-64 bg-white shadow-lg" *ngIf="!isDetailView">
     <div class="p-4 border-b">
       <h1 class="text-xl font-bold text-gray-800">LeadManager Pro</h1>
     </div>
@@ -35,7 +27,11 @@
     
     <ng-container [ngSwitch]="activeTab">
       <app-dashboard *ngSwitchCase="'dashboard'"></app-dashboard>
-      <app-companies *ngSwitchCase="'companies'"></app-companies>
+      <app-companies 
+        *ngSwitchCase="'companies'" 
+        (detailViewActive)="setDetailViewState($event)"
+        [showContextMenu]="isDetailView"
+      ></app-companies>
       <app-leads *ngSwitchCase="'leads'"></app-leads>
       <app-meetings *ngSwitchCase="'meetings'"></app-meetings>
     </ng-container>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Lead, Company } from '../../../model/types';
-import { DataService } from '../../services/data.service';
+import { LeadService } from '../../services/lead.service';
+import { CompanyService } from '../../services/company.service';
 
 @Component({
   selector: 'app-leads',
@@ -19,6 +20,10 @@ export class LeadsComponent implements OnInit {
   selectedLead: Lead | null = null;
   isLeadDetailOpen: boolean = false;
 
+  // Loading and error states
+  loading: boolean = false;
+  error: string | null = null;
+
   leadStatuses = [
     { id: 'all', label: 'All Leads', count: 0 },
     { id: 'new', label: 'New', count: 0 },
@@ -28,13 +33,50 @@ export class LeadsComponent implements OnInit {
     { id: 'negotiation', label: 'Negotiation', count: 0 }
   ];
 
-  constructor(private dataService: DataService) {}
+  constructor(
+    private leadService: LeadService, 
+    private companyService: CompanyService
+  ) {}
 
   ngOnInit(): void {
-    this.leads = this.dataService.getLeads();
-    this.companies = this.dataService.getCompanies();
-    this.updateStatusCounts();
-    this.filterLeads();
+    this.loadCompanies();
+    this.loadLeads();
+  }
+
+  loadCompanies() {
+    this.loading = true;
+    this.companyService.getCompanies()
+      .subscribe({
+        next: (companies) => {
+          this.companies = companies;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load companies. Please try again later.';
+          this.loading = false;
+          console.error('Error loading companies:', err);
+        }
+      });
+  }
+
+  loadLeads() {
+    this.loading = true;
+    this.error = null;
+    
+    this.leadService.getLeads()
+      .subscribe({
+        next: (leads) => {
+          this.leads = leads;
+          this.updateStatusCounts();
+          this.filterLeads();
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load leads. Please try again later.';
+          this.loading = false;
+          console.error('Error loading leads:', err);
+        }
+      });
   }
 
   updateStatusCounts(): void {
@@ -121,25 +163,50 @@ export class LeadsComponent implements OnInit {
   }
   
   saveLead(lead: Lead): void {
-    // Find if this lead already exists
-    const existingIndex = this.leads.findIndex(l => 
-      l === this.selectedLead || // Same instance comparison
-      (l.title === lead.title && l.company === lead.company) // Same key properties
-    );
+    this.loading = true;
+    this.error = null;
     
-    if (existingIndex >= 0) {
+    if (this.selectedLead) {
       // Update existing lead
-      this.leads[existingIndex] = lead;
+      this.leadService.updateLead(this.selectedLead.id || 0, lead)
+        .subscribe({
+          next: () => {
+            this.loadLeads();
+            this.closeLeadDetail();
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = 'Failed to update lead. Please try again.';
+            this.loading = false;
+            console.error('Error updating lead:', err);
+          }
+        });
     } else {
-      // Add new lead
-      this.leads.push(lead);
+      // Create new lead
+      this.leadService.createLead(lead)
+        .subscribe({
+          next: () => {
+            this.loadLeads();
+            this.closeLeadDetail();
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = 'Failed to create lead. Please try again.';
+            this.loading = false;
+            console.error('Error creating lead:', err);
+          }
+        });
     }
-    
-    // In a real app, would call the data service to persist changes
-    // this.dataService.saveLead(lead);
-    
-    // Refresh the view
-    this.updateStatusCounts();
-    this.filterLeads();
+  }
+  
+  // Get company name for a lead when displaying details
+  getCompanyName(companyId: number): string {
+    const company = this.companies.find(c => c.id === companyId);
+    return company ? company.name : 'Unknown Company';
+  }
+  
+  // For lead creation, provide list of companies
+  getCompanyOptions(): Company[] {
+    return this.companies;
   }
 }

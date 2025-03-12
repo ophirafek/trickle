@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Lead, Company } from '../../../model/types';
+import { CompanyService } from '../../services/company.service';
 
 @Component({
   selector: 'app-lead-detail',
@@ -9,19 +10,41 @@ import { Lead, Company } from '../../../model/types';
 export class LeadDetailComponent implements OnInit {
   @Input() lead: Lead | null = null;
   @Input() isOpen: boolean = false;
-  @Input() companies: Company[] = [];
   @Output() onClose = new EventEmitter<void>();
   @Output() onSave = new EventEmitter<Lead>();
 
   editingLead: Lead = this.getEmptyLead();
   isNewLead: boolean = true;
+  companies: Company[] = [];
+  
+  loading: boolean = false;
+  error: string | null = null;
+
+  constructor(private companyService: CompanyService) {}
 
   ngOnInit(): void {
     this.resetForm();
+    this.loadCompanies();
   }
 
   ngOnChanges(): void {
     this.resetForm();
+  }
+
+  loadCompanies() {
+    this.loading = true;
+    this.companyService.getCompanies()
+      .subscribe({
+        next: (companies) => {
+          this.companies = companies;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load companies. Please try again later.';
+          this.loading = false;
+          console.error('Error loading companies:', err);
+        }
+      });
   }
 
   resetForm(): void {
@@ -37,6 +60,7 @@ export class LeadDetailComponent implements OnInit {
 
   getEmptyLead(): Lead {
     return {
+      id: 0,
       title: '',
       company: '',
       status: 'New',
@@ -58,11 +82,24 @@ export class LeadDetailComponent implements OnInit {
   }
 
   save(): void {
+    // Validate the form
+    if (!this.editingLead.title) {
+      this.error = 'Lead title is required';
+      return;
+    }
+    
+    if (!this.editingLead.company) {
+      this.error = 'Company is required';
+      return;
+    }
+    
+    // Clear any previous errors
+    this.error = null;
+    
     // Update last update timestamp
     this.editingLead.lastUpdate = 'just now';
     
     // In a real app, would validate the form here
     this.onSave.emit(this.editingLead);
-    this.close();
   }
 }

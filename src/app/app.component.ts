@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   activeTab = 'dashboard';
+  isDetailView = false;
   
   menuItems = [
     { id: 'dashboard', icon: 'fas fa-building', label: 'Dashboard' },
@@ -14,4 +15,8 @@ export class AppComponent {
     { id: 'leads', icon: 'fas fa-bullseye', label: 'Leads' },
     { id: 'meetings', icon: 'fas fa-calendar', label: 'Meetings' }
   ];
+  
+  setDetailViewState(isActive: boolean): void {
+    this.isDetailView = isActive;
+  }
 }

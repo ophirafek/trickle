@@ -1,4 +1,12 @@
 <div class="animated-slide-in bg-white rounded-lg shadow-sm h-full flex flex-col" *ngIf="isVisible">
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-700">Loading...</p>
+    </div>
+  </div>
+  
   <!-- Content -->
   <div class="p-6 flex-1 overflow-auto">
     <!-- General Info Tab -->
@@ -71,6 +79,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.status"
             >
               <option value="Active">Active</option>
               <option value="Prospect">Prospect</option>
@@ -89,6 +98,7 @@
             <input 
               type="text" 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.linkedInProfile"
               placeholder="LinkedIn URL"
             >
           </div>
@@ -98,6 +108,7 @@
             <input 
               type="number" 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.foundingYear"
               placeholder="Year founded"
             >
           </div>
@@ -107,6 +118,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea 
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
+            [(ngModel)]="editingCompany.description"
             placeholder="Company description..."
           ></textarea>
         </div>
@@ -123,6 +135,7 @@
           <input 
             type="text" 
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.streetAddress"
             placeholder="123 Main St"
           >
         </div>
@@ -131,6 +144,7 @@
           <input 
             type="text" 
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.suite"
             placeholder="Suite 100"
           >
         </div>
@@ -139,6 +153,7 @@
           <input 
             type="text" 
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.city"
             placeholder="City"
           >
         </div>
@@ -147,6 +162,7 @@
           <input 
             type="text" 
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.stateProvince"
             placeholder="State"
           >
         </div>
@@ -155,6 +171,7 @@
           <input 
             type="text" 
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.postalCode"
             placeholder="Postal Code"
           >
         </div>
@@ -163,6 +180,7 @@
           <input 
             type="text" 
             class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            [(ngModel)]="editingCompany.country"
             placeholder="Country"
           >
         </div>
@@ -181,6 +199,7 @@
             <input 
               type="text" 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.billingStreet"
               placeholder="Billing street"
             >
           </div>
@@ -189,6 +208,7 @@
             <input 
               type="text" 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.billingCity"
               placeholder="Billing city"
             >
           </div>
@@ -197,6 +217,7 @@
             <input 
               type="text" 
               class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="editingCompany.billingPostalCode"
               placeholder="Billing postal code"
             >
           </div>
@@ -208,11 +229,78 @@
     <div *ngIf="activeTab === 'contacts'">
       <div class="flex justify-between items-center mb-6">
         <h3 class="font-medium text-gray-800">Contact Information</h3>
-        <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
+        <button 
+          class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"
+          (click)="startAddingContact()"
+          *ngIf="!isAddingContact"
+        >
           <i class="fas fa-plus mr-1"></i> Add Contact
         </button>
       </div>
       
+      <!-- Contact error message -->
+      <div *ngIf="contactError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+        {{ contactError }}
+      </div>
+      
+      <!-- Add Contact Form -->
+      <div *ngIf="isAddingContact" class="mb-6 border rounded-lg p-4 bg-gray-50">
+        <h4 class="font-medium text-gray-700 mb-3">New Contact</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name <span class="text-red-500">*</span></label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="newContact.name"
+              placeholder="Full name"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+            <input 
+              type="text" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="newContact.jobTitle"
+              placeholder="Job title"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input 
+              type="email" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="newContact.email"
+              placeholder="Email address"
+            >
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input 
+              type="tel" 
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [(ngModel)]="newContact.phone"
+              placeholder="Phone number"
+            >
+          </div>
+        </div>
+        <div class="flex justify-end mt-4 space-x-2">
+          <button 
+            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+            (click)="cancelAddContact()"
+          >
+            Cancel
+          </button>
+          <button 
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            (click)="addContact()"
+          >
+            Save Contact
+          </button>
+        </div>
+      </div>
+      
+      <!-- Contacts List -->
       <div class="border rounded-lg overflow-hidden">
         <table class="min-w-full">
           <thead>
@@ -225,59 +313,28 @@
             </tr>
           </thead>
           <tbody>
-            <tr class="border-b">
-              <td class="px-4 py-3 text-sm">No contacts added yet</td>
-              <td class="px-4 py-3 text-sm"></td>
-              <td class="px-4 py-3 text-sm"></td>
-              <td class="px-4 py-3 text-sm"></td>
-              <td class="px-4 py-3 text-sm"></td>
+            <tr *ngFor="let contact of editingCompany.contacts" class="border-b">
+              <td class="px-4 py-3 text-sm">{{ contact.name }}</td>
+              <td class="px-4 py-3 text-sm">{{ contact.jobTitle }}</td>
+              <td class="px-4 py-3 text-sm">{{ contact.email }}</td>
+              <td class="px-4 py-3 text-sm">{{ contact.phone }}</td>
+              <td class="px-4 py-3 text-sm text-center">
+                <button 
+                  class="text-red-500 hover:text-red-700 mx-1" 
+                  title="Delete Contact"
+                  (click)="deleteContact(contact.id)"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!editingCompany.contacts || editingCompany.contacts.length === 0">
+              <td colspan="5" class="px-4 py-4 text-sm text-center text-gray-500">
+                No contacts added yet
+              </td>
             </tr>
           </tbody>
         </table>
-      </div>
-      
-      <!-- Contact Form (placeholder) -->
-      <div class="mt-6 border rounded-lg p-4 bg-gray-50">
-        <h4 class="font-medium text-gray-700 mb-3">New Contact</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-            <input 
-              type="text" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Full name"
-            >
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-            <input 
-              type="text" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Job title"
-            >
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input 
-              type="email" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Email address"
-            >
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-            <input 
-              type="tel" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Phone number"
-            >
-          </div>
-        </div>
-        <div class="flex justify-end mt-4">
-          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Save Contact
-          </button>
-        </div>
       </div>
     </div>
     
@@ -285,13 +342,58 @@
     <div *ngIf="activeTab === 'notes'">
       <div class="flex justify-between items-center mb-6">
         <h3 class="font-medium text-gray-800">Notes</h3>
-        <button class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100">
+        <button 
+          class="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"
+          (click)="startAddingNote()"
+          *ngIf="!isAddingNote"
+        >
           <i class="fas fa-plus mr-1"></i> Add Note
         </button>
       </div>
       
-      <!-- Empty state -->
-      <div class="border rounded-lg p-8 text-center text-gray-500">
+      <!-- Note error message -->
+      <div *ngIf="noteError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+        {{ noteError }}
+      </div>
+      
+      <!-- Add Note Form -->
+      <div *ngIf="isAddingNote" class="mt-6 border rounded-lg p-4 bg-gray-50 mb-6">
+        <h4 class="font-medium text-gray-700 mb-3">New Note</h4>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
+          <input 
+            type="text" 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+            [(ngModel)]="newNote.title"
+            placeholder="Note title"
+          >
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Content <span class="text-red-500">*</span></label>
+          <textarea 
+            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
+            [(ngModel)]="newNote.content"
+            placeholder="Note content..."
+          ></textarea>
+        </div>
+        <div class="flex justify-end mt-4 space-x-2">
+          <button 
+            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+            (click)="cancelAddNote()"
+          >
+            Cancel
+          </button>
+          <button 
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            (click)="addNote()"
+          >
+            Save Note
+          </button>
+        </div>
+      </div>
+      
+      <!-- Notes List -->
+      <div *ngIf="!editingCompany.notes || editingCompany.notes.length === 0" class="border rounded-lg p-8 text-center text-gray-500">
         <div class="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-3 flex items-center justify-center">
           <i class="fas fa-sticky-note text-gray-400 text-xl"></i>
         </div>
@@ -299,29 +401,21 @@
         <p class="text-sm mt-1">Notes help you keep track of important information about this company</p>
       </div>
       
-      <!-- Note form (placeholder) -->
-      <div class="mt-6 border rounded-lg p-4 bg-gray-50">
-        <h4 class="font-medium text-gray-700 mb-3">New Note</h4>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input 
-            type="text" 
-            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
-            placeholder="Note title"
-          >
+      <div *ngFor="let note of editingCompany.notes" class="border rounded-lg p-4 mb-4">
+        <div class="flex justify-between">
+          <h4 class="font-medium text-gray-800">{{ note.title }}</h4>
+          <div>
+            <button 
+              class="text-red-500 hover:text-red-700 ml-2" 
+              title="Delete Note"
+              (click)="deleteNote(note.id)"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Content</label>
-          <textarea 
-            class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-32"
-            placeholder="Note content..."
-          ></textarea>
-        </div>
-        <div class="flex justify-end mt-4">
-          <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            Save Note
-          </button>
-        </div>
+        <p class="text-xs text-gray-500 mb-2">{{ note.createdAt | date:'medium' }}</p>
+        <p class="text-gray-700 whitespace-pre-line">{{ note.content }}</p>
       </div>
     </div>
   </div>

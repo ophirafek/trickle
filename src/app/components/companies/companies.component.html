@@ -111,7 +111,7 @@
   <!-- Detail View -->
   <div *ngIf="viewMode === 'detail'" class="flex h-full">
     <!-- Context Sidebar Menu -->
-    <div class="w-64 bg-white shadow-lg mr-6 rounded-lg">
+    <div class="w-64 bg-white shadow-lg mr-6 rounded-lg" *ngIf="showContextMenu">
       <div class="p-4 border-b flex items-center space-x-3">
         <button 
           class="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-full"
@@ -120,7 +120,7 @@
           <i class="fas fa-arrow-left"></i>
         </button>
         <h1 class="text-xl font-semibold text-gray-800 truncate">
-          {{ isCompanyDetailVisible && selectedCompany ? selectedCompany.name : 'New Company' }}
+          {{ selectedCompany ? selectedCompany.name : 'New Company' }}
         </h1>
       </div>
       
@@ -203,6 +203,7 @@
           [activeTab]="activeTab"
           (onClose)="closeCompanyDetail()"
           (onSave)="saveCompany($event)"
+          #companyDetailComponent
         ></app-company-detail>
       </div>
         

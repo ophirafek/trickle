@@ -1,140 +1,152 @@
 <main class="flex-1 overflow-auto p-6">
-    <div class="mb-6 flex justify-between items-center">
-      <h1 class="text-2xl font-semibold text-gray-800">Leads</h1>
-      <button 
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700"
-        (click)="createNewLead()"
-      >
-        <i class="fas fa-plus"></i>
-        <span>Add Lead</span>
-      </button>
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-700">Loading...</p>
+    </div>
+  </div>
+
+  <!-- Error message display -->
+  <div *ngIf="error" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+    {{ error }}
+  </div>
+
+  <div class="mb-6 flex justify-between items-center">
+    <h1 class="text-2xl font-semibold text-gray-800">Leads</h1>
+    <button 
+      class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700"
+      (click)="createNewLead()"
+    >
+      <i class="fas fa-plus"></i>
+      <span>Add Lead</span>
+    </button>
+  </div>
+
+  <div class="flex gap-6">
+    <!-- Left sidebar with status filters -->
+    <div class="w-48">
+      <nav>
+        <button
+          *ngFor="let status of leadStatuses"
+          (click)="activeStatus = status.id; filterLeads()"
+          class="w-full text-left px-3 py-2 rounded-lg mb-1 flex items-center justify-between"
+          [ngClass]="activeStatus === status.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'"
+        >
+          <span>{{ status.label }}</span>
+          <span class="text-sm bg-gray-100 px-2 py-0.5 rounded-full">{{ status.count }}</span>
+        </button>
+      </nav>
     </div>
 
-    <div class="flex gap-6">
-      <!-- Left sidebar with status filters -->
-      <div class="w-48">
-        <nav>
-          <button
-            *ngFor="let status of leadStatuses"
-            (click)="activeStatus = status.id; filterLeads()"
-            class="w-full text-left px-3 py-2 rounded-lg mb-1 flex items-center justify-between"
-            [ngClass]="activeStatus === status.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'"
-          >
-            <span>{{ status.label }}</span>
-            <span class="text-sm bg-gray-100 px-2 py-0.5 rounded-full">{{ status.count }}</span>
-          </button>
-        </nav>
-      </div>
-
-      <!-- Main content area -->
-      <div class="flex-1">
-        <div class="bg-white rounded-lg shadow-sm">
-          <!-- Filters -->
-          <div class="p-4 border-b flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-              <div class="relative">
-                <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
-                <input
-                  type="text"
-                  placeholder="Search leads..."
-                  class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  [(ngModel)]="searchTerm"
-                  (input)="filterLeads()"
-                >
-              </div>
-              <button class="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
-                <i class="fas fa-filter text-gray-500"></i>
-                <span>Filters</span>
-              </button>
-            </div>
-            <div class="flex items-center space-x-2">
-              <select 
-                class="border rounded-lg px-4 py-2 text-gray-600"
-                [(ngModel)]="sortBy"
-                (change)="sortLeads()"
+    <!-- Main content area -->
+    <div class="flex-1">
+      <div class="bg-white rounded-lg shadow-sm">
+        <!-- Filters -->
+        <div class="p-4 border-b flex items-center justify-between">
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+              <input
+                type="text"
+                placeholder="Search leads..."
+                class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                [(ngModel)]="searchTerm"
+                (input)="filterLeads()"
               >
-                <option value="value">Sort by Value</option>
-                <option value="probability">Sort by Probability</option>
-                <option value="lastUpdate">Sort by Last Updated</option>
-              </select>
-              <button class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Export</button>
             </div>
-          </div>
-
-          <!-- Leads List -->
-          <div class="divide-y">
-            <div 
-              *ngFor="let lead of filteredLeads"
-              class="p-4 hover:bg-gray-50 cursor-pointer"
-              (click)="openLeadDetail(lead)"
-            >
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-bullseye text-gray-500"></i>
-                  </div>
-                  <div>
-                    <h3 class="font-medium text-gray-800">{{ lead.title }}</h3>
-                    <div class="flex items-center space-x-2 text-sm text-gray-500">
-                      <span>{{ lead.company }}</span>
-                      <span>•</span>
-                      <span 
-                        class="px-2 py-0.5 rounded-full text-xs"
-                        [ngClass]="getStatusColor(lead.status)"
-                      >
-                        {{ lead.status }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div class="flex items-center space-x-8">
-                  <div class="flex flex-col items-end">
-                    <div class="flex items-center space-x-1 text-gray-600">
-                      <i class="fas fa-dollar-sign"></i>
-                      <span class="font-medium">{{ lead.value | number }}</span>
-                    </div>
-                    <span class="text-sm text-gray-500">{{ lead.probability }}% probability</span>
-                  </div>
-                  <div class="flex flex-col items-end">
-                    <div class="flex items-center space-x-2">
-                      <i class="fas fa-user-circle text-gray-500"></i>
-                      <span class="text-gray-600">{{ lead.owner }}</span>
-                    </div>
-                    <div class="flex items-center space-x-1 text-sm text-gray-500">
-                      <i class="fas fa-clock"></i>
-                      <span>Updated {{ lead.lastUpdate }}</span>
-                    </div>
-                  </div>
-                  <i class="fas fa-chevron-right text-gray-400"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty State -->
-          <div *ngIf="filteredLeads.length === 0" class="p-8 text-center">
-            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i class="fas fa-bullseye text-gray-400 text-xl"></i>
-            </div>
-            <h3 class="text-lg font-medium text-gray-800 mb-1">No leads found</h3>
-            <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
-            <button 
-              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              (click)="createNewLead()"
-            >
-              Add New Lead
+            <button class="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
+              <i class="fas fa-filter text-gray-500"></i>
+              <span>Filters</span>
             </button>
           </div>
+          <div class="flex items-center space-x-2">
+            <select 
+              class="border rounded-lg px-4 py-2 text-gray-600"
+              [(ngModel)]="sortBy"
+              (change)="sortLeads()"
+            >
+              <option value="value">Sort by Value</option>
+              <option value="probability">Sort by Probability</option>
+              <option value="lastUpdate">Sort by Last Updated</option>
+            </select>
+            <button class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Export</button>
+          </div>
+        </div>
+
+        <!-- Leads List -->
+        <div class="divide-y">
+          <div 
+            *ngFor="let lead of filteredLeads"
+            class="p-4 hover:bg-gray-50 cursor-pointer"
+            (click)="openLeadDetail(lead)"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <i class="fas fa-bullseye text-gray-500"></i>
+                </div>
+                <div>
+                  <h3 class="font-medium text-gray-800">{{ lead.title }}</h3>
+                  <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <span>{{ lead.company }}</span>
+                    <span>•</span>
+                    <span 
+                      class="px-2 py-0.5 rounded-full text-xs"
+                      [ngClass]="getStatusColor(lead.status)"
+                    >
+                      {{ lead.status }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center space-x-8">
+                <div class="flex flex-col items-end">
+                  <div class="flex items-center space-x-1 text-gray-600">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span class="font-medium">{{ lead.value | number }}</span>
+                  </div>
+                  <span class="text-sm text-gray-500">{{ lead.probability }}% probability</span>
+                </div>
+                <div class="flex flex-col items-end">
+                  <div class="flex items-center space-x-2">
+                    <i class="fas fa-user-circle text-gray-500"></i>
+                    <span class="text-gray-600">{{ lead.owner }}</span>
+                  </div>
+                  <div class="flex items-center space-x-1 text-sm text-gray-500">
+                    <i class="fas fa-clock"></i>
+                    <span>Updated {{ lead.lastUpdate }}</span>
+                  </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredLeads.length === 0" class="p-8 text-center">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-bullseye text-gray-400 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-medium text-gray-800 mb-1">No leads found</h3>
+          <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
+          <button 
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            (click)="createNewLead()"
+          >
+            Add New Lead
+          </button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Lead Detail Modal -->
-    <app-lead-detail
-      [lead]="selectedLead"
-      [isOpen]="isLeadDetailOpen"
-      [companies]="companies"
-      (onClose)="closeLeadDetail()"
-      (onSave)="saveLead($event)"
-    ></app-lead-detail>
-  </main>
+  <!-- Lead Detail Component -->
+  <app-lead-detail
+    [lead]="selectedLead"
+    [isOpen]="isLeadDetailOpen"
+    (onClose)="closeLeadDetail()"
+    (onSave)="saveLead($event)"
+  ></app-lead-detail>
+</main>

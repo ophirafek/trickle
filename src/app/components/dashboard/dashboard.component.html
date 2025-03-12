@@ -1,59 +1,116 @@
 <main class="flex-1 overflow-auto p-6">
-    <!-- Quick Actions -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <button 
-        *ngFor="let action of quickActions"
-        class="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-      >
-        <div class="flex items-center space-x-4">
-          <div [ngClass]="'p-3 rounded-lg bg-' + action.color + '-100'">
-            <i [ngClass]="action.icon + ' text-' + action.color + '-600'"></i>
-          </div>
-          <span class="font-medium text-gray-700">{{ action.label }}</span>
-        </div>
-      </button>
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-700">Loading dashboard data...</p>
     </div>
+  </div>
 
-    <!-- Recent Companies -->
-    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">Recent Companies</h2>
-      <div class="space-y-4">
-        <app-company-card
-          *ngFor="let company of companies.slice(0, 3)"
-          [company]="company"
-        ></app-company-card>
+  <!-- Error message display -->
+  <div *ngIf="error" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+    {{ error }}
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <button 
+      *ngFor="let action of quickActions"
+      class="p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+    >
+      <div class="flex items-center space-x-4">
+        <div [ngClass]="'p-3 rounded-lg bg-' + action.color + '-100'">
+          <i [ngClass]="action.icon + ' text-' + action.color + '-600'"></i>
+        </div>
+        <span class="font-medium text-gray-700">{{ action.label }}</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Recent Companies -->
+  <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Recent Companies</h2>
+    <div *ngIf="companies.length === 0 && !loading" class="text-center py-4 text-gray-500">
+      No companies found. Add some companies to get started.
+    </div>
+    <div class="space-y-4">
+      <app-company-card
+        *ngFor="let company of companies"
+        [company]="company"
+      ></app-company-card>
+    </div>
+  </div>
+
+  <!-- Upcoming Meetings -->
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Upcoming Meetings</h2>
+    <div *ngIf="meetings.length === 0 && !loading" class="text-center py-4 text-gray-500">
+      No upcoming meetings scheduled.
+    </div>
+    <div class="space-y-4">
+      <div 
+        *ngFor="let meeting of meetings"
+        class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-medium text-gray-800">{{ meeting.title }}</h3>
+            <p class="text-sm text-gray-500">{{ meeting.time }} • {{ meeting.duration }}</p>
+            <p class="text-sm text-gray-500">{{ meeting.date | date:'MMM d, yyyy' }}</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="flex -space-x-2">
+              <div 
+                *ngFor="let attendee of meeting.attendees.slice(0, 3)"
+                class="h-8 w-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium"
+                [title]="attendee.name"
+              >
+                {{ getInitials(attendee.name) }}
+              </div>
+            </div>
+            <span class="text-sm text-gray-500" *ngIf="meeting.attendees.length > 3">
+              +{{ meeting.attendees.length - 3 }} more
+            </span>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
 
-    <!-- Upcoming Meetings -->
-    <div class="bg-white rounded-lg shadow-sm p-6">
-      <h2 class="text-lg font-semibold text-gray-800 mb-4">Upcoming Meetings</h2>
-      <div class="space-y-4">
-        <div 
-          *ngFor="let meeting of meetings"
-          class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
-        >
-          <div class="flex items-center justify-between">
-            <div>
-              <h3 class="font-medium text-gray-800">{{ meeting.title }}</h3>
-              <p class="text-sm text-gray-500">{{ meeting.time }} • {{ meeting.duration }}</p>
-            </div>
-            <div class="flex items-center space-x-2">
-              <div class="flex -space-x-2">
-                <div 
-                  *ngFor="let attendee of meeting.attendees.slice(0, 3)"
-                  class="h-8 w-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium"
-                  [title]="attendee.name"
-                >
-                  {{ getInitials(attendee.name) }}
-                </div>
-              </div>
-              <span class="text-sm text-gray-500" *ngIf="meeting.attendees.length > 3">
-                +{{ meeting.attendees.length - 3 }} more
+  <!-- Top Leads (Optional addition) -->
+  <div class="bg-white rounded-lg shadow-sm p-6 mt-6">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Top Leads</h2>
+    <div *ngIf="leads.length === 0 && !loading" class="text-center py-4 text-gray-500">
+      No leads found. Create some leads to get started.
+    </div>
+    <div class="space-y-4">
+      <div 
+        *ngFor="let lead of leads"
+        class="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-medium text-gray-800">{{ lead.title }}</h3>
+            <p class="text-sm text-gray-500">{{ lead.company }}</p>
+            <div class="mt-1">
+              <span 
+                class="px-2 py-0.5 rounded-full text-xs"
+                [ngClass]="{'bg-blue-100 text-blue-700': lead.status === 'New',
+                            'bg-yellow-100 text-yellow-700': lead.status === 'Contacted',
+                            'bg-purple-100 text-purple-700': lead.status === 'Qualified',
+                            'bg-green-100 text-green-700': lead.status === 'Proposal',
+                            'bg-orange-100 text-orange-700': lead.status === 'Negotiation'}"
+              >
+                {{ lead.status }}
               </span>
             </div>
           </div>
+          <div class="flex flex-col items-end">
+            <div class="text-lg font-semibold text-gray-800">${{ lead.value | number }}</div>
+            <div class="text-sm text-gray-500">{{ lead.probability }}% probability</div>
+          </div>
         </div>
       </div>
     </div>
-  </main>
+  </div>
+</main>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Meeting } from '../../../model/types';
-import { DataService } from '../../services/data.service';
+import { Meeting, Company } from '../../../model/types';
+import { MeetingService } from '../../services/meeting.service';
+import { CompanyService } from '../../services/company.service';
 
 @Component({
   selector: 'app-meetings',
@@ -9,6 +10,7 @@ import { DataService } from '../../services/data.service';
 })
 export class MeetingsComponent implements OnInit {
   meetings: Meeting[] = [];
+  companies: Company[] = [];
   filteredMeetings: Meeting[] = [];
   groupedMeetings: { [key: string]: Meeting[] } = {};
   viewType: 'list' | 'calendar' = 'list';
@@ -19,14 +21,56 @@ export class MeetingsComponent implements OnInit {
   selectedMeeting: Meeting | null = null;
   isMeetingDetailOpen: boolean = false;
   
+  // Loading and error states
+  loading: boolean = false;
+  error: string | null = null;
+  
   meetingTypes: string[] = ['All Types', 'Demo', 'Sales', 'Internal', 'Legal', 'Planning'];
   weekDays: string[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  constructor(private dataService: DataService) {}
+  constructor(
+    private meetingService: MeetingService,
+    private companyService: CompanyService
+  ) {}
 
   ngOnInit(): void {
-    this.meetings = this.dataService.getMeetings();
-    this.filterMeetings();
+    this.loadCompanies();
+    this.loadMeetings();
+  }
+
+  loadCompanies() {
+    this.loading = true;
+    this.companyService.getCompanies()
+      .subscribe({
+        next: (companies) => {
+          this.companies = companies;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load companies. Please try again later.';
+          this.loading = false;
+          console.error('Error loading companies:', err);
+        }
+      });
+  }
+
+  loadMeetings() {
+    this.loading = true;
+    this.error = null;
+    
+    this.meetingService.getMeetings()
+      .subscribe({
+        next: (meetings) => {
+          this.meetings = meetings;
+          this.filterMeetings();
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load meetings. Please try again later.';
+          this.loading = false;
+          console.error('Error loading meetings:', err);
+        }
+      });
   }
 
   filterMeetings(): void {
@@ -97,8 +141,21 @@ export class MeetingsComponent implements OnInit {
 
   // Meeting detail methods
   openMeetingDetail(meeting: Meeting): void {
-    this.selectedMeeting = meeting;
-    this.isMeetingDetailOpen = true;
+    this.loading = true;
+    
+    this.meetingService.getMeeting(meeting.id)
+      .subscribe({
+        next: (meetingData) => {
+          this.selectedMeeting = meetingData;
+          this.isMeetingDetailOpen = true;
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load meeting details. Please try again later.';
+          this.loading = false;
+          console.error('Error loading meeting details:', err);
+        }
+      });
   }
   
   createNewMeeting(): void {
@@ -112,21 +169,50 @@ export class MeetingsComponent implements OnInit {
   }
   
   saveMeeting(meeting: Meeting): void {
-    // Find if this meeting already exists
-    const existingIndex = this.meetings.findIndex(m => m.id === meeting.id);
+    this.loading = true;
+    this.error = null;
     
-    if (existingIndex >= 0) {
+    if (this.selectedMeeting) {
       // Update existing meeting
-      this.meetings[existingIndex] = meeting;
+      this.meetingService.updateMeeting(this.selectedMeeting.id, meeting)
+        .subscribe({
+          next: () => {
+            this.loadMeetings();
+            this.closeMeetingDetail();
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = 'Failed to update meeting. Please try again.';
+            this.loading = false;
+            console.error('Error updating meeting:', err);
+          }
+        });
     } else {
-      // Add new meeting
-      this.meetings.push(meeting);
+      // Create new meeting
+      this.meetingService.createMeeting(meeting)
+        .subscribe({
+          next: () => {
+            this.loadMeetings();
+            this.closeMeetingDetail();
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = 'Failed to create meeting. Please try again.';
+            this.loading = false;
+            console.error('Error creating meeting:', err);
+          }
+        });
     }
-    
-    // In a real app, would call the data service to persist changes
-    // this.dataService.saveMeeting(meeting);
-    
-    // Refresh the view
-    this.filterMeetings();
+  }
+  
+  // Get company name for meeting when displaying details
+  getCompanyName(companyId: number): string {
+    const company = this.companies.find(c => c.id === companyId);
+    return company ? company.name : 'Unknown Company';
+  }
+  
+  // For meeting creation, provide list of companies
+  getCompanyOptions(): Company[] {
+    return this.companies;
   }
 }
