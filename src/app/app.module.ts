@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withJsonpSupport } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { CompanyCardComponent } from './components/company-card/company-card.component';
 import { HeaderComponent } from './components/header/header.component';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { CompaniesComponent } from './components/companies/companies.component';
 import { LeadsComponent } from './components/leads/leads.component';
 import { MeetingsComponent } from './components/meetings/meetings.component';
@@ -37,10 +37,11 @@ import { LoadingIndicatorComponent } from './components/loading-indicator/loadin
     BrowserModule,
     AppRoutingModule,
     CommonModule,
-    FormsModule,
-    HttpClientModule  // Add HttpClientModule for API communication
+    FormsModule
   ],
-  providers: [],
+  providers: [
+    provideHttpClient(withJsonpSupport())
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

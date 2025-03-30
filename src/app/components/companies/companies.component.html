@@ -1,6 +1,19 @@
-<main class="flex-1 overflow-auto p-6">
+<main class="flex-1 flex flex-col overflow-hidden p-6">
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <p class="text-gray-700">Loading...</p>
+    </div>
+  </div>
+
+  <!-- Error message display -->
+  <div *ngIf="error" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+    {{ error }}
+  </div>
+
   <!-- List View -->
-  <div *ngIf="viewMode === 'list'">
+  <div *ngIf="viewMode === 'list'" class="flex-1 flex flex-col overflow-hidden">
     <div class="mb-6 flex justify-between items-center">
       <h1 class="text-2xl font-semibold text-gray-800">Companies</h1>
       <button 
@@ -12,7 +25,7 @@
       </button>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm">
+    <div class="bg-white rounded-lg shadow-sm flex-1 flex flex-col overflow-hidden">
       <!-- Filters -->
       <div class="p-4 border-b flex items-center justify-between">
         <div class="flex items-center space-x-4">
@@ -42,10 +55,10 @@
         </div>
       </div>
 
-      <!-- Companies List -->
-      <div>
+      <!-- Companies List - With Scrollable Container -->
+      <div class="flex-1 overflow-auto">
         <div
-          *ngFor="let company of filteredCompanies"
+          *ngFor="let company of pagedCompanies"
           class="p-4 border-b hover:bg-gray-50 cursor-pointer"
           (click)="openCompanyDetail(company)"
         >
@@ -81,28 +94,130 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Empty State -->
-      <div *ngIf="filteredCompanies.length === 0" class="p-8 text-center">
-        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <i class="fas fa-building text-gray-400 text-xl"></i>
+        <!-- Empty State -->
+        <div *ngIf="filteredCompanies.length === 0" class="p-8 text-center">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-building text-gray-400 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-medium text-gray-800 mb-1">No companies found</h3>
+          <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
+          <div class="flex justify-center space-x-3">
+            <button 
+              class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              (click)="createNewCompany()"
+            >
+              Add New Company
+            </button>
+            <button 
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              (click)="openImport()"
+            >
+              Import Companies
+            </button>
+          </div>
         </div>
-        <h3 class="text-lg font-medium text-gray-800 mb-1">No companies found</h3>
-        <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
-        <div class="flex justify-center space-x-3">
+      </div>
+      
+      <!-- Pagination - Always visible at the bottom -->
+      <div *ngIf="filteredCompanies.length > 0" class="border-t border-gray-200 px-4 py-4 sm:px-6 flex items-center justify-between bg-white">
+        <div class="flex-1 flex justify-between sm:hidden">
           <button 
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            (click)="createNewCompany()"
+            (click)="previousPage()" 
+            [disabled]="currentPage === 1"
+            [ngClass]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''"
+            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
           >
-            Add New Company
+            Previous
           </button>
           <button 
-            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-            (click)="openImport()"
+            (click)="nextPage()" 
+            [disabled]="currentPage === totalPages"
+            [ngClass]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''"
+            class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
           >
-            Import Companies
+            Next
           </button>
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm text-gray-700">
+              Showing
+              <span class="font-medium">{{ (currentPage - 1) * pageSize + 1 }}</span>
+              to
+              <span class="font-medium">{{ Math.min(currentPage * pageSize, filteredCompanies.length) }}</span>
+              of
+              <span class="font-medium">{{ filteredCompanies.length }}</span>
+              results
+            </p>
+          </div>
+          <div>
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+              <button
+                (click)="previousPage()"
+                [disabled]="currentPage === 1"
+                [ngClass]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''"
+                class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              >
+                <span class="sr-only">Previous</span>
+                <i class="fas fa-chevron-left h-5 w-5"></i>
+              </button>
+              
+              <!-- First Page -->
+              <button
+                *ngIf="pageNumbers[0] > 1"
+                (click)="goToPage(1)"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                1
+              </button>
+              
+              <!-- Ellipsis if needed -->
+              <span
+                *ngIf="pageNumbers[0] > 2"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+              >
+                ...
+              </span>
+              
+              <!-- Page Numbers -->
+              <button
+                *ngFor="let page of pageNumbers"
+                (click)="goToPage(page)"
+                [ngClass]="currentPage === page ? 'bg-blue-50 border-blue-500 text-blue-600 z-10' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+              >
+                {{ page }}
+              </button>
+              
+              <!-- Ellipsis if needed -->
+              <span
+                *ngIf="pageNumbers[pageNumbers.length-1] < totalPages - 1"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700"
+              >
+                ...
+              </span>
+              
+              <!-- Last Page -->
+              <button
+                *ngIf="pageNumbers[pageNumbers.length-1] < totalPages"
+                (click)="goToPage(totalPages)"
+                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                {{ totalPages }}
+              </button>
+              
+              <button
+                (click)="nextPage()"
+                [disabled]="currentPage === totalPages"
+                [ngClass]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''"
+                class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              >
+                <span class="sr-only">Next</span>
+                <i class="fas fa-chevron-right h-5 w-5"></i>
+              </button>
+            </nav>
+          </div>
         </div>
       </div>
     </div>
@@ -172,10 +287,14 @@
         <p class="text-xs font-medium text-gray-500 uppercase mt-6 mb-2">Related</p>
         <ul class="space-y-1">
           <li>
-            <button class="flex items-center w-full p-2 rounded-lg text-gray-600 hover:bg-gray-50">
-              <i class="fas fa-bullseye mr-3"></i>
-              Leads
-            </button>
+            <button 
+        class="flex items-center w-full p-2 rounded-lg"
+        [ngClass]="activeTab === 'leads' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'"
+        (click)="setActiveTab('leads')"
+      >
+        <i class="fas fa-bullseye mr-3"></i>
+        Leads
+      </button>
           </li>
           <li>
             <button class="flex items-center w-full p-2 rounded-lg text-gray-600 hover:bg-gray-50">

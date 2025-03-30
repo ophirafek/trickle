@@ -13,8 +13,10 @@ export class CompaniesComponent implements OnInit {
   @Output() detailViewActive = new EventEmitter<boolean>();
   @Input() showContextMenu: boolean = false;
   
+  Math = Math;
   companies: Company[] = [];
   filteredCompanies: Company[] = [];
+  pagedCompanies: Company[] = []; // Companies on the current page
   searchTerm: string = '';
 
   // Loading and error state
@@ -30,7 +32,12 @@ export class CompaniesComponent implements OnInit {
   
   // View state
   viewMode: 'list' | 'detail' = 'list';
-  activeTab: 'general' | 'address' | 'contacts' | 'notes' = 'general';
+  activeTab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' = 'general';
+  
+  // Pagination state
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 1;
 
   constructor(private companyService: CompanyService) {}
 
@@ -46,7 +53,7 @@ export class CompaniesComponent implements OnInit {
       .subscribe({
         next: (companies) => {
           this.companies = companies;
-          this.filteredCompanies = [...this.companies];
+          this.filterCompanies();
           this.loading = false;
         },
         error: (err) => {
@@ -60,36 +67,104 @@ export class CompaniesComponent implements OnInit {
   filterCompanies(): void {
     if (!this.searchTerm.trim()) {
       this.filteredCompanies = [...this.companies];
-      return;
+    } else {
+      const search = this.searchTerm.toLowerCase();
+      this.filteredCompanies = this.companies.filter(company => 
+        company.name.toLowerCase().includes(search) || 
+        company.industry?.toLowerCase().includes(search) ||
+        company.location?.toLowerCase().includes(search)
+      );
     }
     
-    const search = this.searchTerm.toLowerCase();
-    this.filteredCompanies = this.companies.filter(company => 
-      company.name.toLowerCase().includes(search) || 
-      company.industry?.toLowerCase().includes(search) ||
-      company.location?.toLowerCase().includes(search)
-    );
+    this.updatePagination();
+  }
+  
+  updatePagination(): void {
+    // Calculate total pages
+    this.totalPages = Math.ceil(this.filteredCompanies.length / this.pageSize);
+    
+    // Ensure current page is valid
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages || 1;
+    }
+    
+    // Get companies for current page
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    this.pagedCompanies = this.filteredCompanies.slice(startIndex, startIndex + this.pageSize);
+  }
+  
+  // Pagination controls
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+  
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+  
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+  
+  // Get an array of page numbers for pagination UI
+  get pageNumbers(): number[] {
+    const pageArray: number[] = [];
+    
+    // Show 5 page numbers centered around current page when possible
+    let startPage = Math.max(1, this.currentPage - 2);
+    let endPage = Math.min(this.totalPages, startPage + 4);
+    
+    // Adjust start page if we're near the end
+    if (endPage - startPage < 4) {
+      startPage = Math.max(1, endPage - 4);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+      pageArray.push(i);
+    }
+    
+    return pageArray;
   }
 
   // Company detail methods
   openCompanyDetail(company: Company): void {
+    console.log('Opening company detail for:', company.name);
     // Get fresh data for the company
     this.loading = true;
     
     this.companyService.getCompany(company.id)
       .subscribe({
         next: (companyData) => {
+          console.log('Company data loaded:', companyData);
           this.selectedCompany = companyData;
           this.isCompanyDetailVisible = true;
           this.viewMode = 'detail';
           this.activeTab = 'general';
           this.detailViewActive.emit(true);
           this.loading = false;
+          
+          // Add delay to ensure DOM updates
+          setTimeout(() => {
+            console.log('Detail view state:', {
+              isCompanyDetailVisible: this.isCompanyDetailVisible,
+              viewMode: this.viewMode,
+              companyDetailVisible: document.querySelector('app-company-detail') !== null
+            });
+          }, 100);
         },
         error: (err) => {
+          console.error('Error loading company details:', err);
           this.error = 'Failed to load company details. Please try again later.';
           this.loading = false;
-          console.error('Error loading company details:', err);
         }
       });
   }
@@ -109,7 +184,7 @@ export class CompaniesComponent implements OnInit {
     this.detailViewActive.emit(false);
   }
   
-  setActiveTab(tab: 'general' | 'address' | 'contacts' | 'notes'): void {
+  setActiveTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads'): void {
     this.activeTab = tab;
   }
   
@@ -134,6 +209,10 @@ export class CompaniesComponent implements OnInit {
     this.error = null;
     
     console.log('Saving company:', company);
+    
+    // Ensure collections are initialized
+    if (!company.contacts) company.contacts = [];
+    if (!company.notes) company.notes = [];
     
     if (this.selectedCompany && this.selectedCompany.id) {
       // Update existing company
@@ -232,6 +311,10 @@ export class CompaniesComponent implements OnInit {
       
       const company = importedCompanies[index];
       
+      // Ensure collections are initialized
+      if (!company.contacts) company.contacts = [];
+      if (!company.notes) company.notes = [];
+      
       // Check if company already exists by name
       const existingCompany = this.companies.find(c => c.name === company.name);
       
@@ -279,7 +362,10 @@ export class CompaniesComponent implements OnInit {
       industry: '',
       size: '100-500 employees',
       location: '',
-      website: ''
+      website: '',
+      status: 'Active',
+      contacts: [],
+      notes: []
     };
   }
 }

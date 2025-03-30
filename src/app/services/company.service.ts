@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Company, Contact, Note } from '../../model/types';
@@ -31,7 +31,13 @@ export class CompanyService {
 
   // Create new company
   createCompany(company: Company): Observable<Company> {
-    return this.http.post<Company>(this.apiUrl, company)
+    const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+    const options = { headers: headers };
+    
+    // Clean and stringify the object
+    const jsonString = JSON.stringify(company);
+    
+    return this.http.post<Company>(this.apiUrl, jsonString, options)
       .pipe(
         catchError(this.handleError<Company>('createCompany'))
       );

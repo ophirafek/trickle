@@ -1,4 +1,4 @@
-<main class="flex-1 overflow-auto p-6">
+<main [ngClass]="embedded ? 'flex-1 overflow-auto' : 'flex-1 overflow-auto p-6'">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
@@ -12,9 +12,11 @@
     {{ error }}
   </div>
 
-  <div class="mb-6 flex justify-between items-center">
+  <!-- Title - Only show if not embedded -->
+  <div *ngIf="!embedded" class="mb-6 flex justify-between items-center">
     <h1 class="text-2xl font-semibold text-gray-800">Leads</h1>
     <button 
+      *ngIf="showAddButton"
       class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700"
       (click)="createNewLead()"
     >
@@ -24,8 +26,8 @@
   </div>
 
   <div class="flex gap-6">
-    <!-- Left sidebar with status filters -->
-    <div class="w-48">
+    <!-- Left sidebar with status filters - Hide in embedded mode if requested -->
+    <div *ngIf="!embedded || companyFilter === null" class="w-48">
       <nav>
         <button
           *ngFor="let status of leadStatuses"
@@ -70,15 +72,27 @@
               <option value="probability">Sort by Probability</option>
               <option value="lastUpdate">Sort by Last Updated</option>
             </select>
-            <button class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Export</button>
+            
+            <!-- Only show in non-embedded mode -->
+            <button *ngIf="!embedded" class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Export</button>
+            
+            <!-- Add button for embedded view -->
+            <button 
+              *ngIf="embedded && showAddButton"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700"
+              (click)="createNewLead()"
+            >
+              <i class="fas fa-plus mr-2"></i>
+              Add Lead
+            </button>
           </div>
         </div>
 
         <!-- Leads List -->
-        <div class="divide-y">
+        <div class="max-h-[calc(100vh-300px)] overflow-auto">
           <div 
-            *ngFor="let lead of filteredLeads"
-            class="p-4 hover:bg-gray-50 cursor-pointer"
+            *ngFor="let lead of pagedLeads"
+            class="p-4 hover:bg-gray-50 cursor-pointer border-b"
             (click)="openLeadDetail(lead)"
           >
             <div class="flex items-center justify-between">
@@ -130,13 +144,84 @@
             <i class="fas fa-bullseye text-gray-400 text-xl"></i>
           </div>
           <h3 class="text-lg font-medium text-gray-800 mb-1">No leads found</h3>
-          <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
+          <p class="text-gray-500 mb-4">
+            {{ companyFilter ? 'This company doesn\'t have any leads yet.' : 'Try adjusting your search or filters' }}
+          </p>
           <button 
+            *ngIf="showAddButton"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             (click)="createNewLead()"
           >
             Add New Lead
           </button>
+        </div>
+        
+        <!-- Pagination -->
+        <div *ngIf="filteredLeads.length > 0" class="py-3 px-4 border-t bg-white">
+          <div class="flex-1 flex justify-between sm:hidden">
+            <button 
+              (click)="previousPage()" 
+              [disabled]="currentPage === 1"
+              [ngClass]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''"
+              class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            <button 
+              (click)="nextPage()" 
+              [disabled]="currentPage === totalPages"
+              [ngClass]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''"
+              class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </div>
+          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-gray-700">
+                Showing
+                <span class="font-medium">{{ (currentPage - 1) * pageSize + 1 }}</span>
+                to
+                <span class="font-medium">{{ Math.min(currentPage * pageSize, filteredLeads.length) }}</span>
+                of
+                <span class="font-medium">{{ filteredLeads.length }}</span>
+                results
+              </p>
+            </div>
+            <div>
+              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <button
+                  (click)="previousPage()"
+                  [disabled]="currentPage === 1"
+                  [ngClass]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''"
+                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <span class="sr-only">Previous</span>
+                  <i class="fas fa-chevron-left h-5 w-5"></i>
+                </button>
+                
+                <!-- Page Numbers (Simplified) -->
+                <button
+                  *ngFor="let page of pageNumbers"
+                  (click)="goToPage(page)"
+                  [ngClass]="currentPage === page ? 'bg-blue-50 border-blue-500 text-blue-600 z-10' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
+                  class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                >
+                  {{ page }}
+                </button>
+                
+                <button
+                  (click)="nextPage()"
+                  [disabled]="currentPage === totalPages"
+                  [ngClass]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''"
+                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                >
+                  <span class="sr-only">Next</span>
+                  <i class="fas fa-chevron-right h-5 w-5"></i>
+                </button>
+              </nav>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -418,5 +418,19 @@
         <p class="text-gray-700 whitespace-pre-line">{{ note.content }}</p>
       </div>
     </div>
+    <!-- Leads Tab Content - Using the existing Leads component -->
+<div *ngIf="activeTab === 'leads'" class="animated-slide-in">
+  <div class="p-4 border-b">
+    <h3 class="font-medium text-gray-800">Leads for {{ company?.name }}</h3>
+    <p class="text-sm text-gray-500 mt-1">Manage insurance contracts and opportunities for this company</p>
+  </div>
+  
+  <!-- Embed the existing Leads component with a filter for the current company -->
+  <app-leads 
+    [companyFilter]="company?.id" 
+    [embedded]="true"
+    [showAddButton]="true"
+  ></app-leads>
+</div>
   </div>
 </div>

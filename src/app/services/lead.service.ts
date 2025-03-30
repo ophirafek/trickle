@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Lead } from '../../model/types';
@@ -18,6 +18,14 @@ export class LeadService {
     return this.http.get<Lead[]>(this.apiUrl)
       .pipe(
         catchError(this.handleError<Lead[]>('getLeads', []))
+      );
+  }
+
+  // Get leads by company
+  getLeadsByCompany(companyId: number): Observable<Lead[]> {
+    return this.http.get<Lead[]>(`${this.apiUrl}/Company/${companyId}`)
+      .pipe(
+        catchError(this.handleError<Lead[]>(`getLeadsByCompany companyId=${companyId}`, []))
       );
   }
 
@@ -55,7 +63,7 @@ export class LeadService {
 
   // Error handling method
   private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
+    return (error: HttpErrorResponse): Observable<T> => {
       console.error(`${operation} failed: ${error.message}`);
       console.error(error);
       

@@ -251,6 +251,13 @@ export class CompanyImportComponent {
         company[field.key] = row[sourceField] || '';
       });
       
+      // Ensure ID is set to 0 for new companies
+      company.id = 0;
+      
+      // Initialize collections to empty arrays
+      company.contacts = [];
+      company.notes = [];
+      
       return company as Company;
     });
     

@@ -1,4 +1,4 @@
-<div class="flex h-screen bg-gray-100">
+<div class="flex h-screen bg-gray-100 overflow-hidden">
   <!-- Main Sidebar Menu (only shown when not in detail view) -->
   <div class="w-64 bg-white shadow-lg" *ngIf="!isDetailView">
     <div class="p-4 border-b">
@@ -25,15 +25,18 @@
   <div class="flex-1 flex flex-col overflow-hidden">
     <app-header></app-header>
     
-    <ng-container [ngSwitch]="activeTab">
-      <app-dashboard *ngSwitchCase="'dashboard'"></app-dashboard>
-      <app-companies 
-        *ngSwitchCase="'companies'" 
-        (detailViewActive)="setDetailViewState($event)"
-        [showContextMenu]="isDetailView"
-      ></app-companies>
-      <app-leads *ngSwitchCase="'leads'"></app-leads>
-      <app-meetings *ngSwitchCase="'meetings'"></app-meetings>
-    </ng-container>
+    <div class="flex-1 overflow-hidden">
+      <ng-container [ngSwitch]="activeTab">
+        <app-dashboard *ngSwitchCase="'dashboard'"></app-dashboard>
+        <app-companies 
+          *ngSwitchCase="'companies'" 
+          (detailViewActive)="setDetailViewState($event)"
+          [showContextMenu]="isDetailView"
+          class="flex-1 flex overflow-hidden"
+        ></app-companies>
+        <app-leads *ngSwitchCase="'leads'"></app-leads>
+        <app-meetings *ngSwitchCase="'meetings'"></app-meetings>
+      </ng-container>
+    </div>
   </div>
 </div>
