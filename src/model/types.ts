@@ -81,7 +81,7 @@ export interface Lead {
   owner: string;
   lastUpdate: string;
   source?: string;
-  expectedCloseDate?: string;
+  expectedCloseDate?: Date;
   description?: string;
   nextSteps?: string;
 }

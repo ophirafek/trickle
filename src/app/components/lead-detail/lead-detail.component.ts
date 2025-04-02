@@ -51,6 +51,12 @@ export class LeadDetailComponent implements OnInit {
     if (this.lead) {
       // Create a copy to avoid modifying the original object
       this.editingLead = { ...this.lead };
+      if (this.lead.companyId && !this.lead.company) {
+        const company = this.companies.find(c => c.id === (this.lead ? this.lead.companyId : 0));
+        if (company) {
+          this.editingLead.company = company.name;
+        }
+      }
       this.isNewLead = false;
     } else {
       this.editingLead = this.getEmptyLead();

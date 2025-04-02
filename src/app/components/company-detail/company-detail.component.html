@@ -427,7 +427,7 @@
   
   <!-- Embed the existing Leads component with a filter for the current company -->
   <app-leads 
-    [companyFilter]="company?.id" 
+    [companyFilter]="company?.id ?? null"
     [embedded]="true"
     [showAddButton]="true"
   ></app-leads>

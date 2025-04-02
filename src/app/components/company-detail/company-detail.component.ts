@@ -152,7 +152,7 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
       probability: 0,
       owner: '',
       source: 'Website',
-      expectedCloseDate: futureDate.toISOString().split('T')[0],
+      expectedCloseDate: futureDate,
       description: '',
       nextSteps: '',
       lastUpdate: 'Just now'
