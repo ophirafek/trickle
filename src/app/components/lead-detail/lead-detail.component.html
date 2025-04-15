@@ -1,25 +1,20 @@
 <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center" *ngIf="isOpen">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p class="text-gray-700">Loading...</p>
-    </div>
+    <mat-spinner [diameter]="48"></mat-spinner>
+    <p class="ml-4 text-gray-700">Loading...</p>
   </div>
 
-  <div class="relative bg-white rounded-lg shadow-xl mx-auto max-w-4xl w-full max-h-4/5 overflow-auto">
+  <mat-card class="relative max-w-4xl w-full max-h-4/5 overflow-auto">
     <!-- Header -->
-    <div class="sticky top-0 bg-white z-10 flex justify-between items-center p-4 border-b">
-      <h2 class="text-xl font-semibold text-gray-800">
+    <mat-card-header class="bg-white sticky top-0 z-10 border-b">
+      <mat-card-title>
         {{ isNewLead ? 'Add Lead' : 'Edit Lead' }}
-      </h2>
-      <button 
-        class="p-2 text-gray-400 hover:text-gray-600 rounded-full"
-        (click)="close()"
-      >
-        <i class="fas fa-times"></i>
+      </mat-card-title>
+      <button mat-icon-button class="ml-auto" (click)="close()">
+        <mat-icon>close</mat-icon>
       </button>
-    </div>
+    </mat-card-header>
     
     <!-- Error message display -->
     <div *ngIf="error" class="m-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
@@ -27,85 +22,56 @@
     </div>
     
     <!-- Content -->
-    <div class="p-6">
+    <mat-card-content class="p-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- First column -->
         <div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Lead Title</label>
-            <input 
-              type="text" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              [(ngModel)]="editingLead.title"
-              placeholder="Lead title"
-            >
-          </div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Lead Title</mat-label>
+            <input matInput [(ngModel)]="editingLead.title" placeholder="Lead title">
+          </mat-form-field>
           
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Company</label>
-            <select 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              [(ngModel)]="editingLead.company"
-            >
-              <option value="">-- Select Company --</option>
-              <option *ngFor="let company of companies" [value]="company.name">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Company</mat-label>
+            <mat-select [(ngModel)]="editingLead.company">
+              <mat-option value="">-- Select Company --</mat-option>
+              <mat-option *ngFor="let company of companies" [value]="company.name">
                 {{ company.name }}
-              </option>
-            </select>
-          </div>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
         </div>
         
         <!-- Second column -->
         <div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <select 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              [(ngModel)]="editingLead.status"
-            >
-              <option value="New">New</option>
-              <option value="Contacted">Contacted</option>
-              <option value="Qualified">Qualified</option>
-              <option value="Proposal">Proposal</option>
-              <option value="Negotiation">Negotiation</option>
-            </select>
-          </div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="editingLead.status">
+              <mat-option value="New">New</mat-option>
+              <mat-option value="Contacted">Contacted</mat-option>
+              <mat-option value="Qualified">Qualified</mat-option>
+              <mat-option value="Proposal">Proposal</mat-option>
+              <mat-option value="Negotiation">Negotiation</mat-option>
+            </mat-select>
+          </mat-form-field>
           
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Owner</label>
-            <input 
-              type="text" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              [(ngModel)]="editingLead.owner"
-              placeholder="Lead owner"
-            >
-          </div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Owner</mat-label>
+            <input matInput [(ngModel)]="editingLead.owner" placeholder="Lead owner">
+          </mat-form-field>
         </div>
         
         <!-- Third column -->
         <div>
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Value ($)</label>
-            <input 
-              type="number" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              [(ngModel)]="editingLead.value"
-              placeholder="0"
-              min="0"
-            >
-          </div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Value ($)</mat-label>
+            <input matInput type="number" [(ngModel)]="editingLead.value" placeholder="0" min="0">
+          </mat-form-field>
           
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Probability (%)</label>
-            <input 
-              type="number" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              [(ngModel)]="editingLead.probability"
-              placeholder="0"
-              min="0"
-              max="100"
-            >
-          </div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Probability (%)</mat-label>
+            <input matInput type="number" [(ngModel)]="editingLead.probability" placeholder="0" min="0" max="100">
+          </mat-form-field>
         </div>
       </div>
 
@@ -114,66 +80,51 @@
         <h3 class="font-medium text-gray-800 mb-3">Additional Information</h3>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Source</label>
-            <select 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              [(ngModel)]="editingLead.source"
-            >
-              <option value="Website">Website</option>
-              <option value="Referral">Referral</option>
-              <option value="Event">Event</option>
-              <option value="Cold Call">Cold Call</option>
-              <option value="Social Media">Social Media</option>
-            </select>
-          </div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Source</mat-label>
+            <mat-select [(ngModel)]="editingLead.source">
+              <mat-option value="Website">Website</mat-option>
+              <mat-option value="Referral">Referral</mat-option>
+              <mat-option value="Event">Event</mat-option>
+              <mat-option value="Cold Call">Cold Call</mat-option>
+              <mat-option value="Social Media">Social Media</mat-option>
+            </mat-select>
+          </mat-form-field>
           
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Expected Close Date</label>
-            <input 
-              type="date" 
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              [(ngModel)]="editingLead.expectedCloseDate"
-            >
-          </div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Expected Close Date</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="editingLead.expectedCloseDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
         </div>
       </div>
       
       <!-- Description -->
-      <div class="mt-6">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-        <textarea 
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
-          placeholder="Enter lead details..."
-          [(ngModel)]="editingLead.description"
-        ></textarea>
-      </div>
+      <mat-form-field appearance="outline" class="w-full mt-6">
+        <mat-label>Description</mat-label>
+        <textarea matInput [(ngModel)]="editingLead.description" placeholder="Enter lead details..." rows="4"></textarea>
+      </mat-form-field>
       
       <!-- Next Steps -->
-      <div class="mt-6">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Next Steps</label>
-        <textarea 
-          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-24"
-          placeholder="Outline next steps..."
-          [(ngModel)]="editingLead.nextSteps"
-        ></textarea>
-      </div>
-    </div>
+      <mat-form-field appearance="outline" class="w-full mt-6">
+        <mat-label>Next Steps</mat-label>
+        <textarea matInput [(ngModel)]="editingLead.nextSteps" placeholder="Outline next steps..." rows="4"></textarea>
+      </mat-form-field>
+    </mat-card-content>
     
     <!-- Footer -->
-    <div class="sticky bottom-0 bg-white z-10 flex justify-end space-x-2 p-4 border-t">
-      <button 
-        class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-        (click)="close()"
-      >
+    <mat-card-actions align="end" class="sticky bottom-0 bg-white z-10 p-4 border-t">
+      <button mat-button (click)="close()">
         Cancel
       </button>
       <button 
-        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        mat-raised-button
+        color="primary"
         (click)="save()"
       >
         Save Lead
       </button>
-    </div>
-  </div>
+    </mat-card-actions>
+  </mat-card>
 </div>

@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Meeting, Attendee, Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-meeting-detail',
   templateUrl: './meeting-detail.component.html',
-  styleUrls: ['./meeting-detail.component.css']
+  styleUrls: ['./meeting-detail.component.scss']
 })
 export class MeetingDetailComponent implements OnInit {
   @Input() meeting: Meeting | null = null;
@@ -20,7 +21,10 @@ export class MeetingDetailComponent implements OnInit {
   loading: boolean = false;
   error: string | null = null;
 
-  constructor(private companyService: CompanyService) {}
+  constructor(
+    private companyService: CompanyService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.resetForm();
@@ -96,11 +100,19 @@ export class MeetingDetailComponent implements OnInit {
     // Validate the form
     if (!this.editingMeeting.title) {
       this.error = 'Meeting title is required';
+      this.snackBar.open('Meeting title is required', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
       return;
     }
     
     if (!this.editingMeeting.company && !this.editingMeeting.companyId) {
       this.error = 'Company is required';
+      this.snackBar.open('Company is required', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
       return;
     }
     

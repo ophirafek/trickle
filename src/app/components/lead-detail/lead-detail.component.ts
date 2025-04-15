@@ -1,11 +1,12 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Lead, Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-lead-detail',
   templateUrl: './lead-detail.component.html',
-  styleUrls: ['./lead-detail.component.css']
+  styleUrls: ['./lead-detail.component.scss']
 })
 export class LeadDetailComponent implements OnInit {
   @Input() lead: Lead | null = null;
@@ -20,7 +21,10 @@ export class LeadDetailComponent implements OnInit {
   loading: boolean = false;
   error: string | null = null;
 
-  constructor(private companyService: CompanyService) {}
+  constructor(
+    private companyService: CompanyService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.resetForm();
@@ -51,12 +55,6 @@ export class LeadDetailComponent implements OnInit {
     if (this.lead) {
       // Create a copy to avoid modifying the original object
       this.editingLead = { ...this.lead };
-      if (this.lead.companyId && !this.lead.company) {
-        const company = this.companies.find(c => c.id === (this.lead ? this.lead.companyId : 0));
-        if (company) {
-          this.editingLead.company = company.name;
-        }
-      }
       this.isNewLead = false;
     } else {
       this.editingLead = this.getEmptyLead();

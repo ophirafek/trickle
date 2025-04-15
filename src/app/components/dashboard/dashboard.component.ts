@@ -3,11 +3,12 @@ import { Company, Meeting, Lead } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { MeetingService } from '../../services/meeting.service';
 import { LeadService } from '../../services/lead.service';
+import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
   companies: Company[] = [];
@@ -19,10 +20,10 @@ export class DashboardComponent implements OnInit {
   error: string | null = null;
 
   quickActions = [
-    { icon: 'fas fa-plus', label: 'New Company', color: 'blue' },
-    { icon: 'fas fa-bullseye', label: 'Create Lead', color: 'green' },
-    { icon: 'fas fa-calendar', label: 'Schedule Meeting', color: 'purple' },
-    { icon: 'fas fa-comment', label: 'Add Note', color: 'orange' }
+    { icon: 'add_business', label: 'New Company', color: 'blue' },
+    { icon: 'track_changes', label: 'Create Lead', color: 'green' },
+    { icon: 'event', label: 'Schedule Meeting', color: 'purple' },
+    { icon: 'note_add', label: 'Add Note', color: 'orange' }
   ];
 
   constructor(
@@ -99,5 +100,16 @@ export class DashboardComponent implements OnInit {
 
   getInitials(name: string): string {
     return name.split(' ').map(n => n[0]).join('');
+  }
+
+  getLeadStatusColor(status: string): ThemePalette {
+    const colorMap: { [key: string]: ThemePalette } = {
+      'New': 'primary',
+      'Contacted': 'accent',
+      'Qualified': 'primary',
+      'Proposal': 'accent',
+      'Negotiation': 'warn'
+    };
+    return colorMap[status] || 'primary';
   }
 }

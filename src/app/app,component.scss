@@ -1,0 +1,27 @@
+// Custom styles for the sidenav
+mat-sidenav {
+    width: 250px;
+  }
+  
+  // Style active menu items
+  .mat-list-item.active {
+    background-color: rgba(63, 81, 181, 0.1);
+    color: #3f51b5;
+  }
+  
+  // Ensure sidenav content takes full height
+  mat-sidenav-container {
+    height: 100vh;
+  }
+  
+  // Customize Material Design components with Tailwind CSS
+  :host ::ng-deep {
+    // Make icon buttons more visible
+    .mat-icon-button {
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+    }
+    
+    // Add more custom styles here as needed
+  }

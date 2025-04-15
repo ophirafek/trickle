@@ -1,15 +1,19 @@
-import { Component, Output, EventEmitter, Input } from '@angular/core';
+import { Component, Output, EventEmitter, Input, ViewChild } from '@angular/core';
 import { Company } from '../../../model/types';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatStepper } from '@angular/material/stepper';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-company-import',
   templateUrl: './company-import.component.html',
-  styleUrls: ['./company-import.component.css']
+  styleUrls: ['./company-import.component.scss']
 })
 export class CompanyImportComponent {
   @Input() isOpen: boolean = false;
   @Output() onClose = new EventEmitter<void>();
   @Output() onImport = new EventEmitter<Company[]>();
+  @ViewChild('stepper') stepper!: MatStepper;
 
   fileSelected: boolean = false;
   fileName: string = '';
@@ -40,6 +44,9 @@ export class CompanyImportComponent {
 
   public fileData: any[] = [];
   private selectedFile: File | null = null;
+  displayedColumns: string[] = ['select', ...this.requiredFields.map(f => f.key), 'status'];
+  
+  constructor(private snackBar: MatSnackBar) {}
 
   get canProceedToMapping(): boolean {
     return this.fileSelected && 
@@ -99,6 +106,11 @@ export class CompanyImportComponent {
     this.selectedRows = [];
     this.allRowsSelected = true;
     this.rowIssues = [];
+    
+    // Reset stepper
+    if (this.stepper) {
+      this.stepper.reset();
+    }
   }
 
   parseFile(): void {
@@ -251,18 +263,15 @@ export class CompanyImportComponent {
         company[field.key] = row[sourceField] || '';
       });
       
-      // Ensure ID is set to 0 for new companies
-      company.id = 0;
-      
-      // Initialize collections to empty arrays
-      company.contacts = [];
-      company.notes = [];
-      
       return company as Company;
     });
     
     this.onImport.emit(mappedCompanies);
     this.close();
+    
+    this.snackBar.open(`Successfully imported ${mappedCompanies.length} companies`, 'Close', {
+      duration: 3000
+    });
   }
 
   close(): void {

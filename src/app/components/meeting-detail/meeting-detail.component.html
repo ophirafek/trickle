@@ -1,169 +1,139 @@
 <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center" *ngIf="isOpen">
-    <div class="relative bg-white rounded-lg shadow-xl mx-auto max-w-3xl w-full">
-      <!-- Header -->
-      <div class="flex justify-between items-center p-4 border-b">
-        <h2 class="text-xl font-semibold text-gray-800">
-          {{ isNewMeeting ? 'Schedule Meeting' : 'Edit Meeting' }}
-        </h2>
-        <button 
-          class="p-2 text-gray-400 hover:text-gray-600 rounded-full"
-          (click)="close()"
-        >
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <!-- Content -->
-      <div class="p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Left column -->
-          <div>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Title</label>
-              <input 
-                type="text" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingMeeting.title"
-                placeholder="Meeting title"
-              >
-            </div>
-            
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Company</label>
-              <input 
-                type="text" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingMeeting.company"
-                placeholder="Related company"
-              >
-            </div>
-            
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-              <select 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingMeeting.type"
-              >
-                <option value="Demo">Demo</option>
-                <option value="Sales">Sales</option>
-                <option value="Internal">Internal</option>
-                <option value="Legal">Legal</option>
-                <option value="Planning">Planning</option>
-              </select>
-            </div>
-
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingMeeting.status"
-              >
-                <option value="Upcoming">Upcoming</option>
-                <option value="Completed">Completed</option>
-                <option value="Cancelled">Cancelled</option>
-                <option value="Rescheduled">Rescheduled</option>
-              </select>
-            </div>
-          </div>
-          
-          <!-- Right column -->
-          <div>
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-              <input 
-                type="date" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingMeeting.date"
-              >
-            </div>
-            
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
-              <input 
-                type="time" 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingMeeting.time"
-              >
-            </div>
-            
-            <div class="mb-4">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-              <select 
-                class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="editingMeeting.duration"
-              >
-                <option value="15 minutes">15 minutes</option>
-                <option value="30 minutes">30 minutes</option>
-                <option value="45 minutes">45 minutes</option>
-                <option value="60 minutes">60 minutes</option>
-                <option value="90 minutes">90 minutes</option>
-                <option value="120 minutes">120 minutes</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Attendees Section -->
-        <div class="mt-6">
-          <div class="flex justify-between items-center mb-3">
-            <h3 class="font-medium text-gray-800">Attendees</h3>
-            <button 
-              class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm text-gray-700"
-              (click)="addAttendee()"
-            >
-              <i class="fas fa-plus mr-1"></i> Add
-            </button>
-          </div>
-          
-          <div *ngFor="let attendee of editingMeeting.attendees; let i = index" class="flex items-center mb-2 bg-gray-50 p-2 rounded">
-            <div class="flex-1 grid grid-cols-3 gap-2">
-              <input 
-                type="text" 
-                class="px-2 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                [(ngModel)]="attendee.name"
-                placeholder="Name"
-              >
-              <input 
-                type="text" 
-                class="px-2 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                [(ngModel)]="attendee.role"
-                placeholder="Role"
-              >
-              <input 
-                type="text" 
-                class="px-2 py-1 border rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                [(ngModel)]="attendee.company"
-                placeholder="Company"
-              >
-            </div>
-            <button 
-              class="ml-2 p-1 text-gray-400 hover:text-red-600 rounded"
-              (click)="removeAttendee(i)"
-            >
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-          
-          <div *ngIf="editingMeeting.attendees.length === 0" class="text-center py-4 text-gray-500 bg-gray-50 rounded">
-            No attendees added yet
-          </div>
-        </div>
-      </div>
-      
-      <!-- Footer -->
-      <div class="flex justify-end space-x-2 p-4 border-t bg-gray-50">
-        <button 
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-          (click)="close()"
-        >
-          Cancel
-        </button>
-        <button 
-          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          (click)="save()"
-        >
-          Save Meeting
-        </button>
-      </div>
-    </div>
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
+    <mat-spinner [diameter]="48"></mat-spinner>
+    <p class="ml-4 text-gray-700">Loading...</p>
   </div>
+
+  <mat-card class="max-w-3xl w-full">
+    <!-- Header -->
+    <mat-card-header class="border-b">
+      <mat-card-title>
+        {{ isNewMeeting ? 'Schedule Meeting' : 'Edit Meeting' }}
+      </mat-card-title>
+      <button mat-icon-button class="ml-auto" (click)="close()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-card-header>
+    
+    <!-- Content -->
+    <mat-card-content class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left column -->
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Title</mat-label>
+            <input matInput [(ngModel)]="editingMeeting.title" placeholder="Meeting title">
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Company</mat-label>
+            <input matInput [(ngModel)]="editingMeeting.company" placeholder="Related company">
+            <mat-icon matSuffix>business</mat-icon>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Type</mat-label>
+            <mat-select [(ngModel)]="editingMeeting.type">
+              <mat-option value="Demo">Demo</mat-option>
+              <mat-option value="Sales">Sales</mat-option>
+              <mat-option value="Internal">Internal</mat-option>
+              <mat-option value="Legal">Legal</mat-option>
+              <mat-option value="Planning">Planning</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="editingMeeting.status">
+              <mat-option value="Upcoming">Upcoming</mat-option>
+              <mat-option value="Completed">Completed</mat-option>
+              <mat-option value="Cancelled">Cancelled</mat-option>
+              <mat-option value="Rescheduled">Rescheduled</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <!-- Right column -->
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Date</mat-label>
+            <input matInput [matDatepicker]="picker" [(ngModel)]="editingMeeting.date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Time</mat-label>
+            <input matInput type="time" [(ngModel)]="editingMeeting.time">
+            <mat-icon matSuffix>schedule</mat-icon>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Duration</mat-label>
+            <mat-select [(ngModel)]="editingMeeting.duration">
+              <mat-option value="15 minutes">15 minutes</mat-option>
+              <mat-option value="30 minutes">30 minutes</mat-option>
+              <mat-option value="45 minutes">45 minutes</mat-option>
+              <mat-option value="60 minutes">60 minutes</mat-option>
+              <mat-option value="90 minutes">90 minutes</mat-option>
+              <mat-option value="120 minutes">120 minutes</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Attendees Section -->
+      <div class="mt-6">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-medium text-gray-800">Attendees</h3>
+          <button 
+            mat-stroked-button
+            color="primary"
+            (click)="addAttendee()"
+          >
+            <mat-icon>add</mat-icon> Add
+          </button>
+        </div>
+        
+        <div *ngFor="let attendee of editingMeeting.attendees; let i = index" class="flex items-center mb-2 bg-gray-50 p-2 rounded">
+          <div class="flex-1 grid grid-cols-3 gap-2">
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Name</mat-label>
+              <input matInput [(ngModel)]="attendee.name" placeholder="Name">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Role</mat-label>
+              <input matInput [(ngModel)]="attendee.role" placeholder="Role">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Company</mat-label>
+              <input matInput [(ngModel)]="attendee.company" placeholder="Company">
+            </mat-form-field>
+          </div>
+          <button mat-icon-button color="warn" class="ml-2" (click)="removeAttendee(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+        
+        <div *ngIf="editingMeeting.attendees.length === 0" class="text-center py-4 text-gray-500 bg-gray-50 rounded">
+          No attendees added yet
+        </div>
+      </div>
+    </mat-card-content>
+    
+    <!-- Footer -->
+    <mat-card-actions align="end" class="p-4 border-t bg-gray-50">
+      <button mat-button (click)="close()">
+        Cancel
+      </button>
+      <button 
+        mat-raised-button
+        color="primary"
+        (click)="save()"
+      >
+        Save Meeting
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

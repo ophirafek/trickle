@@ -1,0 +1,57 @@
+// Custom styling for dashboard
+:host ::ng-deep {
+    // Make list items spaced out
+    .mat-mdc-list-item {
+      border-radius: 8px;
+      margin-bottom: 8px;
+      height: auto !important;
+      
+      // Allow custom content to take full width
+      .mdc-list-item__content {
+        width: 100%;
+      }
+    }
+  
+    // Make cards more visually appealing
+    .mat-mdc-card {
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+      
+      .mat-mdc-card-header {
+        padding: 16px 16px 0 16px;
+      }
+      
+      .mat-mdc-card-content {
+        padding: 16px;
+      }
+    }
+    
+    // Custom chip styles
+    .mat-mdc-chip {
+      height: 24px !important;
+      min-height: 24px !important;
+      font-size: 12px;
+    }
+    
+    // Add hover effect to card buttons
+    .mat-mdc-card .mat-mdc-button {
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+    }
+    
+    // Avatar styling for meeting attendees
+    .attendee-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 500;
+      margin-right: -8px;
+      border: 2px solid white;
+      background-color: #e2e8f0;
+    }
+  }

@@ -1,23 +1,19 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Lead, Company } from '../../../model/types';
 import { LeadService } from '../../services/lead.service';
 import { CompanyService } from '../../services/company.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-leads',
   templateUrl: './leads.component.html',
-  styleUrls: ['./leads.component.css']
+  styleUrls: ['./leads.component.scss']
 })
-export class LeadsComponent implements OnInit, OnChanges {
-  @Input() companyFilter: number | null = null; // Used when embedded in company detail
-  @Input() embedded: boolean = false; // Flag to indicate if component is embedded in another view
-  @Input() showAddButton: boolean = true; // Whether to show the add lead button
-  
+export class LeadsComponent implements OnInit {
   leads: Lead[] = [];
   companies: Company[] = [];
   filteredLeads: Lead[] = [];
-  pagedLeads: Lead[] = []; // For pagination
   activeStatus: string = 'all';
   searchTerm: string = '';
   sortBy: string = 'value';
@@ -30,14 +26,6 @@ export class LeadsComponent implements OnInit, OnChanges {
   loading: boolean = false;
   error: string | null = null;
 
-  // Pagination
-  currentPage: number = 1;
-  pageSize: number = 10;
-  totalPages: number = 1;
-  
-  // Math for template
-  Math = Math;
-
   leadStatuses = [
     { id: 'all', label: 'All Leads', count: 0 },
     { id: 'new', label: 'New', count: 0 },
@@ -49,30 +37,24 @@ export class LeadsComponent implements OnInit, OnChanges {
 
   constructor(
     private leadService: LeadService, 
-    private companyService: CompanyService
+    private companyService: CompanyService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
     this.loadCompanies();
     this.loadLeads();
   }
-  
-  ngOnChanges(changes: SimpleChanges): void {
-    // Reload leads when companyFilter changes
-    if (changes['companyFilter'] && !changes['companyFilter'].firstChange) {
-      this.loadLeads();
-    }
-  }
 
-  loadCompanies(): void {
+  loadCompanies() {
     this.loading = true;
     this.companyService.getCompanies()
       .subscribe({
-        next: (companies: Company[]) => {
+        next: (companies) => {
           this.companies = companies;
           this.loading = false;
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err) => {
           this.error = 'Failed to load companies. Please try again later.';
           this.loading = false;
           console.error('Error loading companies:', err);
@@ -80,28 +62,24 @@ export class LeadsComponent implements OnInit, OnChanges {
       });
   }
 
-  loadLeads(): void {
+  loadLeads() {
     this.loading = true;
     this.error = null;
     
-    // Use the company-specific endpoint if a company filter is provided
-    const loadLeadsObservable = this.companyFilter 
-      ? this.leadService.getLeadsByCompany(this.companyFilter)
-      : this.leadService.getLeads();
-    
-    loadLeadsObservable.subscribe({
-      next: (leads: Lead[]) => {
-        this.leads = leads;
-        this.updateStatusCounts();
-        this.filterLeads();
-        this.loading = false;
-      },
-      error: (err: HttpErrorResponse) => {
-        this.error = 'Failed to load leads. Please try again later.';
-        this.loading = false;
-        console.error('Error loading leads:', err);
-      }
-    });
+    this.leadService.getLeads()
+      .subscribe({
+        next: (leads) => {
+          this.leads = leads;
+          this.updateStatusCounts();
+          this.filterLeads();
+          this.loading = false;
+        },
+        error: (err) => {
+          this.error = 'Failed to load leads. Please try again later.';
+          this.loading = false;
+          console.error('Error loading leads:', err);
+        }
+      });
   }
 
   updateStatusCounts(): void {
@@ -142,64 +120,7 @@ export class LeadsComponent implements OnInit, OnChanges {
     }
     
     this.filteredLeads = results;
-    this.updatePagination();
     this.sortLeads();
-  }
-  
-  updatePagination(): void {
-    // Calculate total pages
-    this.totalPages = Math.ceil(this.filteredLeads.length / this.pageSize);
-    
-    // Ensure current page is valid
-    if (this.currentPage > this.totalPages) {
-      this.currentPage = this.totalPages || 1;
-    }
-    
-    // Get leads for current page
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    this.pagedLeads = this.filteredLeads.slice(startIndex, startIndex + this.pageSize);
-  }
-  
-  // Pagination controls
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updatePagination();
-    }
-  }
-  
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-    }
-  }
-  
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-    }
-  }
-  
-  // Get an array of page numbers for pagination UI
-  get pageNumbers(): number[] {
-    const pageArray: number[] = [];
-    
-    // Show 5 page numbers centered around current page when possible
-    let startPage = Math.max(1, this.currentPage - 2);
-    let endPage = Math.min(this.totalPages, startPage + 4);
-    
-    // Adjust start page if we're near the end
-    if (endPage - startPage < 4) {
-      startPage = Math.max(1, endPage - 4);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pageArray.push(i);
-    }
-    
-    return pageArray;
   }
 
   sortLeads(): void {
@@ -215,20 +136,17 @@ export class LeadsComponent implements OnInit, OnChanges {
         this.filteredLeads.sort((a, b) => a.lastUpdate.localeCompare(b.lastUpdate));
         break;
     }
-    
-    // Update the paged leads after sorting
-    this.updatePagination();
   }
 
-  getStatusColor(status: string): string {
-    const colors: {[key: string]: string} = {
-      'New': 'bg-blue-100 text-blue-700',
-      'Contacted': 'bg-yellow-100 text-yellow-700',
-      'Qualified': 'bg-purple-100 text-purple-700',
-      'Proposal': 'bg-green-100 text-green-700',
-      'Negotiation': 'bg-orange-100 text-orange-700'
+  getLeadStatusColor(status: string): ThemePalette {
+    const colorMap: { [key: string]: ThemePalette } = {
+      'New': 'primary',
+      'Contacted': 'accent',
+      'Qualified': 'primary',
+      'Proposal': 'accent',
+      'Negotiation': 'warn'
     };
-    return colors[status] || 'bg-gray-100 text-gray-700';
+    return colorMap[status] || 'primary';
   }
 
   // Lead detail methods
@@ -238,27 +156,7 @@ export class LeadsComponent implements OnInit, OnChanges {
   }
   
   createNewLead(): void {
-    // If embedded in company detail, pre-fill the company
-    const newLead: Lead = {
-      id: 0,
-      title: '',
-      companyId: this.companyFilter || undefined,
-      company: this.companyFilter ? 
-        this.companies.find(c => c.id === this.companyFilter)?.name || '' : '',
-      status: 'New',
-      value: 0,
-      probability: 0,
-      owner: '',
-      lastUpdate: new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    };
-    
-    this.selectedLead = newLead;
+    this.selectedLead = null; // Null indicates a new lead
     this.isLeadDetailOpen = true;
   }
   
@@ -271,16 +169,20 @@ export class LeadsComponent implements OnInit, OnChanges {
     this.loading = true;
     this.error = null;
     
-    if (this.selectedLead && this.selectedLead.id) {
+    if (this.selectedLead) {
       // Update existing lead
-      this.leadService.updateLead(this.selectedLead.id, lead)
+      this.leadService.updateLead(this.selectedLead.id || 0, lead)
         .subscribe({
           next: () => {
             this.loadLeads();
             this.closeLeadDetail();
             this.loading = false;
+            
+            this.snackBar.open('Lead updated successfully', 'Close', {
+              duration: 3000
+            });
           },
-          error: (err: HttpErrorResponse) => {
+          error: (err) => {
             this.error = 'Failed to update lead. Please try again.';
             this.loading = false;
             console.error('Error updating lead:', err);
@@ -294,8 +196,12 @@ export class LeadsComponent implements OnInit, OnChanges {
             this.loadLeads();
             this.closeLeadDetail();
             this.loading = false;
+            
+            this.snackBar.open('Lead created successfully', 'Close', {
+              duration: 3000
+            });
           },
-          error: (err: HttpErrorResponse) => {
+          error: (err) => {
             this.error = 'Failed to create lead. Please try again.';
             this.loading = false;
             console.error('Error creating lead:', err);

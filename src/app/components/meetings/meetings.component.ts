@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Meeting, Company } from '../../../model/types';
 import { MeetingService } from '../../services/meeting.service';
 import { CompanyService } from '../../services/company.service';
-
+import { MatSnackBar } from '@angular/material/snack-bar';
+import {CommonModule} from '@angular/common';
 @Component({
   selector: 'app-meetings',
   templateUrl: './meetings.component.html',
-  styleUrls: ['./meetings.component.css']
+  styleUrls: ['./meetings.component.scss']
 })
 export class MeetingsComponent implements OnInit {
   meetings: Meeting[] = [];
@@ -30,7 +31,8 @@ export class MeetingsComponent implements OnInit {
 
   constructor(
     private meetingService: MeetingService,
-    private companyService: CompanyService
+    private companyService: CompanyService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -180,6 +182,10 @@ export class MeetingsComponent implements OnInit {
             this.loadMeetings();
             this.closeMeetingDetail();
             this.loading = false;
+            
+            this.snackBar.open('Meeting updated successfully', 'Close', {
+              duration: 3000
+            });
           },
           error: (err) => {
             this.error = 'Failed to update meeting. Please try again.';
@@ -195,6 +201,10 @@ export class MeetingsComponent implements OnInit {
             this.loadMeetings();
             this.closeMeetingDetail();
             this.loading = false;
+            
+            this.snackBar.open('Meeting created successfully', 'Close', {
+              duration: 3000
+            });
           },
           error: (err) => {
             this.error = 'Failed to create meeting. Please try again.';
@@ -203,16 +213,5 @@ export class MeetingsComponent implements OnInit {
           }
         });
     }
-  }
-  
-  // Get company name for meeting when displaying details
-  getCompanyName(companyId: number): string {
-    const company = this.companies.find(c => c.id === companyId);
-    return company ? company.name : 'Unknown Company';
-  }
-  
-  // For meeting creation, provide list of companies
-  getCompanyOptions(): Company[] {
-    return this.companies;
   }
 }

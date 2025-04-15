@@ -1,10 +1,8 @@
-<main [ngClass]="embedded ? 'flex-1 overflow-auto' : 'flex-1 overflow-auto p-6'">
+<div class="p-6">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
-      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <p class="text-gray-700">Loading...</p>
-    </div>
+    <mat-spinner [diameter]="48"></mat-spinner>
+    <p class="ml-4 text-gray-700">Loading...</p>
   </div>
 
   <!-- Error message display -->
@@ -12,219 +10,129 @@
     {{ error }}
   </div>
 
-  <!-- Title - Only show if not embedded -->
-  <div *ngIf="!embedded" class="mb-6 flex justify-between items-center">
+  <div class="mb-6 flex justify-between items-center">
     <h1 class="text-2xl font-semibold text-gray-800">Leads</h1>
     <button 
-      *ngIf="showAddButton"
-      class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700"
+      mat-raised-button 
+      color="primary"
       (click)="createNewLead()"
     >
-      <i class="fas fa-plus"></i>
-      <span>Add Lead</span>
+      <mat-icon>add</mat-icon>
+      Add Lead
     </button>
   </div>
 
   <div class="flex gap-6">
-    <!-- Left sidebar with status filters - Hide in embedded mode if requested -->
-    <div *ngIf="!embedded || companyFilter === null" class="w-48">
-      <nav>
-        <button
-          *ngFor="let status of leadStatuses"
-          (click)="activeStatus = status.id; filterLeads()"
-          class="w-full text-left px-3 py-2 rounded-lg mb-1 flex items-center justify-between"
-          [ngClass]="activeStatus === status.id ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'"
-        >
-          <span>{{ status.label }}</span>
-          <span class="text-sm bg-gray-100 px-2 py-0.5 rounded-full">{{ status.count }}</span>
-        </button>
-      </nav>
-    </div>
+    <!-- Left sidebar with status filters -->
+    <mat-card class="w-48">
+      <mat-nav-list>
+        <a mat-list-item 
+           *ngFor="let status of leadStatuses"
+           (click)="activeStatus = status.id; filterLeads()"
+           [class.bg-blue-50]="activeStatus === status.id"
+           [class.text-blue-600]="activeStatus === status.id">
+          <div class="flex justify-between w-full">
+            <span>{{ status.label }}</span>
+            <span class="bg-gray-100 px-2 py-0.5 rounded-full text-xs">{{ status.count }}</span>
+          </div>
+        </a>
+      </mat-nav-list>
+    </mat-card>
 
     <!-- Main content area -->
-    <div class="flex-1">
-      <div class="bg-white rounded-lg shadow-sm">
+    <mat-card class="flex-1">
+      <mat-card-content>
         <!-- Filters -->
         <div class="p-4 border-b flex items-center justify-between">
           <div class="flex items-center space-x-4">
-            <div class="relative">
-              <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
-              <input
-                type="text"
-                placeholder="Search leads..."
-                class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                [(ngModel)]="searchTerm"
-                (input)="filterLeads()"
-              >
-            </div>
-            <button class="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
-              <i class="fas fa-filter text-gray-500"></i>
-              <span>Filters</span>
+            <mat-form-field appearance="outline" class="w-64">
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput 
+                     placeholder="Search leads..." 
+                     [(ngModel)]="searchTerm"
+                     (input)="filterLeads()">
+            </mat-form-field>
+            <button mat-stroked-button>
+              <mat-icon>filter_list</mat-icon>
+              Filters
             </button>
           </div>
           <div class="flex items-center space-x-2">
-            <select 
-              class="border rounded-lg px-4 py-2 text-gray-600"
-              [(ngModel)]="sortBy"
-              (change)="sortLeads()"
-            >
-              <option value="value">Sort by Value</option>
-              <option value="probability">Sort by Probability</option>
-              <option value="lastUpdate">Sort by Last Updated</option>
-            </select>
-            
-            <!-- Only show in non-embedded mode -->
-            <button *ngIf="!embedded" class="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">Export</button>
-            
-            <!-- Add button for embedded view -->
-            <button 
-              *ngIf="embedded && showAddButton"
-              class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-blue-700"
-              (click)="createNewLead()"
-            >
-              <i class="fas fa-plus mr-2"></i>
-              Add Lead
-            </button>
+            <mat-form-field appearance="outline">
+              <mat-label>Sort by</mat-label>
+              <mat-select [(ngModel)]="sortBy" (selectionChange)="sortLeads()">
+                <mat-option value="value">Sort by Value</mat-option>
+                <mat-option value="probability">Sort by Probability</mat-option>
+                <mat-option value="lastUpdate">Sort by Last Updated</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-button color="primary">Export</button>
           </div>
         </div>
 
         <!-- Leads List -->
-        <div class="max-h-[calc(100vh-300px)] overflow-auto">
-          <div 
-            *ngFor="let lead of pagedLeads"
-            class="p-4 hover:bg-gray-50 cursor-pointer border-b"
-            (click)="openLeadDetail(lead)"
-          >
-            <div class="flex items-center justify-between">
+        <mat-nav-list>
+          <a mat-list-item 
+             *ngFor="let lead of filteredLeads"
+             (click)="openLeadDetail(lead)"
+             class="h-auto py-2">
+            <div class="flex items-center justify-between w-full">
               <div class="flex items-center space-x-4">
                 <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <i class="fas fa-bullseye text-gray-500"></i>
+                  <mat-icon class="text-gray-500">track_changes</mat-icon>
                 </div>
                 <div>
                   <h3 class="font-medium text-gray-800">{{ lead.title }}</h3>
                   <div class="flex items-center space-x-2 text-sm text-gray-500">
                     <span>{{ lead.company }}</span>
                     <span>•</span>
-                    <span 
-                      class="px-2 py-0.5 rounded-full text-xs"
-                      [ngClass]="getStatusColor(lead.status)"
-                    >
+                    <mat-chip [color]="getLeadStatusColor(lead.status)" selected>
                       {{ lead.status }}
-                    </span>
+                    </mat-chip>
                   </div>
                 </div>
               </div>
               <div class="flex items-center space-x-8">
                 <div class="flex flex-col items-end">
                   <div class="flex items-center space-x-1 text-gray-600">
-                    <i class="fas fa-dollar-sign"></i>
+                    <mat-icon class="text-sm">attach_money</mat-icon>
                     <span class="font-medium">{{ lead.value | number }}</span>
                   </div>
                   <span class="text-sm text-gray-500">{{ lead.probability }}% probability</span>
                 </div>
                 <div class="flex flex-col items-end">
                   <div class="flex items-center space-x-2">
-                    <i class="fas fa-user-circle text-gray-500"></i>
+                    <mat-icon class="text-sm">person</mat-icon>
                     <span class="text-gray-600">{{ lead.owner }}</span>
                   </div>
                   <div class="flex items-center space-x-1 text-sm text-gray-500">
-                    <i class="fas fa-clock"></i>
+                    <mat-icon class="text-sm">access_time</mat-icon>
                     <span>Updated {{ lead.lastUpdate }}</span>
                   </div>
                 </div>
-                <i class="fas fa-chevron-right text-gray-400"></i>
+                <mat-icon class="text-gray-400">chevron_right</mat-icon>
               </div>
             </div>
-          </div>
-        </div>
+          </a>
+        </mat-nav-list>
 
         <!-- Empty State -->
         <div *ngIf="filteredLeads.length === 0" class="p-8 text-center">
           <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-bullseye text-gray-400 text-xl"></i>
+            <mat-icon class="text-gray-400 text-3xl">track_changes</mat-icon>
           </div>
           <h3 class="text-lg font-medium text-gray-800 mb-1">No leads found</h3>
-          <p class="text-gray-500 mb-4">
-            {{ companyFilter ? 'This company doesn\'t have any leads yet.' : 'Try adjusting your search or filters' }}
-          </p>
+          <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
           <button 
-            *ngIf="showAddButton"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            mat-raised-button
+            color="primary"
             (click)="createNewLead()"
           >
             Add New Lead
           </button>
         </div>
-        
-        <!-- Pagination -->
-        <div *ngIf="filteredLeads.length > 0" class="py-3 px-4 border-t bg-white">
-          <div class="flex-1 flex justify-between sm:hidden">
-            <button 
-              (click)="previousPage()" 
-              [disabled]="currentPage === 1"
-              [ngClass]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''"
-              class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-            >
-              Previous
-            </button>
-            <button 
-              (click)="nextPage()" 
-              [disabled]="currentPage === totalPages"
-              [ngClass]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''"
-              class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-            >
-              Next
-            </button>
-          </div>
-          <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-            <div>
-              <p class="text-sm text-gray-700">
-                Showing
-                <span class="font-medium">{{ (currentPage - 1) * pageSize + 1 }}</span>
-                to
-                <span class="font-medium">{{ Math.min(currentPage * pageSize, filteredLeads.length) }}</span>
-                of
-                <span class="font-medium">{{ filteredLeads.length }}</span>
-                results
-              </p>
-            </div>
-            <div>
-              <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                <button
-                  (click)="previousPage()"
-                  [disabled]="currentPage === 1"
-                  [ngClass]="currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''"
-                  class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <span class="sr-only">Previous</span>
-                  <i class="fas fa-chevron-left h-5 w-5"></i>
-                </button>
-                
-                <!-- Page Numbers (Simplified) -->
-                <button
-                  *ngFor="let page of pageNumbers"
-                  (click)="goToPage(page)"
-                  [ngClass]="currentPage === page ? 'bg-blue-50 border-blue-500 text-blue-600 z-10' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'"
-                  class="relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-                >
-                  {{ page }}
-                </button>
-                
-                <button
-                  (click)="nextPage()"
-                  [disabled]="currentPage === totalPages"
-                  [ngClass]="currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''"
-                  class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-                >
-                  <span class="sr-only">Next</span>
-                  <i class="fas fa-chevron-right h-5 w-5"></i>
-                </button>
-              </nav>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 
   <!-- Lead Detail Component -->
@@ -234,4 +142,4 @@
     (onClose)="closeLeadDetail()"
     (onSave)="saveLead($event)"
   ></app-lead-detail>
-</main>
+</div>
