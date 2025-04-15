@@ -104,3 +104,46 @@ body {
 .min-h-32 {
   min-height: 8rem;
 }
+
+/* Fix Material form field display issues */
+.mat-mdc-form-field {
+  display: block !important;
+  width: 100% !important;
+}
+
+/* Fix for the outline notch that creates a vertical line */
+.mdc-notched-outline__notch {
+  border-right: none !important;
+  border-left: none !important;
+}
+
+/* Improve form field appearance */
+.mdc-text-field--outlined {
+  background-color: #f5f5f5 !important;
+}
+
+/* Make form field outlines more visible */
+.mdc-notched-outline__leading,
+.mdc-notched-outline__trailing {
+  border-color: rgba(0, 0, 0, 0.3) !important;
+  border-width: 1px !important;
+}
+
+/* Focus state should be even more visible */
+.mdc-text-field--focused .mdc-notched-outline__leading,
+.mdc-text-field--focused .mdc-notched-outline__trailing,
+.mdc-text-field--focused .mdc-notched-outline__notch {
+  border-color: #3f51b5 !important;
+  border-width: 2px !important;
+}
+
+/* Make sure form field text is clearly visible */
+.mat-mdc-input-element,
+.mat-mdc-select-value {
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+
+/* Improve focus overlay */
+.mat-mdc-form-field-focus-overlay {
+  background-color: rgba(63, 81, 181, 0.1) !important;
+}

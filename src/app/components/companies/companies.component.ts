@@ -1,15 +1,22 @@
-import { Component, OnInit, ViewChild, Output, EventEmitter, Input, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter, Input, ElementRef, ViewEncapsulation } from '@angular/core';
+import { MatPaginator } from '@angular/material/paginator';
 import { Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { CompanyDetailComponent } from '../company-detail/company-detail.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { LeadService } from '../../services/lead.service';
+import { Lead } from '../../../model/types';
+import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-companies',
   templateUrl: './companies.component.html',
-  styleUrls: ['./companies.component.css']
+  styleUrls: ['./companies.component.css'],
+  encapsulation: ViewEncapsulation.None  // This helps with styling nested Material components
 })
 export class CompaniesComponent implements OnInit {
   @ViewChild('companyDetailComponent') companyDetailComponent!: CompanyDetailComponent;
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
   @Output() detailViewActive = new EventEmitter<boolean>();
   @Input() showContextMenu: boolean = false;
   
@@ -38,8 +45,15 @@ export class CompaniesComponent implements OnInit {
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 1;
+  companyLeads: Lead[] = [];
+  leadError: string | null = null;
+  leadLoading: boolean = false;
 
-  constructor(private companyService: CompanyService) {}
+  constructor(
+    private companyService: CompanyService,
+    private leadService: LeadService,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.loadCompanies();
@@ -55,6 +69,7 @@ export class CompaniesComponent implements OnInit {
           this.companies = companies;
           this.filterCompanies();
           this.loading = false;
+          console.log('Companies loaded:', this.companies.length);
         },
         error: (err) => {
           this.error = 'Failed to load companies. Please try again later.';
@@ -71,12 +86,19 @@ export class CompaniesComponent implements OnInit {
       const search = this.searchTerm.toLowerCase();
       this.filteredCompanies = this.companies.filter(company => 
         company.name.toLowerCase().includes(search) || 
-        company.industry?.toLowerCase().includes(search) ||
-        company.location?.toLowerCase().includes(search)
+        (company.industry && company.industry.toLowerCase().includes(search)) ||
+        (company.location && company.location.toLowerCase().includes(search))
       );
     }
     
+    // Reset to first page when filtering
+    this.currentPage = 1;
+    if (this.paginator) {
+      this.paginator.firstPage();
+    }
+    
     this.updatePagination();
+    console.log('Filtered companies:', this.filteredCompanies.length);
   }
   
   updatePagination(): void {
@@ -91,6 +113,7 @@ export class CompaniesComponent implements OnInit {
     // Get companies for current page
     const startIndex = (this.currentPage - 1) * this.pageSize;
     this.pagedCompanies = this.filteredCompanies.slice(startIndex, startIndex + this.pageSize);
+    console.log('Page companies:', this.pagedCompanies.length);
   }
   
   // Pagination controls
@@ -165,6 +188,11 @@ export class CompaniesComponent implements OnInit {
           console.error('Error loading company details:', err);
           this.error = 'Failed to load company details. Please try again later.';
           this.loading = false;
+          
+          this.snackBar.open('Error loading company details', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
         }
       });
   }
@@ -184,9 +212,11 @@ export class CompaniesComponent implements OnInit {
     this.detailViewActive.emit(false);
   }
   
-  setActiveTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads'): void {
-    this.activeTab = tab;
-  }
+setActiveTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads'): void {
+  this.activeTab = tab;
+  
+  // Load leads data if the leads tab is selected
+}
   
   onSaveCompany(): void {
     // Access the edited company from the child component
@@ -196,12 +226,20 @@ export class CompaniesComponent implements OnInit {
       this.saveCompany(company);
     } else {
       console.error('Company detail component not found');
+      this.snackBar.open('Cannot access company details', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
     }
   }
   
   saveCompany(company: Company): void {
     if (!company || !company.name.trim()) {
       this.error = 'Company name is required';
+      this.snackBar.open('Company name is required', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
       return;
     }
     
@@ -229,11 +267,21 @@ export class CompaniesComponent implements OnInit {
             this.isCompanyDetailVisible = false;
             this.detailViewActive.emit(false);
             this.loading = false;
+            
+            this.snackBar.open('Company updated successfully', 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
           },
           error: (err) => {
             this.error = 'Failed to update company. Please try again later.';
             this.loading = false;
             console.error('Error updating company:', err);
+            
+            this.snackBar.open('Failed to update company', 'Close', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
           }
         });
     } else {
@@ -251,11 +299,21 @@ export class CompaniesComponent implements OnInit {
             this.isCompanyDetailVisible = false;
             this.detailViewActive.emit(false);
             this.loading = false;
+            
+            this.snackBar.open('Company created successfully', 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
           },
           error: (err) => {
             this.error = 'Failed to create company. Please try again later.';
             this.loading = false;
             console.error('Error creating company:', err);
+            
+            this.snackBar.open('Failed to create company', 'Close', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
           }
         });
     }
@@ -271,11 +329,21 @@ export class CompaniesComponent implements OnInit {
             // Refresh the companies list
             this.loadCompanies();
             this.loading = false;
+            
+            this.snackBar.open('Company deleted successfully', 'Close', {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            });
           },
           error: (err) => {
             this.error = 'Failed to delete company. Please try again later.';
             this.loading = false;
             console.error('Error deleting company:', err);
+            
+            this.snackBar.open('Failed to delete company', 'Close', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
           }
         });
     }
@@ -305,7 +373,10 @@ export class CompaniesComponent implements OnInit {
         this.loading = false;
         
         // Show success message
-        alert(`Successfully imported ${successCount} companies`);
+        this.snackBar.open(`Successfully imported ${successCount} companies`, 'Close', {
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
         return;
       }
       
@@ -368,4 +439,12 @@ export class CompaniesComponent implements OnInit {
       notes: []
     };
   }
+  // Add this method to your CompaniesComponent class
+
+// Handle pagination events from mat-paginator
+onPageChange(event: any): void {
+  this.pageSize = event.pageSize;
+  this.currentPage = event.pageIndex + 1;
+  this.updatePagination();
+}
 }

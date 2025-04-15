@@ -1,5 +1,17 @@
+/* Ensure component takes full height */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+/* Fix for the animation */
 .animated-slide-in {
   animation: slide-in 0.3s ease-out;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slide-in {
@@ -13,32 +25,106 @@
   }
 }
 
-/* Fix for detail view overflow */
-:host {
+/* Tab group should take all available space */
+::ng-deep .mat-mdc-tab-group {
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
 }
 
-/* Make sure the detail container takes full height */
-.detail-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  overflow: auto;
-}
-
-/* Content area should scroll properly */
-.detail-content {
+/* Fix for tab body wrapper to expand */
+::ng-deep .mat-mdc-tab-body-wrapper {
   flex: 1 1 auto;
-  overflow: auto;
-  padding: 1.5rem;
+  height: 0;
 }
 
-/* Ensure forms within tabs have proper height */
-.tab-content {
-  min-height: 100%;
+/* Make sure tab body can scroll */
+::ng-deep .mat-mdc-tab-body {
+  display: flex;
+  overflow: auto;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Fix form field display issues */
+::ng-deep .mat-mdc-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Add spacing between grid items */
+.grid {
+  display: grid;
+  grid-gap: 16px;
+}
+
+/* Fix column layout for different screen sizes */
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .md\:grid-cols-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+/* Fix for Material table in contacts tab */
+::ng-deep table.mat-mdc-table {
+  width: 100%;
+}
+
+/* Fix empty state display */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+/* Ensure proper spacing in form sections */
+.form-section {
+  margin-bottom: 24px;
+}
+
+.form-section-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+/* Fix for mat-expansion-panel in notes tab */
+::ng-deep .mat-expansion-panel {
+  margin-bottom: 16px;
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12) !important;
+}
+
+/* Fix for checkbox alignment */
+::ng-deep .mat-mdc-checkbox {
+  margin-bottom: 16px;
+}
+
+/* Ensure contact add form has proper spacing */
+.contact-form, .note-form {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+/* Fix for note content display */
+.note-content {
+  white-space: pre-line;
+  line-height: 1.5;
 }

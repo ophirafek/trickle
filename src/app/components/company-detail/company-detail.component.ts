@@ -1,12 +1,15 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
-import { Company, Contact, Note } from '../../../model/types';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, ViewEncapsulation } from '@angular/core';
+import { Company, Contact, Note, Lead } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
+import { LeadService } from '../../services/lead.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-company-detail',
   templateUrl: './company-detail.component.html',
-  styleUrls: ['./company-detail.component.scss']
+  styleUrls: ['./company-detail.component.css'],
+  encapsulation: ViewEncapsulation.None // This helps with styling nested Material components
 })
 export class CompanyDetailComponent implements OnInit, OnChanges {
   @Input() company: Company | null = null;
@@ -15,7 +18,11 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
   @Output() onClose = new EventEmitter<void>();
   @Output() onSave = new EventEmitter<Company>();
   
+  // For contact table
   displayedContactColumns: string[] = ['name', 'jobTitle', 'email', 'phone', 'actions'];
+  
+  // For lead table
+  displayedLeadColumns: string[] = ['title', 'status', 'value', 'probability', 'owner', 'actions'];
   
   editingCompany: Company = this.getEmptyCompany();
   isNewCompany: boolean = true;
@@ -30,11 +37,17 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
   isAddingNote: boolean = false;
   noteError: string | null = null;
   
+  // For lead management
+  companyLeads: Lead[] = [];
+  leadLoading: boolean = false;
+  leadError: string | null = null;
+  
   // Loading state
   loading: boolean = false;
 
   constructor(
     private companyService: CompanyService,
+    private leadService: LeadService,
     private snackBar: MatSnackBar
   ) {}
 
@@ -44,12 +57,22 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
 
   ngOnChanges(): void {
     this.resetForm();
+    
+    // When active tab changes to 'leads', load the leads data
+    if (this.activeTab === 'leads' && this.company && this.company.id) {
+      this.loadCompanyLeads();
+    }
   }
 
   resetForm(): void {
     if (this.company) {
       // Create a copy to avoid modifying the original object
       this.editingCompany = { ...this.company };
+      
+      // Ensure collections are initialized
+      if (!this.editingCompany.contacts) this.editingCompany.contacts = [];
+      if (!this.editingCompany.notes) this.editingCompany.notes = [];
+      
       this.isNewCompany = false;
     } else {
       this.editingCompany = this.getEmptyCompany();
@@ -64,6 +87,13 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
     this.newNote = this.getEmptyNote();
     this.isAddingNote = false;
     this.noteError = null;
+    
+    // Reset lead state
+    if (this.activeTab === 'leads' && this.company && this.company.id) {
+      this.loadCompanyLeads();
+    } else {
+      this.companyLeads = [];
+    }
   }
 
   getEmptyCompany(): Company {
@@ -102,13 +132,17 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
   }
 
   getTabIndex(): number {
+    // Only handle regular company info tabs
     const tabMap: { [key: string]: number } = {
       'general': 0,
       'address': 1,
       'contacts': 2,
       'notes': 3
     };
-    return tabMap[this.activeTab] || 0;
+    
+    // If activeTab is 'leads', we'll return the general tab index
+    // as the leads tab is handled separately outside the mat-tab-group
+    return this.activeTab === 'leads' ? 0 : (tabMap[this.activeTab] || 0);
   }
   
   onTabChange(index: number): void {
@@ -118,7 +152,7 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
       2: 'contacts',
       3: 'notes'
     };
-    this.activeTab = tabMap[index] as 'general' | 'address' | 'contacts' | 'notes';
+    this.activeTab = tabMap[index] as 'general' | 'address' | 'contacts' | 'notes' | 'leads';
   }
 
   close(): void {
@@ -126,7 +160,14 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
   }
 
   save(): void {
-    // In a real app, would validate the form here
+    if (!this.editingCompany.name || !this.editingCompany.name.trim()) {
+      this.snackBar.open('Company name is required', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+      return;
+    }
+    
     this.onSave.emit(this.editingCompany);
   }
   
@@ -269,6 +310,126 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
             this.noteError = 'Failed to delete note. Please try again.';
             this.loading = false;
             console.error('Error deleting note:', err);
+          }
+        });
+    }
+  }
+  
+  // Lead methods
+  loadCompanyLeads(): void {
+    if (!this.company || !this.company.id) return;
+    
+    this.leadLoading = true;
+    this.leadError = null;
+    
+    this.leadService.getLeadsByCompany(this.company.id)
+      .subscribe({
+        next: (leads) => {
+          this.companyLeads = leads;
+          this.leadLoading = false;
+          console.log('Loaded leads:', leads.length);
+        },
+        error: (err) => {
+          this.leadError = 'Failed to load company leads';
+          this.leadLoading = false;
+          console.error('Error loading company leads:', err);
+          
+          this.snackBar.open('Failed to load leads', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+  }
+
+  getLeadStatusColor(status: string): ThemePalette {
+    const colorMap: { [key: string]: ThemePalette } = {
+      'New': 'primary',
+      'Contacted': 'accent',
+      'Qualified': 'primary',
+      'Proposal': 'accent',
+      'Negotiation': 'warn'
+    };
+    return colorMap[status] || 'primary';
+  }
+
+  createNewLead(): void {
+    if (!this.company) return;
+    
+    // Create a default lead object with company information
+    const newLead: Lead = {
+      title: '',
+      company: this.company.name,
+      companyId: this.company.id,
+      status: 'New',
+      value: 0,
+      probability: 0,
+      owner: '',
+      lastUpdate: new Date().toLocaleDateString()
+    };
+    
+    // TODO: Navigate to lead creation or open a modal
+    // This depends on your application's structure
+    
+    // For now, just create a placeholder lead
+    this.leadService.createLead(newLead)
+      .subscribe({
+        next: (lead) => {
+          this.snackBar.open('New lead created', 'Close', {
+            duration: 3000
+          });
+          this.loadCompanyLeads();
+        },
+        error: (err) => {
+          this.leadError = 'Failed to create lead';
+          console.error('Error creating lead:', err);
+          
+          this.snackBar.open('Failed to create lead', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+  }
+
+  editLead(lead: Lead, event: Event): void {
+    // Stop event propagation to prevent row click handler
+    event.stopPropagation();
+    
+    // TODO: Navigate to lead editing or open a modal
+    
+    // For now, just show a message
+    this.snackBar.open('Edit lead: ' + lead.title, 'Close', {
+      duration: 3000
+    });
+  }
+
+  deleteLead(leadId: number, event: Event): void {
+    // Stop event propagation to prevent row click handler
+    event.stopPropagation();
+    
+    if (confirm('Are you sure you want to delete this lead?')) {
+      this.leadLoading = true;
+      
+      this.leadService.deleteLead(leadId)
+        .subscribe({
+          next: () => {
+            // Refresh the leads list
+            this.loadCompanyLeads();
+            
+            this.snackBar.open('Lead deleted successfully', 'Close', {
+              duration: 3000
+            });
+          },
+          error: (err) => {
+            this.leadError = 'Failed to delete lead';
+            this.leadLoading = false;
+            console.error('Error deleting lead:', err);
+            
+            this.snackBar.open('Failed to delete lead', 'Close', {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            });
           }
         });
     }
