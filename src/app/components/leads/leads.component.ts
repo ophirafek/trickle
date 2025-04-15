@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Lead, Company } from '../../../model/types';
 import { LeadService } from '../../services/lead.service';
 import { CompanyService } from '../../services/company.service';
@@ -11,6 +11,8 @@ import { ThemePalette } from '@angular/material/core';
   styleUrls: ['./leads.component.scss']
 })
 export class LeadsComponent implements OnInit {
+  @Input() company: any; // Accept the company object as input
+
   leads: Lead[] = [];
   companies: Company[] = [];
   filteredLeads: Lead[] = [];
@@ -35,6 +37,10 @@ export class LeadsComponent implements OnInit {
     { id: 'negotiation', label: 'Negotiation', count: 0 }
   ];
 
+  companyLeads: any[] = [];
+  leadError: string | null = null;
+  leadLoading: boolean = false;
+
   constructor(
     private leadService: LeadService, 
     private companyService: CompanyService,
@@ -42,8 +48,12 @@ export class LeadsComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadCompanies();
-    this.loadLeads();
+    if (this.company) {
+      this.loadLeads();
+    } else {
+      this.loadCompanies();
+      this.loadLeads();
+    }
   }
 
   loadCompanies() {
@@ -63,23 +73,40 @@ export class LeadsComponent implements OnInit {
   }
 
   loadLeads() {
-    this.loading = true;
-    this.error = null;
-    
-    this.leadService.getLeads()
-      .subscribe({
-        next: (leads) => {
-          this.leads = leads;
-          this.updateStatusCounts();
-          this.filterLeads();
-          this.loading = false;
-        },
-        error: (err) => {
-          this.error = 'Failed to load leads. Please try again later.';
-          this.loading = false;
-          console.error('Error loading leads:', err);
-        }
-      });
+    if (this.company) {
+      this.leadLoading = true;
+      this.leadService.getLeadsByCompanyId(this.company.id)
+        .subscribe({
+          next: (leads) => {
+            this.companyLeads = leads;
+            this.filteredLeads = leads; // Ensure leads are displayed
+            this.leadLoading = false;
+          },
+          error: (err) => {
+            this.leadError = 'Failed to load leads for the company. Please try again later.';
+            this.leadLoading = false;
+            console.error('Error loading company leads:', err);
+          }
+        });
+    } else {
+      this.loading = true;
+      this.error = null;
+      
+      this.leadService.getLeads()
+        .subscribe({
+          next: (leads) => {
+            this.leads = leads;
+            this.updateStatusCounts();
+            this.filterLeads();
+            this.loading = false;
+          },
+          error: (err) => {
+            this.error = 'Failed to load leads. Please try again later.';
+            this.loading = false;
+            console.error('Error loading leads:', err);
+          }
+        });
+    }
   }
 
   updateStatusCounts(): void {
@@ -220,4 +247,16 @@ export class LeadsComponent implements OnInit {
   getCompanyOptions(): Company[] {
     return this.companies;
   }
+
+  editLead(lead: any, event: Event): void {
+    event.stopPropagation();
+    // Logic to edit the lead
+  }
+
+  deleteLead(leadId: number, event: Event): void {
+    event.stopPropagation();
+    // Logic to delete the lead
+  }
+
+ 
 }

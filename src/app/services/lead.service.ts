@@ -61,6 +61,11 @@ export class LeadService {
       );
   }
 
+  // Get leads by company ID
+  getLeadsByCompanyId(companyId: number): Observable<Lead[]> {
+    return this.http.get<Lead[]>(`${this.apiUrl}/Company/${companyId}`);
+  }
+
   // Error handling method
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: HttpErrorResponse): Observable<T> => {
