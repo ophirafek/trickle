@@ -1,18 +1,16 @@
-import { Component, Output, EventEmitter, Input, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { Company } from '../../../model/types';
+import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-company-import',
   templateUrl: './company-import.component.html',
   styleUrls: ['./company-import.component.scss']
 })
-export class CompanyImportComponent {
-  @Input() isOpen: boolean = false;
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onImport = new EventEmitter<Company[]>();
+export class CompanyImportComponent implements OnInit {
   @ViewChild('stepper') stepper!: MatStepper;
 
   fileSelected: boolean = false;
@@ -46,7 +44,18 @@ export class CompanyImportComponent {
   private selectedFile: File | null = null;
   displayedColumns: string[] = ['select', ...this.requiredFields.map(f => f.key), 'status'];
   
-  constructor(private snackBar: MatSnackBar) {}
+  // Loading state
+  loading: boolean = false;
+  
+  constructor(
+    private companyService: CompanyService,
+    private snackBar: MatSnackBar,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    // Initialize component
+  }
 
   get canProceedToMapping(): boolean {
     return this.fileSelected && 
@@ -254,6 +263,8 @@ export class CompanyImportComponent {
   importCompanies(): void {
     if (!this.canImport) return;
     
+    this.loading = true;
+    
     const selectedData = this.fileData.filter((_, index) => this.selectedRows[index]);
     const mappedCompanies: Company[] = selectedData.map(row => {
       const company: any = {};
@@ -266,17 +277,58 @@ export class CompanyImportComponent {
       return company as Company;
     });
     
-    this.onImport.emit(mappedCompanies);
-    this.close();
+    // Since we're handling multiple companies, we'll create them one at a time
+    let successCount = 0;
+    let failCount = 0;
+    let processedCount = 0;
     
-    this.snackBar.open(`Successfully imported ${mappedCompanies.length} companies`, 'Close', {
-      duration: 3000
-    });
+    const processCompany = (index: number) => {
+      if (index >= mappedCompanies.length) {
+        // All companies processed
+        this.loading = false;
+        
+        const message = successCount === mappedCompanies.length
+          ? `Successfully imported ${successCount} companies`
+          : `Imported ${successCount} companies (${failCount} failed)`;
+        
+        this.snackBar.open(message, 'Close', {
+          duration: 5000,
+          panelClass: failCount > 0 ? ['warning-snackbar'] : ['success-snackbar']
+        });
+        
+        // Return to companies list
+        this.router.navigate(['/companies']);
+        return;
+      }
+      
+      const company = mappedCompanies[index];
+      
+      this.companyService.createCompany(company).subscribe({
+        next: () => {
+          successCount++;
+          processedCount++;
+          processNextCompany();
+        },
+        error: (err) => {
+          console.error(`Error importing company ${index}:`, err);
+          failCount++;
+          processedCount++;
+          processNextCompany();
+        }
+      });
+    };
+    
+    const processNextCompany = () => {
+      processCompany(processedCount);
+    };
+    
+    // Start processing
+    processCompany(0);
   }
 
-  close(): void {
-    this.resetFile();
-    this.onClose.emit();
+  // Navigation methods
+  navigateToCompanies(): void {
+    this.router.navigate(['/companies']);
   }
 
   private formatFileSize(bytes: number): string {

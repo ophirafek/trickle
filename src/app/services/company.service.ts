@@ -58,7 +58,12 @@ export class CompanyService {
         catchError(this.handleError<any>(`deleteCompany id=${id}`))
       );
   }
-
+  importCompanies(companies: Company[]): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/import`, companies)
+      .pipe(
+        catchError(this.handleError<any>('importCompanies'))
+      );
+  }
   // Add contact to company
   addContact(companyId: number, contact: Contact): Observable<Contact> {
     return this.http.post<Contact>(`${this.apiUrl}/${companyId}/contacts`, contact)

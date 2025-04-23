@@ -1,16 +1,15 @@
 <mat-sidenav-container class="h-screen">
   <!-- Side Navigation -->
-  <mat-sidenav #sidenav [opened]="isSidenavOpen && !isDetailView" [mode]="'side'" class="w-64 bg-white shadow-lg">
+  <mat-sidenav #sidenav [opened]="isSidenavOpen" [mode]="'side'" class="w-64 bg-white shadow-lg">
     <div class="p-4 border-b">
       <h1 class="text-xl font-bold text-gray-800">LeadManager Pro</h1>
     </div>
     
     <mat-nav-list class="p-2">
-      <a mat-list-item 
+      <a mat-list-item
          *ngFor="let item of menuItems"
-         (click)="activeTab = item.id"
-         [class.bg-blue-50]="activeTab === item.id"
-         [class.text-blue-600]="activeTab === item.id">
+         [routerLink]="[item.route]"
+         routerLinkActive="bg-blue-50 text-blue-600">
         <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
         <span matListItemTitle>{{ item.label }}</span>
       </a>
@@ -22,16 +21,7 @@
     <app-header [showMenuToggle]="true" (menuToggle)="toggleSidenav()"></app-header>
     
     <div class="flex-1 overflow-auto bg-gray-100">
-      <ng-container [ngSwitch]="activeTab">
-        <app-dashboard *ngSwitchCase="'dashboard'"></app-dashboard>
-        <app-companies 
-          *ngSwitchCase="'companies'" 
-          (detailViewActive)="setDetailViewState($event)"
-          [showContextMenu]="isDetailView"
-        ></app-companies>
-        <app-leads *ngSwitchCase="'leads'"></app-leads>
-        <app-meetings *ngSwitchCase="'meetings'"></app-meetings>
-      </ng-container>
+      <router-outlet></router-outlet>
     </div>
   </mat-sidenav-content>
 </mat-sidenav-container>

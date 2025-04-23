@@ -1,3 +1,4 @@
+
 <div class="p-6">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
@@ -5,18 +6,25 @@
     <p class="ml-4 text-gray-700">Loading...</p>
   </div>
 
+  <!-- Error message display -->
+  <div *ngIf="error" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+    {{ error }}
+  </div>
+
   <!-- List View -->
-  <div *ngIf="viewMode === 'list'">
+  <div>
     <div class="mb-6 flex justify-between items-center">
       <h1 class="text-2xl font-semibold text-gray-800">Companies</h1>
-      <button 
-        mat-raised-button 
-        color="primary"
-        (click)="createNewCompany()"
-      >
-        <mat-icon>add</mat-icon>
-        Add Company
-      </button>
+      <div class="space-x-2">
+        <button 
+          mat-raised-button 
+          color="primary"
+          [routerLink]="['/companies', 'new']"
+        >
+          <mat-icon>add</mat-icon>
+          Add Company
+        </button>
+      </div>
     </div>
 
     <mat-card>
@@ -36,15 +44,15 @@
         </div>
         <div class="flex items-center space-x-2">
           <button mat-button color="primary">Export</button>
-          <button mat-button color="primary" (click)="openImport()">Import</button>
+          <button mat-button color="primary" [routerLink]="['/companies', 'import']">Import</button>
         </div>
       </div>
 
-      <!-- Companies List - Using a custom table-like layout instead of mat-nav-list -->
+      <!-- Companies List - Using a custom table-like layout -->
       <div class="overflow-auto" style="max-height: 65vh;">
         <div *ngFor="let company of filteredCompanies" 
              class="border-b hover:bg-gray-50 cursor-pointer px-4 py-3"
-             (click)="openCompanyDetail(company)">
+             [routerLink]="['/companies', company.id]">
           <div class="company-content">
             <div class="company-info">
               <div class="flex items-center space-x-3">
@@ -75,11 +83,11 @@
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #companyMenu="matMenu">
-                <button mat-menu-item>
+                <button mat-menu-item [routerLink]="['/companies', company.id]" [queryParams]="{tab: 'general'}">
                   <mat-icon>edit</mat-icon>
                   <span>Edit</span>
                 </button>
-                <button mat-menu-item>
+                <button mat-menu-item (click)="deleteCompany(company.id); $event.stopPropagation()">
                   <mat-icon>delete</mat-icon>
                   <span>Delete</span>
                 </button>
@@ -99,14 +107,14 @@
             <button 
               mat-raised-button
               color="primary"
-              (click)="createNewCompany()"
+              [routerLink]="['/companies', 'new']"
             >
               Add New Company
             </button>
             <button 
               mat-stroked-button
               color="primary"
-              (click)="openImport()"
+              [routerLink]="['/companies', 'import']"
             >
               Import Companies
             </button>
@@ -125,119 +133,4 @@
       </mat-paginator>
     </mat-card>
   </div>
-
-  <!-- Detail View -->
-  <div *ngIf="viewMode === 'detail'" class="flex h-full">
-    <!-- Context Sidebar Menu -->
-    <mat-card *ngIf="showContextMenu" class="w-64 mr-6">
-      <mat-card-header>
-        <div class="p-4 border-b flex items-center space-x-3 w-full">
-          <button 
-            mat-icon-button
-            color="primary"
-            (click)="closeCompanyDetail()"
-          >
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-          <h1 class="text-xl font-semibold text-gray-800 truncate">
-            {{ selectedCompany ? selectedCompany.name : 'New Company' }}
-          </h1>
-        </div>
-      </mat-card-header>
-      
-      <mat-card-content>
-        <p class="text-xs font-medium text-gray-500 uppercase mb-2 mt-4 px-4">Company Details</p>
-        <mat-nav-list>
-          <a mat-list-item
-             [class.bg-blue-50]="activeTab === 'general'"
-             [class.text-blue-600]="activeTab === 'general'"
-             (click)="setActiveTab('general')">
-            <mat-icon matListItemIcon>business</mat-icon>
-            <span matListItemTitle>General Info</span>
-          </a>
-          <a mat-list-item
-             [class.bg-blue-50]="activeTab === 'address'"
-             [class.text-blue-600]="activeTab === 'address'"
-             (click)="setActiveTab('address')">
-            <mat-icon matListItemIcon>place</mat-icon>
-            <span matListItemTitle>Address</span>
-          </a>
-          <a mat-list-item
-             [class.bg-blue-50]="activeTab === 'contacts'"
-             [class.text-blue-600]="activeTab === 'contacts'"
-             (click)="setActiveTab('contacts')">
-            <mat-icon matListItemIcon>people</mat-icon>
-            <span matListItemTitle>Contacts</span>
-          </a>
-          <a mat-list-item
-             [class.bg-blue-50]="activeTab === 'notes'"
-             [class.text-blue-600]="activeTab === 'notes'"
-             (click)="setActiveTab('notes')">
-            <mat-icon matListItemIcon>note</mat-icon>
-            <span matListItemTitle>Notes</span>
-          </a>
-        </mat-nav-list>
-        
-        <mat-divider class="my-4"></mat-divider>
-        
-        <p class="text-xs font-medium text-gray-500 uppercase mb-2 px-4">Related</p>
-        <mat-nav-list>
-          <a mat-list-item
-            [class.bg-blue-50]="activeTab === 'leads'"
-         [class.text-blue-600]="activeTab === 'leads'"
-         (click)="setActiveTab('leads')">
-            <mat-icon matListItemIcon>track_changes</mat-icon>
-            <span matListItemTitle>Leads</span>
-          </a>
-          <a mat-list-item>
-            <mat-icon matListItemIcon>event</mat-icon>
-            <span matListItemTitle>Meetings</span>
-          </a>
-          <a mat-list-item>
-            <mat-icon matListItemIcon>description</mat-icon>
-            <span matListItemTitle>Contracts</span>
-          </a>
-        </mat-nav-list>
-      </mat-card-content>
-    </mat-card>
-
-    <!-- Main Content Area with Detail Component -->
-    <mat-card class="flex-1">
-      <!-- Company Detail Component -->
-      <mat-card-content class="p-0 flex-1 overflow-auto">
-        <app-company-detail
-          [company]="selectedCompany"
-          [isVisible]="isCompanyDetailVisible"
-          [activeTab]="activeTab"
-          (onClose)="closeCompanyDetail()"
-          (onSave)="saveCompany($event)"
-          #companyDetailComponent
-        ></app-company-detail>
-      </mat-card-content>
-        
-      <!-- Footer -->
-      <mat-card-actions align="end" class="p-4 border-t bg-gray-50">
-        <button 
-          mat-stroked-button
-          (click)="closeCompanyDetail()"
-        >
-          Cancel
-        </button>
-        <button 
-          mat-raised-button
-          color="primary"
-          (click)="onSaveCompany()"
-        >
-          Save Company
-        </button>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-
-  <!-- Company Import Modal -->
-  <app-company-import
-    [isOpen]="isImportOpen"
-    (onClose)="closeImport()"
-    (onImport)="handleImportedCompanies($event)"
-  ></app-company-import>
 </div>

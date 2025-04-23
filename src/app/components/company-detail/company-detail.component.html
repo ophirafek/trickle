@@ -1,336 +1,523 @@
-<div class="animated-slide-in h-full flex flex-col" *ngIf="isVisible">
+<div class="p-6 h-full flex flex-col">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
     <mat-spinner [diameter]="48"></mat-spinner>
     <p class="ml-4 text-gray-700">Loading...</p>
   </div>
   
-  <!-- Regular tabs content (shown for general, address, contacts, notes) -->
-  <div *ngIf="activeTab !== 'leads'">
-    <mat-tab-group [selectedIndex]="getTabIndex()" (selectedIndexChange)="onTabChange($event)" animationDuration="150ms">
-      <!-- General Info Tab -->
-      <mat-tab label="General Info">
-        <div class="py-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- First column -->
-            <div>
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Company Name</mat-label>
-                <input matInput [(ngModel)]="editingCompany.name" placeholder="Company name">
-              </mat-form-field>
+  <!-- Header with back button and actions -->
+  <div class="mb-6 flex justify-between items-center">
+    <div class="flex items-center">
+      <button 
+        mat-icon-button
+        color="primary"
+        (click)="navigateToCompanies()"
+        class="mr-2"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1 class="text-2xl font-semibold text-gray-800">
+        {{ isNewCompany ? 'New Company' : editingCompany.name }}
+      </h1>
+    </div>
+    
+    <div>
+      <button 
+        mat-stroked-button
+        class="mr-2"
+        (click)="navigateToCompanies()"
+      >
+        Cancel
+      </button>
+      <button 
+        mat-raised-button
+        color="primary"
+        (click)="save()"
+      >
+        Save Company
+      </button>
+    </div>
+  </div>
+  
+  <!-- Tab Navigation -->
+  <div class="mb-4 border-b">
+    <div class="flex space-x-1">
+      <button mat-button 
+        [class.bg-blue-50]="activeTab === 'general'"
+        [class.text-blue-600]="activeTab === 'general'"
+        (click)="navigateToTab('general')">
+        <mat-icon class="mr-1">business</mat-icon>
+        General Info
+      </button>
+      <button mat-button 
+        [class.bg-blue-50]="activeTab === 'address'"
+        [class.text-blue-600]="activeTab === 'address'"
+        (click)="navigateToTab('address')">
+        <mat-icon class="mr-1">place</mat-icon>
+        Address
+      </button>
+      <button mat-button 
+        [class.bg-blue-50]="activeTab === 'contacts'"
+        [class.text-blue-600]="activeTab === 'contacts'"
+        (click)="navigateToTab('contacts')">
+        <mat-icon class="mr-1">people</mat-icon>
+        Contacts
+      </button>
+      <button mat-button 
+        [class.bg-blue-50]="activeTab === 'notes'"
+        [class.text-blue-600]="activeTab === 'notes'"
+        (click)="navigateToTab('notes')">
+        <mat-icon class="mr-1">note</mat-icon>
+        Notes
+      </button>
+      <button mat-button 
+        [class.bg-blue-50]="activeTab === 'leads'"
+        [class.text-blue-600]="activeTab === 'leads'"
+        (click)="navigateToTab('leads')">
+        <mat-icon class="mr-1">track_changes</mat-icon>
+        Leads
+      </button>
+    </div>
+  </div>
+  
+  <!-- Main content area -->
+  <mat-card class="flex-1 overflow-hidden">
+    <mat-card-content class="h-full p-0 flex flex-col">
+      <!-- Regular tabs content (shown for general, address, contacts, notes) -->
+      <div *ngIf="activeTab !== 'leads'" class="p-4 flex-1 overflow-auto">
+        <div [ngSwitch]="activeTab">
+          <!-- General Info Tab -->
+          <div *ngSwitchCase="'general'">
+            <!--<div class="form-section mt-6">-->
+              <h3 class="form-section-title">Business Identifiers</h3>
               
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Industry</mat-label>
-                <input matInput [(ngModel)]="editingCompany.industry" placeholder="Industry">
-              </mat-form-field>
-            </div>
-            
-            <!-- Second column -->
-            <div>
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Size</mat-label>
-                <mat-select [(ngModel)]="editingCompany.size">
-                  <mat-option value="1-50 employees">1-50 employees</mat-option>
-                  <mat-option value="50-100 employees">50-100 employees</mat-option>
-                  <mat-option value="100-500 employees">100-500 employees</mat-option>
-                  <mat-option value="500-1000 employees">500-1000 employees</mat-option>
-                  <mat-option value="1000-5000 employees">1000-5000 employees</mat-option>
-                  <mat-option value="5000+ employees">5000+ employees</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Registration Number</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.registrationNumber" placeholder="Company registration number">
+                  <!-- Removed placeholder -->
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>DUNS Number</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.dunsNumber" placeholder="Dun & Bradstreet number">
+                  <mat-hint>9-digit business identifier</mat-hint>
+                </mat-form-field>
+              </div>
+            <!--</div>-->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- First column -->
+              <div>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Company Name</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.name" placeholder="Company name">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Industry</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.industry" placeholder="Industry">
+                </mat-form-field>
+              </div>
               
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Location</mat-label>
-                <input matInput [(ngModel)]="editingCompany.location" placeholder="City, State">
-              </mat-form-field>
-            </div>
-            
-            <!-- Third column -->
-            <div>
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Website</mat-label>
-                <input matInput [(ngModel)]="editingCompany.website" placeholder="www.example.com">
-              </mat-form-field>
+              <!-- Second column -->
+              <div>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Size</mat-label>
+                  <mat-select [(ngModel)]="editingCompany.size">
+                    <mat-option value="1-50 employees">1-50 employees</mat-option>
+                    <mat-option value="50-100 employees">50-100 employees</mat-option>
+                    <mat-option value="100-500 employees">100-500 employees</mat-option>
+                    <mat-option value="500-1000 employees">500-1000 employees</mat-option>
+                    <mat-option value="1000-5000 employees">1000-5000 employees</mat-option>
+                    <mat-option value="5000+ employees">5000+ employees</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Location</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.location" placeholder="City, State">
+                </mat-form-field>
+              </div>
               
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Status</mat-label>
-                <mat-select [(ngModel)]="editingCompany.status">
-                  <mat-option value="Active">Active</mat-option>
-                  <mat-option value="Prospect">Prospect</mat-option>
-                  <mat-option value="Inactive">Inactive</mat-option>
-                </mat-select>
-              </mat-form-field>
+              <!-- Third column -->
+              <div>
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Website</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.website" placeholder="www.example.com">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Status</mat-label>
+                  <mat-select [(ngModel)]="editingCompany.status">
+                    <mat-option value="Active">Active</mat-option>
+                    <mat-option value="Prospect">Prospect</mat-option>
+                    <mat-option value="Inactive">Inactive</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
             </div>
-          </div>
-          
-          <div class="form-section">
-            <h3 class="form-section-title">Additional Information</h3>
+           
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>LinkedIn Profile</mat-label>
-                <input matInput [(ngModel)]="editingCompany.linkedInProfile" placeholder="LinkedIn URL">
-              </mat-form-field>
+            <div class="form-section">
+              <h3 class="form-section-title">Additional Information</h3>
               
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Founding Year</mat-label>
-                <input matInput type="number" [(ngModel)]="editingCompany.foundingYear" placeholder="Year founded">
-              </mat-form-field>
-            </div>
-            
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Description</mat-label>
-              <textarea matInput [(ngModel)]="editingCompany.description" placeholder="Company description..." rows="4"></textarea>
-            </mat-form-field>
-          </div>
-        </div>
-      </mat-tab>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>LinkedIn Profile</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.linkedInProfile" placeholder="LinkedIn URL">
+                </mat-form-field>
+                
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>Founding Year</mat-label>
+                  <input matInput type="number" [(ngModel)]="editingCompany.foundingYear" placeholder="Year founded">
+                </mat-form-field>
 
-      <!-- Address Tab -->
-      <mat-tab label="Address">
-        <div class="py-4">
-          <h3 class="form-section-title">Address Information</h3>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Street Address</mat-label>
-              <input matInput [(ngModel)]="editingCompany.streetAddress" placeholder="123 Main St">
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Suite/Unit</mat-label>
-              <input matInput [(ngModel)]="editingCompany.suite" placeholder="Suite 100">
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>City</mat-label>
-              <input matInput [(ngModel)]="editingCompany.city" placeholder="City">
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>State/Province</mat-label>
-              <input matInput [(ngModel)]="editingCompany.stateProvince" placeholder="State">
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Postal Code</mat-label>
-              <input matInput [(ngModel)]="editingCompany.postalCode" placeholder="Postal Code">
-            </mat-form-field>
-            
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Country</mat-label>
-              <input matInput [(ngModel)]="editingCompany.country" placeholder="Country">
-            </mat-form-field>
+              </div>
+              
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Description</mat-label>
+                <textarea matInput [(ngModel)]="editingCompany.description" placeholder="Company description..." rows="4"></textarea>
+              </mat-form-field>
+            </div>
           </div>
-          
-          <div class="form-section">
-            <h3 class="form-section-title">Billing Address</h3>
-            <mat-checkbox class="mb-4">Same as company address</mat-checkbox>
+
+          <!-- Address Tab -->
+          <div *ngSwitchCase="'address'">
+            <h3 class="form-section-title">Address Information</h3>
             
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Billing Street</mat-label>
-                <input matInput [(ngModel)]="editingCompany.billingStreet" placeholder="Billing street">
+                <mat-label>Street Address</mat-label>
+                <input matInput [(ngModel)]="editingCompany.streetAddress" placeholder="123 Main St">
               </mat-form-field>
               
               <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Billing City</mat-label>
-                <input matInput [(ngModel)]="editingCompany.billingCity" placeholder="Billing city">
+                <mat-label>Suite/Unit</mat-label>
+                <input matInput [(ngModel)]="editingCompany.suite" placeholder="Suite 100">
               </mat-form-field>
               
               <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Billing Postal Code</mat-label>
-                <input matInput [(ngModel)]="editingCompany.billingPostalCode" placeholder="Billing postal code">
+                <mat-label>City</mat-label>
+                <input matInput [(ngModel)]="editingCompany.city" placeholder="City">
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>State/Province</mat-label>
+                <input matInput [(ngModel)]="editingCompany.stateProvince" placeholder="State">
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Postal Code</mat-label>
+                <input matInput [(ngModel)]="editingCompany.postalCode" placeholder="Postal Code">
+              </mat-form-field>
+              
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label>Country</mat-label>
+                <input matInput [(ngModel)]="editingCompany.country" placeholder="Country">
               </mat-form-field>
             </div>
-          </div>
-        </div>
-      </mat-tab>
-      
-      <!-- Contacts Tab -->
-      <mat-tab label="Contacts">
-        <div class="py-4">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="form-section-title m-0">Contact Information</h3>
-            <button 
-              mat-raised-button
-              color="primary"
-              (click)="startAddingContact()"
-              *ngIf="!isAddingContact"
-            >
-              <mat-icon class="mr-1">add</mat-icon> Add Contact
-            </button>
-          </div>
-          
-          <!-- Contact error message -->
-          <div *ngIf="contactError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-            {{ contactError }}
-          </div>
-          
-          <!-- Add Contact Form -->
-          <mat-card *ngIf="isAddingContact" class="contact-form mb-6">
-            <mat-card-header>
-              <mat-card-title class="text-lg">New Contact</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+            
+            <div class="form-section">
+              <h3 class="form-section-title">Billing Address</h3>
+              <mat-checkbox class="mb-4">Same as company address</mat-checkbox>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Full Name <span class="text-red-500">*</span></mat-label>
-                  <input matInput [(ngModel)]="newContact.name" placeholder="Full name">
+                  <mat-label>Billing Street</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.billingStreet" placeholder="Billing street">
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Job Title</mat-label>
-                  <input matInput [(ngModel)]="newContact.jobTitle" placeholder="Job title">
+                  <mat-label>Billing City</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.billingCity" placeholder="Billing city">
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Email</mat-label>
-                  <input matInput type="email" [(ngModel)]="newContact.email" placeholder="Email address">
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Phone</mat-label>
-                  <input matInput [(ngModel)]="newContact.phone" placeholder="Phone number">
+                  <mat-label>Billing Postal Code</mat-label>
+                  <input matInput [(ngModel)]="editingCompany.billingPostalCode" placeholder="Billing postal code">
                 </mat-form-field>
               </div>
-            </mat-card-content>
-            <mat-card-actions align="end">
-              <button mat-button (click)="cancelAddContact()">Cancel</button>
-              <button mat-raised-button color="primary" (click)="addContact()">Save Contact</button>
-            </mat-card-actions>
-          </mat-card>
+            </div>
+          </div>
           
-          <!-- Contacts Table -->
-          <div class="mat-elevation-z1 overflow-hidden rounded">
-            <table mat-table [dataSource]="editingCompany.contacts || []" class="w-full">
-              <!-- Name Column -->
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef> Name </th>
-                <td mat-cell *matCellDef="let contact"> {{contact.name}} </td>
-              </ng-container>
-              
-              <!-- Title Column -->
-              <ng-container matColumnDef="jobTitle">
-                <th mat-header-cell *matHeaderCellDef> Title </th>
-                <td mat-cell *matCellDef="let contact"> {{contact.jobTitle}} </td>
-              </ng-container>
-              
-              <!-- Email Column -->
-              <ng-container matColumnDef="email">
-                <th mat-header-cell *matHeaderCellDef> Email </th>
-                <td mat-cell *matCellDef="let contact"> {{contact.email}} </td>
-              </ng-container>
-              
-              <!-- Phone Column -->
-              <ng-container matColumnDef="phone">
-                <th mat-header-cell *matHeaderCellDef> Phone </th>
-                <td mat-cell *matCellDef="let contact"> {{contact.phone}} </td>
-              </ng-container>
-              
-              <!-- Actions Column -->
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="text-center"> Actions </th>
-                <td mat-cell *matCellDef="let contact" class="text-center">
-                  <button mat-icon-button color="warn" (click)="deleteContact(contact.id)">
+          <!-- Contacts Tab -->
+          <div *ngSwitchCase="'contacts'">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="form-section-title m-0">Contact Information</h3>
+              <button 
+                mat-raised-button
+                color="primary"
+                (click)="startAddingContact()"
+                *ngIf="!isAddingContact"
+              >
+                <mat-icon class="mr-1">add</mat-icon> Add Contact
+              </button>
+            </div>
+            
+            <!-- Contact error message -->
+            <div *ngIf="contactError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              {{ contactError }}
+            </div>
+            
+            <!-- Add Contact Form -->
+            <mat-card *ngIf="isAddingContact" class="contact-form mb-6">
+              <mat-card-header>
+                <mat-card-title class="text-lg">New Contact</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Full Name <span class="text-red-500">*</span></mat-label>
+                    <input matInput [(ngModel)]="newContact.name" placeholder="Full name">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Job Title</mat-label>
+                    <input matInput [(ngModel)]="newContact.jobTitle" placeholder="Job title">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Email</mat-label>
+                    <input matInput type="email" [(ngModel)]="newContact.email" placeholder="Email address">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Phone</mat-label>
+                    <input matInput [(ngModel)]="newContact.phone" placeholder="Phone number">
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+              <mat-card-actions align="end">
+                <button mat-button (click)="cancelAddContact()">Cancel</button>
+                <button mat-raised-button color="primary" (click)="addContact()">Save Contact</button>
+              </mat-card-actions>
+            </mat-card>
+            
+            <!-- Contacts Table -->
+            <div class="mat-elevation-z1 overflow-hidden rounded">
+              <table mat-table [dataSource]="editingCompany.contacts || []" class="w-full">
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef> Name </th>
+                  <td mat-cell *matCellDef="let contact"> {{contact.name}} </td>
+                </ng-container>
+                
+                <!-- Title Column -->
+                <ng-container matColumnDef="jobTitle">
+                  <th mat-header-cell *matHeaderCellDef> Title </th>
+                  <td mat-cell *matCellDef="let contact"> {{contact.jobTitle}} </td>
+                </ng-container>
+                
+                <!-- Email Column -->
+                <ng-container matColumnDef="email">
+                  <th mat-header-cell *matHeaderCellDef> Email </th>
+                  <td mat-cell *matCellDef="let contact"> {{contact.email}} </td>
+                </ng-container>
+                
+                <!-- Phone Column -->
+                <ng-container matColumnDef="phone">
+                  <th mat-header-cell *matHeaderCellDef> Phone </th>
+                  <td mat-cell *matCellDef="let contact"> {{contact.phone}} </td>
+                </ng-container>
+                
+                <!-- Actions Column -->
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef class="text-center"> Actions </th>
+                  <td mat-cell *matCellDef="let contact" class="text-center">
+                    <button mat-icon-button color="warn" (click)="deleteContact(contact.id)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+                
+                <tr mat-header-row *matHeaderRowDef="displayedContactColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedContactColumns;"></tr>
+                
+                <!-- No data row -->
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell text-center p-4" colspan="5">
+                    No contacts added yet
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          
+          <!-- Notes Tab -->
+          <div *ngSwitchCase="'notes'">
+            <div class="flex justify-between items-center mb-6">
+              <h3 class="form-section-title m-0">Notes</h3>
+              <button 
+                mat-raised-button
+                color="primary"
+                (click)="startAddingNote()"
+                *ngIf="!isAddingNote"
+              >
+                <mat-icon class="mr-1">add</mat-icon> Add Note
+              </button>
+            </div>
+            
+            <!-- Note error message -->
+            <div *ngIf="noteError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+              {{ noteError }}
+            </div>
+            
+            <!-- Add Note Form -->
+            <mat-card *ngIf="isAddingNote" class="note-form mb-6">
+              <mat-card-header>
+                <mat-card-title class="text-lg">New Note</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="mt-3">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Title <span class="text-red-500">*</span></mat-label>
+                    <input matInput [(ngModel)]="newNote.title" placeholder="Note title">
+                  </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Content <span class="text-red-500">*</span></mat-label>
+                    <textarea matInput [(ngModel)]="newNote.content" placeholder="Note content..." rows="6"></textarea>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+              <mat-card-actions align="end">
+                <button mat-button (click)="cancelAddNote()">Cancel</button>
+                <button mat-raised-button color="primary" (click)="addNote()">Save Note</button>
+              </mat-card-actions>
+            </mat-card>
+            
+            <!-- Empty State -->
+            <div *ngIf="!editingCompany.notes || editingCompany.notes.length === 0" class="empty-state">
+              <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                <mat-icon class="text-gray-400 text-3xl">notes</mat-icon>
+              </div>
+              <p class="text-gray-700">No notes have been added yet</p>
+              <p class="text-sm text-gray-500 mt-1">Notes help you keep track of important information about this company</p>
+            </div>
+            
+            <!-- Notes List -->
+            <mat-accordion *ngIf="editingCompany.notes && editingCompany.notes.length > 0">
+              <mat-expansion-panel *ngFor="let note of editingCompany.notes" class="mb-4">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    {{ note.title }}
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    {{ note.createdAt | date:'medium' }}
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+                <p class="note-content">{{ note.content }}</p>
+                <mat-action-row>
+                  <button mat-icon-button color="warn" (click)="deleteNote(note.id)">
                     <mat-icon>delete</mat-icon>
                   </button>
-                </td>
-              </ng-container>
-              
-              <tr mat-header-row *matHeaderRowDef="displayedContactColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedContactColumns;"></tr>
-              
-              <!-- No data row -->
-              <tr class="mat-row" *matNoDataRow>
-                <td class="mat-cell text-center p-4" colspan="5">
-                  No contacts added yet
-                </td>
-              </tr>
-            </table>
+                </mat-action-row>
+              </mat-expansion-panel>
+            </mat-accordion>
           </div>
         </div>
-      </mat-tab>
+      </div>
       
-      <!-- Notes Tab -->
-      <mat-tab label="Notes">
-        <div class="py-4">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="form-section-title m-0">Notes</h3>
-            <button 
-              mat-raised-button
-              color="primary"
-              (click)="startAddingNote()"
-              *ngIf="!isAddingNote"
-            >
-              <mat-icon class="mr-1">add</mat-icon> Add Note
-            </button>
-          </div>
-          
-          <!-- Note error message -->
-          <div *ngIf="noteError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-            {{ noteError }}
-          </div>
-          
-          <!-- Add Note Form -->
-          <mat-card *ngIf="isAddingNote" class="note-form mb-6">
-            <mat-card-header>
-              <mat-card-title class="text-lg">New Note</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="mt-3">
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Title <span class="text-red-500">*</span></mat-label>
-                  <input matInput [(ngModel)]="newNote.title" placeholder="Note title">
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Content <span class="text-red-500">*</span></mat-label>
-                  <textarea matInput [(ngModel)]="newNote.content" placeholder="Note content..." rows="6"></textarea>
-                </mat-form-field>
-              </div>
-            </mat-card-content>
-            <mat-card-actions align="end">
-              <button mat-button (click)="cancelAddNote()">Cancel</button>
-              <button mat-raised-button color="primary" (click)="addNote()">Save Note</button>
-            </mat-card-actions>
-          </mat-card>
-          
-          <!-- Empty State -->
-          <div *ngIf="!editingCompany.notes || editingCompany.notes.length === 0" class="empty-state">
-            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-              <mat-icon class="text-gray-400 text-3xl">notes</mat-icon>
-            </div>
-            <p class="text-gray-700">No notes have been added yet</p>
-            <p class="text-sm text-gray-500 mt-1">Notes help you keep track of important information about this company</p>
-          </div>
-          
-          <!-- Notes List -->
-          <mat-accordion *ngIf="editingCompany.notes && editingCompany.notes.length > 0">
-            <mat-expansion-panel *ngFor="let note of editingCompany.notes" class="mb-4">
-              <mat-expansion-panel-header>
-                <mat-panel-title>
-                  {{ note.title }}
-                </mat-panel-title>
-                <mat-panel-description>
-                  {{ note.createdAt | date:'medium' }}
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-              <p class="note-content">{{ note.content }}</p>
-              <mat-action-row>
-                <button mat-icon-button color="warn" (click)="deleteNote(note.id)">
+      <!-- Leads View - shown when activeTab is 'leads' -->
+      <div *ngIf="activeTab === 'leads'" class="p-4 flex-1 overflow-auto">
+        <!-- Loading indicator for leads -->
+        <div *ngIf="leadLoading" class="flex items-center justify-center p-8">
+          <mat-spinner [diameter]="32"></mat-spinner>
+          <p class="ml-4 text-gray-700">Loading leads...</p>
+        </div>
+        
+        <!-- Lead error message -->
+        <div *ngIf="leadError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+          {{ leadError }}
+        </div>
+        
+        <!-- Lead actions header -->
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="form-section-title m-0">Company Leads</h3>
+          <button 
+            mat-raised-button
+            color="primary"
+            (click)="createNewLead()"
+          >
+            <mat-icon class="mr-1">add</mat-icon> Add Lead
+          </button>
+        </div>
+        
+        <!-- Leads Table -->
+        <div class="mat-elevation-z1 overflow-hidden rounded">
+          <table mat-table [dataSource]="companyLeads" class="w-full">
+            <!-- Title Column -->
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef> Title </th>
+              <td mat-cell *matCellDef="let lead"> {{lead.title}} </td>
+            </ng-container>
+            
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef> Status </th>
+              <td mat-cell *matCellDef="let lead"> 
+                <mat-chip [color]="getLeadStatusColor(lead.status)" selected>
+                  {{lead.status}}
+                </mat-chip>
+              </td>
+            </ng-container>
+            
+            <!-- Value Column -->
+            <ng-container matColumnDef="value">
+              <th mat-header-cell *matHeaderCellDef> Value </th>
+              <td mat-cell *matCellDef="let lead"> ${{lead.value | number}} </td>
+            </ng-container>
+            
+            <!-- Probability Column -->
+            <ng-container matColumnDef="probability">
+              <th mat-header-cell *matHeaderCellDef> Probability </th>
+              <td mat-cell *matCellDef="let lead"> {{lead.probability}}% </td>
+            </ng-container>
+            
+            <!-- Owner Column -->
+            <ng-container matColumnDef="owner">
+              <th mat-header-cell *matHeaderCellDef> Owner </th>
+              <td mat-cell *matCellDef="let lead"> {{lead.owner}} </td>
+            </ng-container>
+            
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="text-center"> Actions </th>
+              <td mat-cell *matCellDef="let lead" class="text-center">
+                <button mat-icon-button color="primary" (click)="editLead(lead)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" (click)="deleteLead(lead.id)">
                   <mat-icon>delete</mat-icon>
                 </button>
-              </mat-action-row>
-            </mat-expansion-panel>
-          </mat-accordion>
+              </td>
+            </ng-container>
+            
+            <tr mat-header-row *matHeaderRowDef="displayedLeadColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedLeadColumns;"></tr>
+            
+            <!-- No data row -->
+            <tr class="mat-row" *matNoDataRow>
+              <td class="mat-cell text-center p-8" colspan="6">
+                <div class="empty-state">
+                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <mat-icon class="text-gray-400 text-3xl">track_changes</mat-icon>
+                  </div>
+                  <p class="text-gray-700">No leads associated with this company</p>
+                  <p class="text-sm text-gray-500 mt-1 mb-4">Add leads to track potential sales opportunities</p>
+                  <button 
+                    mat-raised-button
+                    color="primary"
+                    (click)="createNewLead()"
+                  >
+                    Add New Lead
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </table>
         </div>
-      </mat-tab>
-    </mat-tab-group>
-  </div>
-  
-  <!-- Leads View - shown when activeTab is 'leads' -->
-  <div *ngIf="activeTab === 'leads'" class="p-6">
-    <app-leads [company]="editingCompany"></app-leads>
-  </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

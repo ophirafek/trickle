@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Company, Contact, Note, Lead } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { LeadService } from '../../services/lead.service';
@@ -9,15 +10,9 @@ import { ThemePalette } from '@angular/material/core';
   selector: 'app-company-detail',
   templateUrl: './company-detail.component.html',
   styleUrls: ['./company-detail.component.css'],
-  encapsulation: ViewEncapsulation.None // This helps with styling nested Material components
+  encapsulation: ViewEncapsulation.None
 })
-export class CompanyDetailComponent implements OnInit, OnChanges {
-  @Input() company: Company | null = null;
-  @Input() isVisible: boolean = false;
-  @Input() activeTab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' = 'general';
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onSave = new EventEmitter<Company>();
-  
+export class CompanyDetailComponent implements OnInit {
   // For contact table
   displayedContactColumns: string[] = ['name', 'jobTitle', 'email', 'phone', 'actions'];
   
@@ -42,73 +37,92 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
   leadLoading: boolean = false;
   leadError: string | null = null;
   
+  // Active tab
+  activeTab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' = 'general';
+  
   // Loading state
   loading: boolean = false;
 
   constructor(
     private companyService: CompanyService,
     private leadService: LeadService,
+    private route: ActivatedRoute,
+    private router: Router,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.resetForm();
-  }
-
-  ngOnChanges(): void {
-    this.resetForm();
-    
-    // When active tab changes to 'leads', load the leads data
-    if (this.activeTab === 'leads' && this.company && this.company.id) {
-      this.loadCompanyLeads();
-    }
-  }
-
-  resetForm(): void {
-    if (this.company) {
-      // Create a copy to avoid modifying the original object
-      this.editingCompany = { ...this.company };
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
       
-      // Ensure collections are initialized
-      if (!this.editingCompany.contacts) this.editingCompany.contacts = [];
-      if (!this.editingCompany.notes) this.editingCompany.notes = [];
-      
-      this.isNewCompany = false;
-    } else {
-      this.editingCompany = this.getEmptyCompany();
-      this.isNewCompany = true;
-    }
+      if (id && id !== 'new') {
+        this.loadCompany(parseInt(id, 10));
+        this.isNewCompany = false;
+      } else {
+        this.editingCompany = this.getEmptyCompany();
+        this.isNewCompany = true;
+      }
+    });
     
-    // Reset contact and note forms
-    this.newContact = this.getEmptyContact();
-    this.isAddingContact = false;
-    this.contactError = null;
-    
-    this.newNote = this.getEmptyNote();
-    this.isAddingNote = false;
-    this.noteError = null;
-    
-    // Reset lead state
-    if (this.activeTab === 'leads' && this.company && this.company.id) {
-      this.loadCompanyLeads();
-    } else {
-      this.companyLeads = [];
-    }
+    this.route.queryParamMap.subscribe(params => {
+      const tab = params.get('tab');
+      if (tab) {
+        this.activeTab = tab as any;
+        
+        // If leads tab is selected and we have a company ID, load leads
+        if (tab === 'leads' && !this.isNewCompany && this.editingCompany.id) {
+          this.loadCompanyLeads();
+        }
+      }
+    });
   }
 
-  getEmptyCompany(): Company {
-    return {
-      id: 0,
-      name: '',
-      industry: '',
-      size: '100-500 employees',
-      location: '',
-      website: '',
-      status: 'Active',
-      contacts: [],
-      notes: []
-    };
+  loadCompany(id: number): void {
+    this.loading = true;
+    this.companyService.getCompany(id).subscribe({
+      next: (company) => {
+        this.editingCompany = company;
+        
+        // Ensure collections are initialized
+        if (!this.editingCompany.contacts) this.editingCompany.contacts = [];
+        if (!this.editingCompany.notes) this.editingCompany.notes = [];
+        
+        this.loading = false;
+        
+        // If on the leads tab, load the leads data
+        if (this.activeTab === 'leads') {
+          this.loadCompanyLeads();
+        }
+      },
+      error: (err) => {
+        this.snackBar.open('Error loading company details', 'Close', { 
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        console.error('Error loading company details:', err);
+        this.loading = false;
+        this.router.navigate(['/companies']);
+      }
+    });
   }
+
+  // Update this method in both companies.component.ts and company-detail.component.ts
+
+getEmptyCompany(): Company {
+  return {
+    id: 0,
+    name: '',
+    industry: '',
+    size: '100-500 employees',
+    location: '',
+    website: '',
+    status: 'Active',
+    registrationNumber: '',  // Added field
+    dunsNumber: '',         // Added field
+    contacts: [],
+    notes: []
+  };
+}
   
   getEmptyContact(): Contact {
     return {
@@ -117,7 +131,7 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
       jobTitle: '',
       email: '',
       phone: '',
-      companyId: this.company?.id || 0
+      companyId: this.editingCompany?.id || 0
     };
   }
   
@@ -126,7 +140,7 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
       id: 0,
       title: '',
       content: '',
-      companyId: this.company?.id || 0,
+      companyId: this.editingCompany?.id || 0,
       createdAt: new Date()
     };
   }
@@ -152,11 +166,29 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
       2: 'contacts',
       3: 'notes'
     };
-    this.activeTab = tabMap[index] as 'general' | 'address' | 'contacts' | 'notes' | 'leads';
+    
+    const newTab = tabMap[index] as 'general' | 'address' | 'contacts' | 'notes' | 'leads';
+    this.navigateToTab(newTab);
+  }
+  
+  navigateToTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads'): void {
+    this.activeTab = tab;
+    
+    // Update the URL without reloading the component
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tab },
+      queryParamsHandling: 'merge'
+    });
+    
+    // If navigating to leads tab and we have a company with an ID, load the leads
+    if (tab === 'leads' && !this.isNewCompany && this.editingCompany.id) {
+      this.loadCompanyLeads();
+    }
   }
 
   close(): void {
-    this.onClose.emit();
+    this.router.navigate(['/companies']);
   }
 
   save(): void {
@@ -168,7 +200,49 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
       return;
     }
     
-    this.onSave.emit(this.editingCompany);
+    this.loading = true;
+    
+    if (this.isNewCompany) {
+      // Create new company
+      this.companyService.createCompany(this.editingCompany).subscribe({
+        next: (company) => {
+          this.snackBar.open('Company created successfully', 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.loading = false;
+          this.router.navigate(['/companies']);
+        },
+        error: (err) => {
+          this.snackBar.open('Failed to create company', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+          this.loading = false;
+          console.error('Error creating company:', err);
+        }
+      });
+    } else {
+      // Update existing company
+      this.companyService.updateCompany(this.editingCompany.id, this.editingCompany).subscribe({
+        next: () => {
+          this.snackBar.open('Company updated successfully', 'Close', {
+            duration: 3000,
+            panelClass: ['success-snackbar']
+          });
+          this.loading = false;
+          this.router.navigate(['/companies']);
+        },
+        error: (err) => {
+          this.snackBar.open('Failed to update company', 'Close', {
+            duration: 3000,
+            panelClass: ['error-snackbar']
+          });
+          this.loading = false;
+          console.error('Error updating company:', err);
+        }
+      });
+    }
   }
   
   // Contact methods
@@ -317,12 +391,12 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
   
   // Lead methods
   loadCompanyLeads(): void {
-    if (!this.company || !this.company.id) return;
+    if (!this.editingCompany || !this.editingCompany.id) return;
     
     this.leadLoading = true;
     this.leadError = null;
     
-    this.leadService.getLeadsByCompany(this.company.id)
+    this.leadService.getLeadsByCompany(this.editingCompany.id)
       .subscribe({
         next: (leads) => {
           this.companyLeads = leads;
@@ -354,60 +428,23 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
   }
 
   createNewLead(): void {
-    if (!this.company) return;
+    if (!this.editingCompany) return;
     
-    // Create a default lead object with company information
-    const newLead: Lead = {
-      title: '',
-      company: this.company.name,
-      companyId: this.company.id,
-      status: 'New',
-      value: 0,
-      probability: 0,
-      owner: '',
-      lastUpdate: new Date().toLocaleDateString()
-    };
-    
-    // TODO: Navigate to lead creation or open a modal
-    // This depends on your application's structure
-    
-    // For now, just create a placeholder lead
-    this.leadService.createLead(newLead)
-      .subscribe({
-        next: (lead) => {
-          this.snackBar.open('New lead created', 'Close', {
-            duration: 3000
-          });
-          this.loadCompanyLeads();
-        },
-        error: (err) => {
-          this.leadError = 'Failed to create lead';
-          console.error('Error creating lead:', err);
-          
-          this.snackBar.open('Failed to create lead', 'Close', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
-        }
-      });
-  }
-
-  editLead(lead: Lead, event: Event): void {
-    // Stop event propagation to prevent row click handler
-    event.stopPropagation();
-    
-    // TODO: Navigate to lead editing or open a modal
-    
-    // For now, just show a message
-    this.snackBar.open('Edit lead: ' + lead.title, 'Close', {
-      duration: 3000
+    // Navigate to the leads page with company information
+    this.router.navigate(['/leads/new'], {
+      queryParams: {
+        companyId: this.editingCompany.id,
+        companyName: this.editingCompany.name
+      }
     });
   }
 
-  deleteLead(leadId: number, event: Event): void {
-    // Stop event propagation to prevent row click handler
-    event.stopPropagation();
-    
+  editLead(lead: Lead): void {
+    // Navigate to edit the lead
+    this.router.navigate(['/leads', lead.id]);
+  }
+
+  deleteLead(leadId: number): void {
     if (confirm('Are you sure you want to delete this lead?')) {
       this.leadLoading = true;
       
@@ -433,5 +470,10 @@ export class CompanyDetailComponent implements OnInit, OnChanges {
           }
         });
     }
+  }
+  
+  // Navigation method added for clarity
+  navigateToCompanies(): void {
+    this.router.navigate(['/companies']);
   }
 }

@@ -4,6 +4,7 @@ export interface MenuItem {
   label: string;
 }
 
+// Update the Company interface in src/model/types.ts
 export interface Company {
   id: number;
   name: string;
@@ -24,6 +25,8 @@ export interface Company {
   linkedInProfile?: string;
   foundingYear?: number;
   description?: string;
+  registrationNumber?: string;  // Added field
+  dunsNumber?: string;         // Added field
   createdAt?: Date;
   updatedAt?: Date;
   contacts?: Contact[];

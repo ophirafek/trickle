@@ -6,20 +6,14 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  activeTab = 'dashboard';
-  isDetailView = false;
   isSidenavOpen = true;
   
   menuItems = [
-    { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
-    { id: 'companies', icon: 'business', label: 'Companies' },
-    { id: 'leads', icon: 'track_changes', label: 'Leads' },
-    { id: 'meetings', icon: 'event', label: 'Meetings' }
+    { id: 'dashboard', route: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
+    { id: 'companies', route: '/companies', icon: 'business', label: 'Companies' },
+    { id: 'leads', route: '/leads', icon: 'track_changes', label: 'Leads' },
+    { id: 'meetings', route: '/meetings', icon: 'event', label: 'Meetings' }
   ];
-  
-  setDetailViewState(isActive: boolean): void {
-    this.isDetailView = isActive;
-  }
   
   toggleSidenav(): void {
     this.isSidenavOpen = !this.isSidenavOpen;

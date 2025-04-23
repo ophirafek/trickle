@@ -34,6 +34,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatStepperModule } from '@angular/material/stepper';
 
+
 // App components
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -51,6 +52,8 @@ import { LoadingIndicatorComponent } from './components/loading-indicator/loadin
 
 const MaterialModules = [
   MatButtonModule,
+  
+  MatProgressSpinnerModule,
   MatButtonToggleModule,
   MatIconModule,
   MatInputModule,

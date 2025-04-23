@@ -140,10 +140,28 @@ body {
 /* Make sure form field text is clearly visible */
 .mat-mdc-input-element,
 .mat-mdc-select-value {
-  color: rgba(0, 0, 0, 0.87) !important;
+  color: rgba(0, 0, 0, 0.87) ;
 }
 
 /* Improve focus overlay */
 .mat-mdc-form-field-focus-overlay {
   background-color: rgba(63, 81, 181, 0.1) !important;
+}
+
+/* Make placeholder text lighter globally */
+input::placeholder,
+textarea::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important; /* Ensure the color is applied */
+  font-style: italic; /* Optional: Add italic style for better differentiation */
+}
+
+.mat-mdc-form-field input::placeholder,
+.mat-mdc-form-field textarea::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important; /* Ensure compatibility with Angular Material inputs */
+  font-style: italic; /* Optional */
+}
+
+.mat-mdc-input-element::placeholder {
+  color: rgba(0, 0, 0, 0.4) !important; /* Ensure compatibility with Angular Material inputs */
+  font-style: italic; /* Optional */
 }

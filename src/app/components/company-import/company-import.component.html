@@ -1,13 +1,24 @@
-<div class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50" *ngIf="isOpen">
-  <mat-card class="max-w-4xl w-full m-4">
-    <!-- Header -->
-    <mat-card-header class="border-b">
-      <mat-card-title>Import Companies</mat-card-title>
-      <button mat-icon-button class="ml-auto" (click)="close()">
-        <mat-icon>close</mat-icon>
-      </button>
-    </mat-card-header>
-    
+<div class="p-6">
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
+    <mat-spinner [diameter]="48"></mat-spinner>
+    <p class="ml-4 text-gray-700">Processing...</p>
+  </div>
+
+  <!-- Header -->
+  <div class="mb-6 flex justify-between items-center">
+    <h1 class="text-2xl font-semibold text-gray-800">Import Companies</h1>
+    <button 
+      mat-raised-button 
+      color="primary"
+      [routerLink]="['/companies']"
+    >
+      <mat-icon>arrow_back</mat-icon>
+      Back to Companies
+    </button>
+  </div>
+
+  <mat-card class="max-w-4xl w-full mx-auto">
     <!-- Progress Steps -->
     <mat-card-content class="p-6">
       <mat-horizontal-stepper [linear]="true" #stepper>
@@ -213,11 +224,5 @@
         </mat-step>
       </mat-horizontal-stepper>
     </mat-card-content>
-    
-    <mat-card-actions align="end" class="p-4 border-t bg-gray-50">
-      <button mat-button (click)="close()">
-        Cancel
-      </button>
-    </mat-card-actions>
   </mat-card>
 </div>
