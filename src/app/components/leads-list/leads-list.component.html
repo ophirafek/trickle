@@ -1,0 +1,55 @@
+<mat-nav-list>
+    <!-- Leads list -->
+    <a mat-list-item 
+       *ngFor="let lead of leads"
+       (click)="openLeadDetail(lead)"
+       class="h-auto py-2">
+      <div class="flex items-center justify-between w-full">
+        <div class="flex items-center space-x-4">
+          <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+            <mat-icon class="text-gray-500">track_changes</mat-icon>
+          </div>
+          <div>
+            <h3 class="font-medium text-gray-800">{{ lead.title }}</h3>
+            <div class="flex items-center space-x-2 text-sm text-gray-500">
+              <span>{{ lead.company }}</span>
+              <span>•</span>
+              <mat-chip [color]="getLeadStatusColor(lead.status)" selected>
+                {{ lead.status }}
+              </mat-chip>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center space-x-8">
+          <div class="flex flex-col items-end">
+            <div class="flex items-center space-x-1 text-gray-600">
+              <mat-icon class="text-sm">attach_money</mat-icon>
+              <span class="font-medium">{{ lead.value | number }}</span>
+            </div>
+            <span class="text-sm text-gray-500">{{ lead.probability }}% probability</span>
+          </div>
+          <div class="flex flex-col items-end">
+            <div class="flex items-center space-x-2">
+              <mat-icon class="text-sm">person</mat-icon>
+              <span class="text-gray-600">{{ lead.owner }}</span>
+            </div>
+            <div class="flex items-center space-x-1 text-sm text-gray-500">
+              <mat-icon class="text-sm">access_time</mat-icon>
+              <span>Updated {{ lead.lastUpdate }}</span>
+            </div>
+          </div>
+          <mat-icon class="text-gray-400">chevron_right</mat-icon>
+        </div>
+      </div>
+    </a>
+  </mat-nav-list>
+  
+  <!-- Empty State -->
+  <div *ngIf="leads.length === 0 && !loading" class="p-8 text-center">
+    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <mat-icon class="text-gray-400 text-3xl">track_changes</mat-icon>
+    </div>
+    <h3 class="text-lg font-medium text-gray-800 mb-1">No leads found</h3>
+    <p class="text-gray-500 mb-4">Try adjusting your search or filters</p>
+    <ng-content select="[emptyActionButton]"></ng-content>
+  </div>

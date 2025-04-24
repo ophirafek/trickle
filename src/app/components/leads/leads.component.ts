@@ -3,7 +3,6 @@ import { Lead, Company } from '../../../model/types';
 import { LeadService } from '../../services/lead.service';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ThemePalette } from '@angular/material/core';
 
 @Component({
   selector: 'app-leads',
@@ -36,10 +35,6 @@ export class LeadsComponent implements OnInit {
     { id: 'proposal', label: 'Proposal', count: 0 },
     { id: 'negotiation', label: 'Negotiation', count: 0 }
   ];
-
-  companyLeads: any[] = [];
-  leadError: string | null = null;
-  leadLoading: boolean = false;
 
   constructor(
     private leadService: LeadService, 
@@ -74,17 +69,17 @@ export class LeadsComponent implements OnInit {
 
   loadLeads() {
     if (this.company) {
-      this.leadLoading = true;
+      this.loading = true;
       this.leadService.getLeadsByCompanyId(this.company.id)
         .subscribe({
           next: (leads) => {
-            this.companyLeads = leads;
+            this.leads = leads;
             this.filteredLeads = leads; // Ensure leads are displayed
-            this.leadLoading = false;
+            this.loading = false;
           },
           error: (err) => {
-            this.leadError = 'Failed to load leads for the company. Please try again later.';
-            this.leadLoading = false;
+            this.error = 'Failed to load leads for the company. Please try again later.';
+            this.loading = false;
             console.error('Error loading company leads:', err);
           }
         });
@@ -165,17 +160,6 @@ export class LeadsComponent implements OnInit {
     }
   }
 
-  getLeadStatusColor(status: string): ThemePalette {
-    const colorMap: { [key: string]: ThemePalette } = {
-      'New': 'primary',
-      'Contacted': 'accent',
-      'Qualified': 'primary',
-      'Proposal': 'accent',
-      'Negotiation': 'warn'
-    };
-    return colorMap[status] || 'primary';
-  }
-
   // Lead detail methods
   openLeadDetail(lead: Lead): void {
     this.selectedLead = lead;
@@ -247,16 +231,4 @@ export class LeadsComponent implements OnInit {
   getCompanyOptions(): Company[] {
     return this.companies;
   }
-
-  editLead(lead: any, event: Event): void {
-    event.stopPropagation();
-    // Logic to edit the lead
-  }
-
-  deleteLead(leadId: number, event: Event): void {
-    event.stopPropagation();
-    // Logic to delete the lead
-  }
-
- 
 }

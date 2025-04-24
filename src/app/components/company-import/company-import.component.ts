@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Company } from '../../../model/types';
+import { Company, Employee } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
+import { EmployeeService } from  '../../services/employees.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-company-import',
@@ -21,9 +23,11 @@ export class CompanyImportComponent implements OnInit {
   previewData: any[] = [];
   previewHeaders: string[] = [];
   fieldMapping: { [key: string]: string } = {};
+  showOnlyRowsWithErrors: boolean = false;
   
   // Track current step in the import process
-  currentStep: 'file-selection' | 'field-mapping' | 'review' = 'file-selection';
+  // Track current step in the import process
+  currentStep: 'file-selection' | 'mandatory-mapping' | 'optional-mapping' | 'review' = 'file-selection';
   
   // Track which rows are selected for import
   selectedRows: boolean[] = [];
@@ -32,40 +36,81 @@ export class CompanyImportComponent implements OnInit {
   // Track which rows have issues (missing required fields, etc.)
   rowIssues: { index: number, issues: string[] }[] = [];
   
-  requiredFields = [
+  // Mandatory fields (must be mapped)
+  mandatoryFields = [
     { key: 'name', label: 'Company Name' },
-    { key: 'industry', label: 'Industry' },
-    { key: 'size', label: 'Size' },
-    { key: 'location', label: 'Location' },
-    { key: 'website', label: 'Website' }
+    { key: 'registrationNumber', label: 'Registration Number' }
   ];
-
+  
+  // Optional fields
+  optionalFields = [
+    { key: 'dunsNumber', label: 'DUNS Number' },
+    { key: 'streetAddress', label: 'Street Address' },
+    { key: 'city', label: 'City' },
+    { key: 'postalCode', label: 'ZIP/Postal Code' },
+    { key: 'website', label: 'Web Address' }
+  ];
+  
+  // Combined fields for review display
+ 
   public fileData: any[] = [];
   private selectedFile: File | null = null;
-  displayedColumns: string[] = ['select', ...this.requiredFields.map(f => f.key), 'status'];
+  employees: Employee[] = [];
+  companyTeamAssignments: { [key: number]: number } = {}; // Maps row index to employee ID
+  // Combined fields for review display
+  get displayFields() {
+    return [...this.mandatoryFields, ...this.optionalFields].filter(field => 
+      // Only include fields that have been mapped
+      !!this.fieldMapping[field.key]
+    );
+  }
+  
+  // Update the displayedColumns to use displayFields
+  get displayedColumns(): string[] {
+    const fieldColumns = this.displayFields.map(f => f.key).filter(key => !!key);
+    return ['select', 'teamAssignment', ...fieldColumns, 'status'];
+  }
   
   // Loading state
   loading: boolean = false;
   
   constructor(
     private companyService: CompanyService,
+    private employeeService: EmployeeService,
     private snackBar: MatSnackBar,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     // Initialize component
+    this.employeeService.getEmployees().subscribe({
+      next: (employees) => {
+        this.employees = employees;
+      },
+      error: (err) => {
+        console.error('Error loading employees:', err);
+        this.snackBar.open('Failed to load employees list', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
   }
 
-  get canProceedToMapping(): boolean {
+  get canProceedToMandatoryMapping(): boolean {
     return this.fileSelected && 
            this.previewData.length > 0 && 
            !this.parseError;
   }
   
+  get canProceedToOptionalMapping(): boolean {
+    // Check if all mandatory fields are mapped
+    return this.mandatoryFields.every(field => !!this.fieldMapping[field.key]);
+  }
+  
   get canProceedToReview(): boolean {
-    // Check if all required fields are mapped
-    return this.requiredFields.every(field => !!this.fieldMapping[field.key]);
+    // Optional fields don't need to be mapped to proceed
+    return this.canProceedToOptionalMapping;
   }
   
   get canImport(): boolean {
@@ -77,6 +122,19 @@ export class CompanyImportComponent implements OnInit {
     return this.selectedRows.filter(selected => selected).length;
   }
 
+  get filteredFileData(): any[] {
+    if (!this.showOnlyRowsWithErrors) {
+      return this.fileData;
+    }
+    
+    // Return only rows with issues
+    return this.fileData.filter((_, index) => this.hasIssues(index));
+  }
+  
+  // Toggle the error filter
+  toggleErrorFilter(): void {
+    this.showOnlyRowsWithErrors = !this.showOnlyRowsWithErrors;
+  }
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
@@ -209,8 +267,12 @@ export class CompanyImportComponent implements OnInit {
     }
   }
 
-  proceedToMapping(): void {
-    this.currentStep = 'field-mapping';
+  proceedToMandatoryMapping(): void {
+    this.currentStep = 'mandatory-mapping';
+  }
+  
+  proceedToOptionalMapping(): void {
+    this.currentStep = 'optional-mapping';
   }
   
   proceedToReview(): void {
@@ -218,11 +280,14 @@ export class CompanyImportComponent implements OnInit {
     this.validateRows();
   }
   
+
   goBack(): void {
-    if (this.currentStep === 'field-mapping') {
+    if (this.currentStep === 'mandatory-mapping') {
       this.currentStep = 'file-selection';
+    } else if (this.currentStep === 'optional-mapping') {
+      this.currentStep = 'mandatory-mapping';
     } else if (this.currentStep === 'review') {
-      this.currentStep = 'field-mapping';
+      this.currentStep = 'optional-mapping';
     }
   }
   
@@ -232,7 +297,8 @@ export class CompanyImportComponent implements OnInit {
     this.fileData.forEach((row, index) => {
       const issues: string[] = [];
       
-      this.requiredFields.forEach(field => {
+      // Validate mandatory fields
+      this.mandatoryFields.forEach(field => {
         const sourceField = this.fieldMapping[field.key];
         const value = row[sourceField];
         
@@ -240,6 +306,8 @@ export class CompanyImportComponent implements OnInit {
           issues.push(`Missing ${field.label}`);
         }
       });
+      
+      // We don't validate optional fields as they are optional
       
       if (issues.length > 0) {
         this.rowIssues.push({ index, issues });
@@ -269,11 +337,29 @@ export class CompanyImportComponent implements OnInit {
     const mappedCompanies: Company[] = selectedData.map(row => {
       const company: any = {};
       
-      this.requiredFields.forEach(field => {
+      // Map mandatory fields
+      this.mandatoryFields.forEach(field => {
         const sourceField = this.fieldMapping[field.key];
         company[field.key] = row[sourceField] || '';
       });
       
+      // Map optional fields (only if they have been mapped)
+      this.optionalFields.forEach(field => {
+        const sourceField = this.fieldMapping[field.key];
+        if (sourceField) { // Only set if mapped
+          company[field.key] = row[sourceField] || '';
+        }
+      });
+      const originalIndex = this.fileData.indexOf(row);
+      if (this.companyTeamAssignments[originalIndex]) {
+        company.assignedTeamMemberId = this.companyTeamAssignments[originalIndex];
+        
+        // Get employee info for reference
+        const employee = this.employees.find(e => e.id === this.companyTeamAssignments[originalIndex]);
+        if (employee) {
+          company.assignedTeamMemberName = employee.name;
+        }
+      }
       return company as Company;
     });
     
@@ -363,4 +449,17 @@ export class CompanyImportComponent implements OnInit {
     const issue = this.rowIssues.find(issue => issue.index === index);
     return issue ? issue.issues : [];
   }
+
+  // Get employee name by ID
+  getEmployeeName(employeeId: number): string {
+    const employee = this.employees.find(e => e.id === employeeId);
+    return employee ? employee.name : 'Unassigned';
+  }
+  
+  // Set team assignment for a company row
+  assignTeamMember(rowIndex: number, employeeId: number): void {
+    this.companyTeamAssignments[rowIndex] = employeeId;
+  }
+    // Navigation methods
+
 }

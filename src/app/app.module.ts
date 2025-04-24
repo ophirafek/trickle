@@ -49,6 +49,8 @@ import { CompanyDetailComponent } from './components/company-detail/company-deta
 import { CompanyImportComponent } from './components/company-import/company-import.component';
 import { LeadDetailComponent } from './components/lead-detail/lead-detail.component';
 import { LoadingIndicatorComponent } from './components/loading-indicator/loading-indicator.component';
+import { LeadsListComponent } from './components/leads-list/leads-list.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 const MaterialModules = [
   MatButtonModule,
@@ -80,7 +82,8 @@ const MaterialModules = [
   MatAutocompleteModule,
   MatDividerModule,
   MatExpansionModule,
-  MatStepperModule
+  MatStepperModule,
+  MatSlideToggleModule
 ];
 
 @NgModule({
@@ -96,7 +99,8 @@ const MaterialModules = [
     CompanyDetailComponent,
     CompanyImportComponent,
     LeadDetailComponent,
-    LoadingIndicatorComponent
+    LoadingIndicatorComponent,
+    LeadsListComponent
   ],
   imports: [
     BrowserModule,

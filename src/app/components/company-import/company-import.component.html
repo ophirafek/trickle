@@ -23,7 +23,7 @@
     <mat-card-content class="p-6">
       <mat-horizontal-stepper [linear]="true" #stepper>
         <!-- Step 1: File Selection -->
-        <mat-step [completed]="canProceedToMapping">
+        <mat-step [completed]="canProceedToMandatoryMapping">
           <ng-template matStepLabel>Upload File</ng-template>
           <div class="py-4">
             <div *ngIf="!fileSelected" class="text-center">
@@ -96,24 +96,24 @@
               mat-button 
               matStepperNext
               color="primary"
-              [disabled]="!canProceedToMapping"
-              (click)="proceedToMapping()"
+              [disabled]="!canProceedToMandatoryMapping"
+              (click)="proceedToMandatoryMapping()"
             >Continue</button>
           </div>
         </mat-step>
         
-        <!-- Step 2: Field Mapping -->
-        <mat-step [completed]="canProceedToReview">
-          <ng-template matStepLabel>Map Fields</ng-template>
+        <!-- Step 2: Mandatory Field Mapping -->
+        <mat-step [completed]="canProceedToOptionalMapping">
+          <ng-template matStepLabel>Map Mandatory Fields</ng-template>
           <div class="py-4">
             <mat-card class="mb-4">
               <mat-card-header>
-                <mat-card-title class="text-base">Field Mapping</mat-card-title>
+                <mat-card-title class="text-base">Mandatory Field Mapping</mat-card-title>
               </mat-card-header>
               <mat-card-content>
-                <p class="text-sm text-gray-500 mb-4">Match file columns to company properties</p>
+                <p class="text-sm text-gray-500 mb-4">Match file columns to required company properties</p>
                 
-                <div *ngFor="let field of requiredFields" class="grid grid-cols-2 gap-4 mb-3">
+                <div *ngFor="let field of mandatoryFields" class="grid grid-cols-2 gap-4 mb-3">
                   <div class="text-sm text-gray-700 py-2">{{ field.label }} <span class="text-red-500">*</span></div>
                   <mat-form-field appearance="outline" class="w-full">
                     <mat-label>Select Field</mat-label>
@@ -132,18 +132,60 @@
               mat-button 
               matStepperNext
               color="primary"
-              [disabled]="!canProceedToReview"
+              [disabled]="!canProceedToOptionalMapping"
+              (click)="proceedToOptionalMapping()"
+            >Continue</button>
+          </div>
+        </mat-step>
+        
+        <!-- Step 3: Optional Field Mapping -->
+        <mat-step [completed]="canProceedToReview">
+          <ng-template matStepLabel>Map Optional Fields</ng-template>
+          <div class="py-4">
+            <mat-card class="mb-4">
+              <mat-card-header>
+                <mat-card-title class="text-base">Optional Field Mapping</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <p class="text-sm text-gray-500 mb-4">Match file columns to optional company properties</p>
+                
+                <div *ngFor="let field of optionalFields" class="grid grid-cols-2 gap-4 mb-3">
+                  <div class="text-sm text-gray-700 py-2">{{ field.label }}</div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>Select Field</mat-label>
+                    <mat-select [(ngModel)]="fieldMapping[field.key]">
+                      <mat-option value="">-- Not Mapped --</mat-option>
+                      <mat-option *ngFor="let header of previewHeaders" [value]="header">{{ header }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div>
+            <button mat-button matStepperPrevious (click)="goBack()">Back</button>
+            <button 
+              mat-button 
+              matStepperNext
+              color="primary"
               (click)="proceedToReview()"
             >Review Data</button>
           </div>
         </mat-step>
         
-        <!-- Step 3: Review & Import -->
+        <!-- Step 4: Review & Import -->
         <mat-step>
           <ng-template matStepLabel>Review & Import</ng-template>
           <div class="py-4">
             <div class="flex justify-between items-center mb-4">
               <h3 class="font-medium">Review Import Data</h3>
+              <mat-slide-toggle
+                  color="warn"
+                  [checked]="showOnlyRowsWithErrors"
+                  (change)="toggleErrorFilter()"
+                >
+                  Show only rows with errors ({{ rowIssues.length }})
+                </mat-slide-toggle>
               <mat-checkbox 
                 [checked]="allRowsSelected" 
                 (change)="allRowsSelected = !allRowsSelected; toggleAllRows()"
@@ -153,7 +195,7 @@
             <mat-card class="mb-4">
               <mat-card-content class="p-0">
                 <div class="overflow-x-auto max-h-96">
-                  <table mat-table [dataSource]="fileData" class="w-full">
+                  <table mat-table [dataSource]="filteredFileData" class="w-full">
                     <!-- Selection Column -->
                     <ng-container matColumnDef="select">
                       <th mat-header-cell *matHeaderCellDef class="w-10">
@@ -162,16 +204,28 @@
                           (change)="allRowsSelected = !allRowsSelected; toggleAllRows()"
                         ></mat-checkbox>
                       </th>
-                      <td mat-cell *matCellDef="let row; let i = index">
+                      <td mat-cell *matCellDef="let row; let displayIndex = index">
                         <mat-checkbox 
-                          [checked]="selectedRows[i]"
-                          (change)="toggleRow(i)"
+                          [checked]="selectedRows[fileData.indexOf(row)]"
+                          (change)="toggleRow(fileData.indexOf(row))"
                         ></mat-checkbox>
                       </td>
                     </ng-container>
-                    
-                    <!-- Data Columns -->
-                    <ng-container *ngFor="let field of requiredFields" [matColumnDef]="field.key">
+                    <ng-container matColumnDef="teamAssignment">
+                      <th mat-header-cell *matHeaderCellDef>Team Member</th>
+                      <td mat-cell *matCellDef="let row; let displayIndex = index">
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-select [(value)]="companyTeamAssignments[fileData.indexOf(row)]">
+                            <mat-option [value]="0">Unassigned</mat-option>
+                            <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                              {{ employee.name }} ({{ employee.department }})
+                            </mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </td>
+                    </ng-container>
+                    <!-- Data Columns (Mandatory + Optional) -->
+                    <ng-container *ngFor="let field of displayFields" [matColumnDef]="field.key">
                       <th mat-header-cell *matHeaderCellDef>{{ field.label }}</th>
                       <td mat-cell *matCellDef="let row">{{ row[fieldMapping[field.key]] || '—' }}</td>
                     </ng-container>
@@ -179,18 +233,18 @@
                     <!-- Status Column -->
                     <ng-container matColumnDef="status">
                       <th mat-header-cell *matHeaderCellDef class="w-10"></th>
-                      <td mat-cell *matCellDef="let row; let i = index">
-                        <mat-icon *ngIf="hasIssues(i)" 
+                      <td mat-cell *matCellDef="let row">
+                        <mat-icon *ngIf="hasIssues(fileData.indexOf(row))" 
                                 color="warn"
-                                [matTooltip]="getIssues(i).join(', ')">
+                                [matTooltip]="getIssues(fileData.indexOf(row)).join(', ')">
                           error_outline
                         </mat-icon>
                       </td>
                     </ng-container>
                     
                     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index"
-                        [ngClass]="getRowClass(i)"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                        [ngClass]="getRowClass(fileData.indexOf(row))"></tr>
                   </table>
                 </div>
               </mat-card-content>

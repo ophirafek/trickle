@@ -17,7 +17,7 @@ export class CompanyDetailComponent implements OnInit {
   displayedContactColumns: string[] = ['name', 'jobTitle', 'email', 'phone', 'actions'];
   
   // For lead table
-  displayedLeadColumns: string[] = ['title', 'status', 'value', 'probability', 'owner', 'actions'];
+  //displayedLeadColumns: string[] = ['title', 'status', 'value', 'probability', 'owner', 'actions'];
   
   editingCompany: Company = this.getEmptyCompany();
   isNewCompany: boolean = true;
@@ -440,8 +440,18 @@ getEmptyCompany(): Company {
   }
 
   editLead(lead: Lead): void {
-    // Navigate to edit the lead
-    this.router.navigate(['/leads', lead.id]);
+    // Check if lead has an ID (existing lead)
+    if (lead.id) {
+      // Navigate to edit the lead
+      this.router.navigate(['/leads', lead.id]);
+    } else {
+      // Handle case when lead might not have ID
+      console.error('Cannot edit lead without an ID');
+      this.snackBar.open('Cannot edit this lead', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    }
   }
 
   deleteLead(leadId: number): void {
@@ -476,4 +486,5 @@ getEmptyCompany(): Company {
   navigateToCompanies(): void {
     this.router.navigate(['/companies']);
   }
+  
 }
