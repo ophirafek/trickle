@@ -1,0 +1,71 @@
+{
+  "APP": {
+    "TITLE": "מנהל לידים פרו"
+  },
+  "MENU": {
+    "DASHBOARD": "לוח בקרה",
+    "COMPANIES": "חברות",
+    "LEADS": "לידים",
+    "MEETINGS": "פגישות"
+  },
+  "HEADER": {
+    "SEARCH": "חיפוש...",
+    "NOTIFICATIONS": "התראות",
+    "USER_NAME": "ג'ון דו",
+    "PROFILE": "פרופיל",
+    "SETTINGS": "הגדרות",
+    "LOGOUT": "התנתק"
+  },
+  "DASHBOARD": {
+    "TITLE": "לוח בקרה",
+    "QUICK_ACTIONS": "פעולות מהירות",
+    "NEW_COMPANY": "חברה חדשה",
+    "CREATE_LEAD": "יצירת ליד",
+    "SCHEDULE_MEETING": "תיאום פגישה",
+    "ADD_NOTE": "הוספת הערה",
+    "RECENT_COMPANIES": "חברות אחרונות",
+    "NO_COMPANIES": "לא נמצאו חברות. הוסף חברות כדי להתחיל.",
+    "UPCOMING_MEETINGS": "פגישות קרובות",
+    "NO_MEETINGS": "אין פגישות מתוכננות בקרוב.",
+    "TOP_LEADS": "לידים מובילים",
+    "NO_LEADS": "לא נמצאו לידים. צור לידים כדי להתחיל."
+  },
+  "COMPANIES": {
+    "TITLE": "חברות",
+    "ADD_COMPANY": "הוספת חברה",
+    "SEARCH": "חיפוש חברות...",
+    "FILTERS": "סינון",
+    "EXPORT": "ייצוא",
+    "IMPORT": "ייבוא",
+    "NO_COMPANIES": "לא נמצאו חברות",
+    "ADJUST_SEARCH": "נסה להתאים את החיפוש או הסינון",
+    "ADD_NEW": "הוספת חברה חדשה",
+    "IMPORT_COMPANIES": "ייבוא חברות",
+    "LOAD_ERROR": "כשל בטעינת חברות. נסה שוב מאוחר יותר.",
+    "DELETE_SUCCESS": "החברה נמחקה בהצלחה",
+    "DELETE_ERROR": "כשל במחיקת החברה. נסה שוב מאוחר יותר.",
+    "DELETE_FAILED": "כשל במחיקת החברה"
+  },
+  "BUTTONS": {
+    "SAVE": "שמור",
+    "CANCEL": "ביטול",
+    "DELETE": "מחק",
+    "EDIT": "ערוך",
+    "ADD": "הוסף",
+    "BACK": "חזור",
+    "NEXT": "הבא",
+    "PREVIOUS": "הקודם",
+    "SUBMIT": "שלח",
+    "CONTINUE": "המשך",
+    "CLOSE": "סגור"
+  },
+  "COMMON": {
+    "LOADING": "טוען...",
+    "NO_DATA": "אין נתונים זמינים",
+    "ERROR": "אירעה שגיאה",
+    "SUCCESS": "הפעולה הושלמה בהצלחה",
+    "CONFIRM_DELETE": "האם אתה בטוח שברצונך למחוק פריט זה?",
+    "YES": "כן",
+    "NO": "לא"
+  }
+}

@@ -1,9 +1,11 @@
+// src/app/components/dashboard/dashboard.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Company, Meeting, Lead } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { MeetingService } from '../../services/meeting.service';
 import { LeadService } from '../../services/lead.service';
 import { ThemePalette } from '@angular/material/core';
+import { TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,16 +22,17 @@ export class DashboardComponent implements OnInit {
   error: string | null = null;
 
   quickActions = [
-    { icon: 'add_business', label: 'New Company', color: 'blue' },
-    { icon: 'track_changes', label: 'Create Lead', color: 'green' },
-    { icon: 'event', label: 'Schedule Meeting', color: 'purple' },
-    { icon: 'note_add', label: 'Add Note', color: 'orange' }
+    { icon: 'add_business', label: 'DASHBOARD.NEW_COMPANY', color: 'blue' },
+    { icon: 'track_changes', label: 'DASHBOARD.CREATE_LEAD', color: 'green' },
+    { icon: 'event', label: 'DASHBOARD.SCHEDULE_MEETING', color: 'purple' },
+    { icon: 'note_add', label: 'DASHBOARD.ADD_NOTE', color: 'orange' }
   ];
 
   constructor(
     private companyService: CompanyService,
     private meetingService: MeetingService,
-    private leadService: LeadService
+    private leadService: LeadService,
+    private translocoService: TranslocoService
   ) {}
 
   ngOnInit(): void {
@@ -48,7 +51,8 @@ export class DashboardComponent implements OnInit {
           this.loadMeetings();
         },
         error: (err) => {
-          this.error = 'Failed to load companies. Please try again later.';
+          this.error = this.translocoService.translate('COMMON.ERROR') + 
+                      ': ' + this.translocoService.translate('DASHBOARD.LOAD_ERROR');
           this.loading = false;
           console.error('Error loading companies:', err);
         }
@@ -72,7 +76,8 @@ export class DashboardComponent implements OnInit {
           this.loadLeads();
         },
         error: (err) => {
-          this.error = 'Failed to load meetings. Please try again later.';
+          this.error = this.translocoService.translate('COMMON.ERROR') + 
+                      ': ' + this.translocoService.translate('DASHBOARD.MEETINGS_LOAD_ERROR');
           this.loading = false;
           console.error('Error loading meetings:', err);
         }
@@ -91,7 +96,8 @@ export class DashboardComponent implements OnInit {
           this.loading = false;
         },
         error: (err) => {
-          this.error = 'Failed to load leads. Please try again later.';
+          this.error = this.translocoService.translate('COMMON.ERROR') + 
+                      ': ' + this.translocoService.translate('DASHBOARD.LEADS_LOAD_ERROR');
           this.loading = false;
           console.error('Error loading leads:', err);
         }

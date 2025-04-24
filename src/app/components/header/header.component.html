@@ -7,34 +7,49 @@
       
       <mat-form-field appearance="outline" class="w-64 search-field">
         <mat-icon matPrefix class="text-gray-400 ml-2">search</mat-icon>
-        <input matInput placeholder="Search...">
+        <input matInput [placeholder]="'HEADER.SEARCH' | transloco">
       </mat-form-field>
     </div>
     
     <div class="flex items-center space-x-4">
-      <button mat-icon-button [matBadge]="'3'" matBadgeColor="warn" aria-label="Notifications">
+      <!-- Language Selector -->
+      <button mat-button [matMenuTriggerFor]="languageMenu">
+        <mat-icon>language</mat-icon>
+        <span class="ml-1">{{ currentLang | uppercase }}</span>
+      </button>
+      
+      <mat-menu #languageMenu="matMenu">
+        <button mat-menu-item (click)="changeLanguage('en')">
+          <span>English</span>
+        </button>
+        <button mat-menu-item (click)="changeLanguage('he')">
+          <span>עברית</span>
+        </button>
+      </mat-menu>
+      
+      <button mat-icon-button [matBadge]="'3'" matBadgeColor="warn" [attr.aria-label]="'HEADER.NOTIFICATIONS' | transloco">
         <mat-icon>notifications</mat-icon>
       </button>
       
       <button mat-button [matMenuTriggerFor]="userMenu" class="flex items-center">
         <div class="h-8 w-8 bg-gray-200 rounded-full mr-2"></div>
-        <span class="text-gray-700">John Doe</span>
+        <span class="text-gray-700" transloco="HEADER.USER_NAME"></span>
         <mat-icon>arrow_drop_down</mat-icon>
       </button>
       
       <mat-menu #userMenu="matMenu">
         <button mat-menu-item>
           <mat-icon>person</mat-icon>
-          <span>Profile</span>
+          <span transloco="HEADER.PROFILE"></span>
         </button>
         <button mat-menu-item>
           <mat-icon>settings</mat-icon>
-          <span>Settings</span>
+          <span transloco="HEADER.SETTINGS"></span>
         </button>
         <mat-divider></mat-divider>
         <button mat-menu-item>
           <mat-icon>exit_to_app</mat-icon>
-          <span>Logout</span>
+          <span transloco="HEADER.LOGOUT"></span>
         </button>
       </mat-menu>
     </div>

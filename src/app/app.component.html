@@ -1,4 +1,4 @@
-<mat-sidenav-container class="h-screen">
+<mat-sidenav-container class="h-screen" *transloco="let t">
   <!-- Side Navigation -->
   <mat-sidenav #sidenav [opened]="isSidenavOpen" [mode]="'side'" class="w-64 bg-white shadow-lg">
     <div class="p-4 border-b">
@@ -11,7 +11,7 @@
          [routerLink]="[item.route]"
          routerLinkActive="bg-blue-50 text-blue-600">
         <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-        <span matListItemTitle>{{ item.label }}</span>
+        <span matListItemTitle>{{ t(item.label) }}</span>
       </a>
     </mat-nav-list>
   </mat-sidenav>

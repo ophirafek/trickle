@@ -20,7 +20,9 @@
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.13",
     "@angular/router": "^18.2.0",
+    "@ngneat/transloco": "^6.0.4",
     "rxjs": "~7.8.0",
+    "tailwindcss-rtl": "^0.9.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
   },

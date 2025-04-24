@@ -51,6 +51,7 @@ import { LeadDetailComponent } from './components/lead-detail/lead-detail.compon
 import { LoadingIndicatorComponent } from './components/loading-indicator/loading-indicator.component';
 import { LeadsListComponent } from './components/leads-list/leads-list.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { TranslocoRootModule } from '../transloco/transloco-root.module';
 
 const MaterialModules = [
   MatButtonModule,
@@ -100,7 +101,8 @@ const MaterialModules = [
     CompanyImportComponent,
     LeadDetailComponent,
     LoadingIndicatorComponent,
-    LeadsListComponent
+    LeadsListComponent,
+    
   ],
   imports: [
     BrowserModule,
@@ -109,6 +111,7 @@ const MaterialModules = [
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
+    TranslocoRootModule,
     ...MaterialModules
   ],
   providers: [],

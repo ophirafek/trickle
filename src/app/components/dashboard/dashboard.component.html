@@ -2,7 +2,7 @@
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
     <mat-spinner [diameter]="48"></mat-spinner>
-    <p class="ml-4 text-gray-700">Loading dashboard data...</p>
+    <p class="ml-4 text-gray-700" transloco="COMMON.LOADING"></p>
   </div>
 
   <!-- Error message display -->
@@ -18,7 +18,7 @@
           <div [ngClass]="'p-3 rounded-lg bg-' + action.color + '-100'">
             <mat-icon [ngClass]="'text-' + action.color + '-600'">{{ action.icon }}</mat-icon>
           </div>
-          <span class="ml-4 font-medium text-gray-700">{{ action.label }}</span>
+          <span class="ml-4 font-medium text-gray-700" [transloco]="action.label"></span>
         </button>
       </mat-card-content>
     </mat-card>
@@ -27,12 +27,10 @@
   <!-- Recent Companies -->
   <mat-card class="mb-6">
     <mat-card-header>
-      <mat-card-title class="text-lg font-semibold text-gray-800">Recent Companies</mat-card-title>
+      <mat-card-title class="text-lg font-semibold text-gray-800" transloco="DASHBOARD.RECENT_COMPANIES"></mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div *ngIf="companies.length === 0 && !loading" class="text-center py-4 text-gray-500">
-        No companies found. Add some companies to get started.
-      </div>
+      <div *ngIf="companies.length === 0 && !loading" class="text-center py-4 text-gray-500" transloco="DASHBOARD.NO_COMPANIES"></div>
       <div class="space-y-4">
         <app-company-card
           *ngFor="let company of companies"
@@ -45,12 +43,10 @@
   <!-- Upcoming Meetings -->
   <mat-card>
     <mat-card-header>
-      <mat-card-title class="text-lg font-semibold text-gray-800">Upcoming Meetings</mat-card-title>
+      <mat-card-title class="text-lg font-semibold text-gray-800" transloco="DASHBOARD.UPCOMING_MEETINGS"></mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div *ngIf="meetings.length === 0 && !loading" class="text-center py-4 text-gray-500">
-        No upcoming meetings scheduled.
-      </div>
+      <div *ngIf="meetings.length === 0 && !loading" class="text-center py-4 text-gray-500" transloco="DASHBOARD.NO_MEETINGS"></div>
       <mat-list>
         <mat-list-item *ngFor="let meeting of meetings" class="hover:bg-gray-50 cursor-pointer rounded-lg mb-2">
           <div class="flex justify-between w-full">
@@ -82,12 +78,10 @@
   <!-- Top Leads -->
   <mat-card class="mt-6">
     <mat-card-header>
-      <mat-card-title class="text-lg font-semibold text-gray-800">Top Leads</mat-card-title>
+      <mat-card-title class="text-lg font-semibold text-gray-800" transloco="DASHBOARD.TOP_LEADS"></mat-card-title>
     </mat-card-header>
     <mat-card-content>
-      <div *ngIf="leads.length === 0 && !loading" class="text-center py-4 text-gray-500">
-        No leads found. Create some leads to get started.
-      </div>
+      <div *ngIf="leads.length === 0 && !loading" class="text-center py-4 text-gray-500" transloco="DASHBOARD.NO_LEADS"></div>
       <mat-list>
         <mat-list-item *ngFor="let lead of leads" class="hover:bg-gray-50 cursor-pointer rounded-lg mb-2">
           <div class="flex justify-between w-full">
