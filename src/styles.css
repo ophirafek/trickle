@@ -165,3 +165,33 @@ textarea::placeholder {
   color: rgba(0, 0, 0, 0.4) !important; /* Ensure compatibility with Angular Material inputs */
   font-style: italic; /* Optional */
 }
+
+/* Add this to your styles.css file */
+
+/* RTL-specific sidenav styling */
+html[dir='rtl'] .mat-drawer.mat-drawer-start {
+  right: 0;
+  left: auto;
+}
+
+html[dir='rtl'] .mat-drawer.mat-drawer-end {
+  left: 0;
+  right: auto;
+}
+
+html[dir='rtl'] .mat-sidenav-container {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Fix for content positioning */
+html[dir='rtl'] .mat-sidenav-content {
+  margin-left: 0 !important; /* Override inline styles */
+  margin-right: 0 !important; /* When closed */
+}
+
+/* Adjust when sidebar is open */
+html[dir='rtl'] .mat-drawer-side.mat-drawer-opened ~ .mat-sidenav-content {
+  margin-left: 0 !important;
+  margin-right: 250px !important; /* Match your sidebar width */
+}
