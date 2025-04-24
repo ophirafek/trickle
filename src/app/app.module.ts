@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -52,6 +52,7 @@ import { LoadingIndicatorComponent } from './components/loading-indicator/loadin
 import { LeadsListComponent } from './components/leads-list/leads-list.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoRootModule } from '../transloco/transloco-root.module';
+import { LanguageInterceptor } from './services/language-interceptor.service';
 
 const MaterialModules = [
   MatButtonModule,
@@ -114,7 +115,11 @@ const MaterialModules = [
     TranslocoRootModule,
     ...MaterialModules
   ],
-  providers: [],
+  providers: [ {
+    provide: HTTP_INTERCEPTORS,
+    useClass: LanguageInterceptor,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
