@@ -8,6 +8,7 @@ import { MatStepper } from '@angular/material/stepper';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ThemePalette } from '@angular/material/core';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { TranslocoService } from '@ngneat/transloco';
 @Component({
   selector: 'app-company-import',
   templateUrl: './company-import.component.html',
@@ -94,12 +95,26 @@ export class CompanyImportComponent implements OnInit {
   constructor(
     private companyService: CompanyService,
     private employeeService: EmployeeService,
+    private translocoService: TranslocoService,
     private snackBar: MatSnackBar,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     // Initialize component
+      // Initialize component
+  this.mandatoryFields = [
+    { key: 'name', label: 'COMPANY_DETAIL.COMPANY_NAME' },
+    { key: 'registrationNumber', label: 'COMPANY_DETAIL.REGISTRATION_NUMBER' }
+  ];
+  
+  this.optionalFields = [
+    { key: 'dunsNumber', label: 'COMPANY_DETAIL.DUNS_NUMBER' },
+    { key: 'streetAddress', label: 'COMPANY_DETAIL.STREET_ADDRESS' },
+    { key: 'city', label: 'COMPANY_DETAIL.CITY' },
+    { key: 'postalCode', label: 'COMPANY_DETAIL.POSTAL_CODE' },
+    { key: 'website', label: 'COMPANY_DETAIL.WEBSITE' }
+  ];
     this.employeeService.getEmployees().subscribe({
       next: (employees) => {
         this.employees = employees;
@@ -406,10 +421,14 @@ export class CompanyImportComponent implements OnInit {
         this.stepper.next(); // This advances to the Results step
       }
   
-      this.snackBar.open(`Processed ${this.importSummary.totalProcessed} companies`, 'Close', {
-        duration: 5000,
-        panelClass: this.importSummary.errors > 0 ? ['warning-snackbar'] : ['success-snackbar']
-      });
+      this.snackBar.open(
+        this.translocoService.translate('IMPORT.PROCESSED_COMPANIES', { count: this.importSummary.totalProcessed }),
+        this.translocoService.translate('BUTTONS.CLOSE'),
+        {
+          duration: 5000,
+          panelClass: this.importSummary.errors > 0 ? ['warning-snackbar'] : ['success-snackbar']
+        }
+      );
       return;
     }
     
@@ -526,15 +545,18 @@ export class CompanyImportComponent implements OnInit {
       }
     }
   
-    getStatusText(status: number): string {
-      switch(status) {
-        case 0: return 'Success';
-        case 1: return 'New Lead Created';
-        case 2: return 'Already Exists';
-        case 3: return 'Error';
-        default: return 'Unknown';
-      }
-    }
+// Update the getStatusText method to use translations
+getStatusText(status: number): string {
+  const translationKeys : Record<number, string> =  {
+    0: 'IMPORT.STATUS.SUCCESS',
+    1: 'IMPORT.STATUS.NEW_LEAD',
+    2: 'IMPORT.STATUS.EXISTS',
+    3: 'IMPORT.STATUS.ERROR'
+  };
+  
+  const key = translationKeys[status] || 'IMPORT.STATUS.UNKNOWN';
+  return this.translocoService.translate(key);
+}
   
     resetImport(): void {
       this.resetFile();

@@ -2,7 +2,7 @@
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
     <mat-spinner [diameter]="48"></mat-spinner>
-    <p class="ml-4 text-gray-700">Loading...</p>
+    <p class="ml-4 text-gray-700" transloco="COMMON.LOADING"></p>
   </div>
   
   <!-- Header with back button and actions -->
@@ -17,26 +17,11 @@
         <mat-icon>arrow_back</mat-icon>
       </button>
       <h1 class="text-2xl font-semibold text-gray-800">
-        {{ isNewCompany ? 'New Company' : editingCompany.name }}
+        {{ isNewCompany ? ('COMPANY_DETAIL.NEW_COMPANY' | transloco) : editingCompany.name }}
       </h1>
     </div>
     
-    <div>
-      <button 
-        mat-stroked-button
-        class="mr-2"
-        (click)="navigateToCompanies()"
-      >
-        Cancel
-      </button>
-      <button 
-        mat-raised-button
-        color="primary"
-        (click)="save()"
-      >
-        Save Company
-      </button>
-    </div>
+    
   </div>
   
   <!-- Tab Navigation -->
@@ -47,39 +32,38 @@
         [class.text-blue-600]="activeTab === 'general'"
         (click)="navigateToTab('general')">
         <mat-icon class="mr-1">business</mat-icon>
-        General Info
+        <span transloco="COMPANY_DETAIL.TABS.GENERAL"></span>
       </button>
       <button mat-button 
         [class.bg-blue-50]="activeTab === 'address'"
         [class.text-blue-600]="activeTab === 'address'"
         (click)="navigateToTab('address')">
         <mat-icon class="mr-1">place</mat-icon>
-        Address
+        <span transloco="COMPANY_DETAIL.TABS.ADDRESS"></span>
       </button>
       <button mat-button 
         [class.bg-blue-50]="activeTab === 'contacts'"
         [class.text-blue-600]="activeTab === 'contacts'"
         (click)="navigateToTab('contacts')">
         <mat-icon class="mr-1">people</mat-icon>
-        Contacts
+        <span transloco="COMPANY_DETAIL.TABS.CONTACTS"></span>
       </button>
       <button mat-button 
         [class.bg-blue-50]="activeTab === 'notes'"
         [class.text-blue-600]="activeTab === 'notes'"
         (click)="navigateToTab('notes')">
         <mat-icon class="mr-1">note</mat-icon>
-        Notes
+        <span transloco="COMPANY_DETAIL.TABS.NOTES"></span>
       </button>
       <button mat-button 
         [class.bg-blue-50]="activeTab === 'leads'"
         [class.text-blue-600]="activeTab === 'leads'"
         (click)="navigateToTab('leads')">
         <mat-icon class="mr-1">track_changes</mat-icon>
-        Leads
+        <span transloco="COMPANY_DETAIL.TABS.LEADS"></span>
       </button>
     </div>
-  </div>
-  
+  </div> 
   <!-- Main content area -->
   <mat-card class="flex-1 overflow-hidden">
     <mat-card-content class="h-full p-0 flex flex-col">
@@ -88,157 +72,153 @@
         <div [ngSwitch]="activeTab">
           <!-- General Info Tab -->
           <div *ngSwitchCase="'general'">
-            <!--<div class="form-section mt-6">-->
-              <h3 class="form-section-title">Business Identifiers</h3>
+            <h3 class="form-section-title" transloco="COMPANY_DETAIL.BUSINESS_IDENTIFIERS"></h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label transloco="COMPANY_DETAIL.REGISTRATION_NUMBER"></mat-label>
+                <input matInput [(ngModel)]="editingCompany.registrationNumber" [placeholder]="'COMPANY_DETAIL.REGISTRATION_NUMBER_PLACEHOLDER' | transloco">
+              </mat-form-field>
               
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Registration Number</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.registrationNumber" placeholder="Company registration number">
-                  <!-- Removed placeholder -->
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>DUNS Number</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.dunsNumber" placeholder="Dun & Bradstreet number">
-                  <mat-hint>9-digit business identifier</mat-hint>
-                </mat-form-field>
-              </div>
-            <!--</div>-->
+              <mat-form-field appearance="outline" class="w-full">
+                <mat-label transloco="COMPANY_DETAIL.DUNS_NUMBER"></mat-label>
+                <input matInput [(ngModel)]="editingCompany.dunsNumber" [placeholder]="'COMPANY_DETAIL.DUNS_NUMBER_PLACEHOLDER' | transloco">
+                <!--<mat-hint transloco="COMPANY_DETAIL.DUNS_HINT"></mat-hint>-->
+              </mat-form-field>
+            </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- First column -->
               <div>
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Company Name</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.name" placeholder="Company name">
+                  <mat-label transloco="COMPANY_DETAIL.COMPANY_NAME"></mat-label>
+                  <input matInput [(ngModel)]="editingCompany.name" [placeholder]="'COMPANY_DETAIL.COMPANY_NAME_PLACEHOLDER' | transloco">
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Industry</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.industry" placeholder="Industry">
+                  <mat-label transloco="COMPANY_DETAIL.INDUSTRY"></mat-label>
+                  <input matInput [(ngModel)]="editingCompany.industry" [placeholder]="'COMPANY_DETAIL.INDUSTRY_PLACEHOLDER' | transloco">
                 </mat-form-field>
               </div>
               
               <!-- Second column -->
               <div>
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Size</mat-label>
+                  <mat-label transloco="COMPANY_DETAIL.SIZE"></mat-label>
                   <mat-select [(ngModel)]="editingCompany.size">
-                    <mat-option value="1-50 employees">1-50 employees</mat-option>
-                    <mat-option value="50-100 employees">50-100 employees</mat-option>
-                    <mat-option value="100-500 employees">100-500 employees</mat-option>
-                    <mat-option value="500-1000 employees">500-1000 employees</mat-option>
-                    <mat-option value="1000-5000 employees">1000-5000 employees</mat-option>
-                    <mat-option value="5000+ employees">5000+ employees</mat-option>
+                    <mat-option value="1-50 employees" transloco="COMPANY_DETAIL.SIZE_OPTIONS.SMALL"></mat-option>
+                    <mat-option value="50-100 employees" transloco="COMPANY_DETAIL.SIZE_OPTIONS.MEDIUM_SMALL"></mat-option>
+                    <mat-option value="100-500 employees" transloco="COMPANY_DETAIL.SIZE_OPTIONS.MEDIUM"></mat-option>
+                    <mat-option value="500-1000 employees" transloco="COMPANY_DETAIL.SIZE_OPTIONS.MEDIUM_LARGE"></mat-option>
+                    <mat-option value="1000-5000 employees" transloco="COMPANY_DETAIL.SIZE_OPTIONS.LARGE"></mat-option>
+                    <mat-option value="5000+ employees" transloco="COMPANY_DETAIL.SIZE_OPTIONS.ENTERPRISE"></mat-option>
                   </mat-select>
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Location</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.location" placeholder="City, State">
+                  <mat-label transloco="COMPANY_DETAIL.LOCATION"></mat-label>
+                  <input matInput [(ngModel)]="editingCompany.location" [placeholder]="'COMPANY_DETAIL.LOCATION_PLACEHOLDER' | transloco">
                 </mat-form-field>
               </div>
               
               <!-- Third column -->
               <div>
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Website</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.website" placeholder="www.example.com">
+                  <mat-label transloco="COMPANY_DETAIL.WEBSITE"></mat-label>
+                  <input matInput [(ngModel)]="editingCompany.website" [placeholder]="'COMPANY_DETAIL.WEBSITE_PLACEHOLDER' | transloco">
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Status</mat-label>
+                  <mat-label transloco="COMPANY_DETAIL.STATUS"></mat-label>
                   <mat-select [(ngModel)]="editingCompany.status">
-                    <mat-option value="Active">Active</mat-option>
-                    <mat-option value="Prospect">Prospect</mat-option>
-                    <mat-option value="Inactive">Inactive</mat-option>
+                    <mat-option value="Active" transloco="COMPANY_DETAIL.STATUS_OPTIONS.ACTIVE"></mat-option>
+                    <mat-option value="Prospect" transloco="COMPANY_DETAIL.STATUS_OPTIONS.PROSPECT"></mat-option>
+                    <mat-option value="Inactive" transloco="COMPANY_DETAIL.STATUS_OPTIONS.INACTIVE"></mat-option>
                   </mat-select>
                 </mat-form-field>
               </div>
-            </div>
-           
+            </div>          
             
             <div class="form-section">
-              <h3 class="form-section-title">Additional Information</h3>
+              <h3 class="form-section-title" transloco="COMPANY_DETAIL.ADDITIONAL_INFORMATION"></h3>
               
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>LinkedIn Profile</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.linkedInProfile" placeholder="LinkedIn URL">
+                  <mat-label transloco="COMPANY_DETAIL.LINKEDIN_PROFILE"></mat-label>
+                  <input matInput [(ngModel)]="editingCompany.linkedInProfile" [placeholder]="'COMPANY_DETAIL.LINKEDIN_PLACEHOLDER' | transloco">
                 </mat-form-field>
                 
                 <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Founding Year</mat-label>
-                  <input matInput type="number" [(ngModel)]="editingCompany.foundingYear" placeholder="Year founded">
+                  <mat-label transloco="COMPANY_DETAIL.FOUNDING_YEAR"></mat-label>
+                  <input matInput type="number" [(ngModel)]="editingCompany.foundingYear" [placeholder]="'COMPANY_DETAIL.FOUNDING_YEAR_PLACEHOLDER' | transloco">
                 </mat-form-field>
-
               </div>
               
               <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Description</mat-label>
-                <textarea matInput [(ngModel)]="editingCompany.description" placeholder="Company description..." rows="4"></textarea>
+                <mat-label transloco="COMPANY_DETAIL.DESCRIPTION"></mat-label>
+                <textarea matInput [(ngModel)]="editingCompany.description" [placeholder]="'COMPANY_DETAIL.DESCRIPTION_PLACEHOLDER' | transloco" rows="4"></textarea>
               </mat-form-field>
             </div>
-          </div>
-
+            </div> 
           <!-- Address Tab -->
-          <div *ngSwitchCase="'address'">
-            <h3 class="form-section-title">Address Information</h3>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Street Address</mat-label>
-                <input matInput [(ngModel)]="editingCompany.streetAddress" placeholder="123 Main St">
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Suite/Unit</mat-label>
-                <input matInput [(ngModel)]="editingCompany.suite" placeholder="Suite 100">
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>City</mat-label>
-                <input matInput [(ngModel)]="editingCompany.city" placeholder="City">
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>State/Province</mat-label>
-                <input matInput [(ngModel)]="editingCompany.stateProvince" placeholder="State">
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Postal Code</mat-label>
-                <input matInput [(ngModel)]="editingCompany.postalCode" placeholder="Postal Code">
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>Country</mat-label>
-                <input matInput [(ngModel)]="editingCompany.country" placeholder="Country">
-              </mat-form-field>
-            </div>
-            
-            <div class="form-section">
-              <h3 class="form-section-title">Billing Address</h3>
-              <mat-checkbox class="mb-4">Same as company address</mat-checkbox>
-              
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Billing Street</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.billingStreet" placeholder="Billing street">
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Billing City</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.billingCity" placeholder="Billing city">
-                </mat-form-field>
-                
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>Billing Postal Code</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.billingPostalCode" placeholder="Billing postal code">
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
+          <!-- Address Tab -->
+<div *ngSwitchCase="'address'">
+  <h3 class="form-section-title" transloco="COMPANY_DETAIL.ADDRESS_INFORMATION"></h3>
+  
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label transloco="COMPANY_DETAIL.STREET_ADDRESS"></mat-label>
+      <input matInput [(ngModel)]="editingCompany.streetAddress" [placeholder]="'COMPANY_DETAIL.STREET_ADDRESS_PLACEHOLDER' | transloco">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label transloco="COMPANY_DETAIL.SUITE"></mat-label>
+      <input matInput [(ngModel)]="editingCompany.suite" [placeholder]="'COMPANY_DETAIL.SUITE_PLACEHOLDER' | transloco">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label transloco="COMPANY_DETAIL.CITY"></mat-label>
+      <input matInput [(ngModel)]="editingCompany.city" [placeholder]="'COMPANY_DETAIL.CITY_PLACEHOLDER' | transloco">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label transloco="COMPANY_DETAIL.STATE_PROVINCE"></mat-label>
+      <input matInput [(ngModel)]="editingCompany.stateProvince" [placeholder]="'COMPANY_DETAIL.STATE_PROVINCE_PLACEHOLDER' | transloco">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label transloco="COMPANY_DETAIL.POSTAL_CODE"></mat-label>
+      <input matInput [(ngModel)]="editingCompany.postalCode" [placeholder]="'COMPANY_DETAIL.POSTAL_CODE_PLACEHOLDER' | transloco">
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label transloco="COMPANY_DETAIL.COUNTRY"></mat-label>
+      <input matInput [(ngModel)]="editingCompany.country" [placeholder]="'COMPANY_DETAIL.COUNTRY_PLACEHOLDER' | transloco">
+    </mat-form-field>
+  </div>
+  
+  <!--<div class="form-section">
+    <h3 class="form-section-title" transloco="COMPANY_DETAIL.BILLING_ADDRESS"></h3>
+    <mat-checkbox class="mb-4" transloco="COMPANY_DETAIL.SAME_AS_COMPANY"></mat-checkbox>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label transloco="COMPANY_DETAIL.BILLING_STREET"></mat-label>
+        <input matInput [(ngModel)]="editingCompany.billingStreet" [placeholder]="'COMPANY_DETAIL.BILLING_STREET_PLACEHOLDER' | transloco">
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label transloco="COMPANY_DETAIL.BILLING_CITY"></mat-label>
+        <input matInput [(ngModel)]="editingCompany.billingCity" [placeholder]="'COMPANY_DETAIL.BILLING_CITY_PLACEHOLDER' | transloco">
+      </mat-form-field>
+      
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label transloco="COMPANY_DETAIL.BILLING_POSTAL_CODE"></mat-label>
+        <input matInput [(ngModel)]="editingCompany.billingPostalCode" [placeholder]="'COMPANY_DETAIL.BILLING_POSTAL_CODE_PLACEHOLDER' | transloco">
+      </mat-form-field>
+    </div>
+  </div>-->
+</div>
           
           <!-- Contacts Tab -->
           <div *ngSwitchCase="'contacts'">
@@ -250,7 +230,7 @@
                 (click)="startAddingContact()"
                 *ngIf="!isAddingContact"
               >
-                <mat-icon class="mr-1">add</mat-icon> Add Contact
+                <mat-icon class="mr-1">add</mat-icon> <span transloco="COMPANY_DETAIL.ADD_CONTACT"></span>
               </button>
             </div>
             
@@ -461,4 +441,23 @@
       </div>
     </mat-card-content>
   </mat-card>
+  <div class="mb-6 flex justify-between items-center">
+    
+    <div>
+      <button 
+        mat-stroked-button
+        class="mr-2"
+        (click)="navigateToCompanies()"
+      >
+        {{'BUTTONS.CANCEL' | transloco}}
+      </button>
+      <button 
+        mat-raised-button
+        color="primary"
+        (click)="save()"
+      >
+        {{'COMPANY_DETAIL.SAVE_COMPANY' | transloco}}
+      </button>
+    </div>
+  </div>
 </div>

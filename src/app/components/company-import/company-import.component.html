@@ -2,19 +2,19 @@
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
     <mat-spinner [diameter]="48"></mat-spinner>
-    <p class="ml-4 text-gray-700">Processing...</p>
+    <p class="ml-4 text-gray-700" transloco="IMPORT.PROCESSING"></p>
   </div>
 
   <!-- Header -->
   <div class="mb-6 flex justify-between items-center">
-    <h1 class="text-2xl font-semibold text-gray-800">Import Companies</h1>
+    <h1 class="text-2xl font-semibold text-gray-800" transloco="IMPORT.TITLE"></h1>
     <button 
       mat-raised-button 
       color="primary"
       [routerLink]="['/companies']"
     >
       <mat-icon>arrow_back</mat-icon>
-      Back to Companies
+      <span transloco="IMPORT.BACK_TO_COMPANIES"></span>
     </button>
   </div>
 
@@ -24,7 +24,7 @@
       <mat-horizontal-stepper [linear]="true" #stepper>
         <!-- Step 1: File Selection -->
         <mat-step [completed]="canProceedToMandatoryMapping" class="flex-1">
-          <ng-template matStepLabel>Upload File</ng-template>
+          <ng-template matStepLabel>{{ 'IMPORT.STEPS.UPLOAD_FILE' | transloco }}</ng-template>
           <div class="py-4 flex-1 flex flex-col">
             <div *ngIf="!fileSelected" class="text-center">
               <div class="mb-4">
@@ -32,11 +32,11 @@
                   <mat-icon class="text-blue-500 text-3xl">cloud_upload</mat-icon>
                 </div>
               </div>
-              <p class="mb-4 text-gray-600">Select a CSV or JSON file containing company data</p>
+              <p class="mb-4 text-gray-600" transloco="IMPORT.SELECT_FILE"></p>
               <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 mb-4 cursor-pointer hover:bg-gray-50"
                    (click)="fileInput.click()">
-                <p class="text-gray-500">Click to browse files</p>
-                <p class="text-sm text-gray-400 mt-1">or drag and drop file here</p>
+                <p class="text-gray-500" transloco="IMPORT.CLICK_TO_BROWSE"></p>
+                <p class="text-sm text-gray-400 mt-1" transloco="IMPORT.DROP_FILE"></p>
               </div>
               <input 
                 #fileInput
@@ -46,14 +46,13 @@
                 (change)="onFileSelected($event)"
               >
               <div class="text-sm text-gray-500 text-left">
-                <p class="font-medium mb-1">Supported file formats:</p>
+                <p class="font-medium mb-1" transloco="IMPORT.SUPPORTED_FORMATS"></p>
                 <ul class="list-disc list-inside">
-                  <li>CSV files (.csv)</li>
-                  <li>JSON files (.json)</li>
+                  <li transloco="IMPORT.FORMAT_CSV"></li>
+                  <li transloco="IMPORT.FORMAT_JSON"></li>
                 </ul>
               </div>
             </div>
-
             <div *ngIf="fileSelected" class="mb-6">
               <div class="flex items-center mb-4">
                 <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
@@ -98,98 +97,104 @@
               color="primary"
               [disabled]="!canProceedToMandatoryMapping"
               (click)="proceedToMandatoryMapping()"
-            >Continue</button>
+              transloco="BUTTONS.CONTINUE"
+            ></button>
           </div>
         </mat-step>
         
         <!-- Step 2: Mandatory Field Mapping -->
-        <mat-step [completed]="canProceedToOptionalMapping" class="flex-1">
-          <ng-template matStepLabel>Map Mandatory Fields</ng-template>
-          <div class="py-4 flex-1 flex flex-col">
-            <mat-card class="mb-4">
-              <mat-card-header>
-                <mat-card-title class="text-base">Mandatory Field Mapping</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <p class="text-sm text-gray-500 mb-4">Match file columns to required company properties</p>
-                
-                <div *ngFor="let field of mandatoryFields" class="grid grid-cols-2 gap-4 mb-3">
-                  <div class="text-sm text-gray-700 py-2">{{ field.label }} <span class="text-red-500">*</span></div>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Select Field</mat-label>
-                    <mat-select [(ngModel)]="fieldMapping[field.key]">
-                      <mat-option value="">-- Select Field --</mat-option>
-                      <mat-option *ngFor="let header of previewHeaders" [value]="header">{{ header }}</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <div>
-            <button mat-button matStepperPrevious (click)="goBack()">Back</button>
-            <button 
-              mat-button 
-              matStepperNext
-              color="primary"
-              [disabled]="!canProceedToOptionalMapping"
-              (click)="proceedToOptionalMapping()"
-            >Continue</button>
-          </div>
-        </mat-step>
-        
+            <!-- Step 2: Mandatory Field Mapping -->
+            <mat-step [completed]="canProceedToOptionalMapping">
+              <ng-template matStepLabel>{{ 'IMPORT.STEPS.MAP_MANDATORY' | transloco }}</ng-template>
+              <div class="py-4">
+                <mat-card class="mb-4">
+                  <mat-card-header>
+                    <mat-card-title class="text-base" transloco="IMPORT.MANDATORY_MAPPING"></mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <p class="text-sm text-gray-500 mb-4" transloco="IMPORT.MANDATORY_HELP"></p>
+                    
+                    <div *ngFor="let field of mandatoryFields" class="grid grid-cols-2 gap-4 mb-3">
+                      <div class="text-sm text-gray-700 py-2">{{ field.label | transloco }} <span class="text-red-500">*</span></div>
+                      <mat-form-field appearance="outline" class="w-full">
+                        <mat-label transloco="IMPORT.SELECT_FIELD"></mat-label>
+                        <mat-select [(ngModel)]="fieldMapping[field.key]">
+                          <mat-option value="" transloco="IMPORT.SELECT_FIELD_OPTION"></mat-option>
+                          <mat-option *ngFor="let header of previewHeaders" [value]="header">{{ header }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+              <div>
+                <button mat-button matStepperPrevious (click)="goBack()" transloco="BUTTONS.BACK"></button>
+                <button 
+                  mat-button 
+                  matStepperNext
+                  color="primary"
+                  [disabled]="!canProceedToOptionalMapping"
+                  (click)="proceedToOptionalMapping()"
+                  transloco="BUTTONS.CONTINUE"
+                ></button>
+              </div>
+            </mat-step>
         <!-- Step 3: Optional Field Mapping -->
-        <mat-step [completed]="canProceedToReview" class="flex-1">
-          <ng-template matStepLabel>Map Optional Fields</ng-template>
-          <div class="py-4 flex-1 flex flex-col">
-            <mat-card class="mb-4">
-              <mat-card-header>
-                <mat-card-title class="text-base">Optional Field Mapping</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <p class="text-sm text-gray-500 mb-4">Match file columns to optional company properties</p>
-                
-                <div *ngFor="let field of optionalFields" class="grid grid-cols-2 gap-4 mb-3">
-                  <div class="text-sm text-gray-700 py-2">{{ field.label }}</div>
-                  <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Select Field</mat-label>
-                    <mat-select [(ngModel)]="fieldMapping[field.key]">
-                      <mat-option value="">-- Not Mapped --</mat-option>
-                      <mat-option *ngFor="let header of previewHeaders" [value]="header">{{ header }}</mat-option>
-                    </mat-select>
-                  </mat-form-field>
+               <!-- Step 3: Optional Field Mapping -->
+               <mat-step [completed]="canProceedToReview">
+                <ng-template matStepLabel>{{ 'IMPORT.STEPS.MAP_OPTIONAL' | transloco }}</ng-template>
+                <div class="py-4">
+                  <mat-card class="mb-4">
+                    <mat-card-header>
+                      <mat-card-title class="text-base" transloco="IMPORT.OPTIONAL_MAPPING"></mat-card-title>
+                    </mat-card-header>
+                    <mat-card-content>
+                      <p class="text-sm text-gray-500 mb-4" transloco="IMPORT.OPTIONAL_HELP"></p>
+                      
+                      <div *ngFor="let field of optionalFields" class="grid grid-cols-2 gap-4 mb-3">
+                        <div class="text-sm text-gray-700 py-2">{{ field.label | transloco }}</div>
+                        <mat-form-field appearance="outline" class="w-full">
+                          <mat-label transloco="IMPORT.SELECT_FIELD"></mat-label>
+                          <mat-select [(ngModel)]="fieldMapping[field.key]">
+                            <mat-option value="" transloco="IMPORT.NOT_MAPPED"></mat-option>
+                            <mat-option *ngFor="let header of previewHeaders" [value]="header">{{ header }}</mat-option>
+                          </mat-select>
+                        </mat-form-field>
+                      </div>
+                    </mat-card-content>
+                  </mat-card>
                 </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-          <div>
-            <button mat-button matStepperPrevious (click)="goBack()">Back</button>
-            <button 
-              mat-button 
-              matStepperNext
-              color="primary"
-              (click)="proceedToReview()"
-            >Review Data</button>
-          </div>
-        </mat-step>
+                <div>
+                  <button mat-button matStepperPrevious (click)="goBack()" transloco="BUTTONS.BACK"></button>
+                  <button 
+                    mat-button 
+                    matStepperNext
+                    color="primary"
+                    (click)="proceedToReview()"
+                    transloco="IMPORT.REVIEW_DATA"
+                  ></button>
+                </div>
+              </mat-step>
         
         <!-- Step 4: Review & Import -->
-        <mat-step class="flex-1">
-          <ng-template matStepLabel>Review & Import</ng-template>
-          <div class="py-4 flex-1 flex flex-col">
+        <mat-step>
+          <ng-template matStepLabel>{{ 'IMPORT.STEPS.REVIEW' | transloco }}</ng-template>
+          <div class="py-4">
             <div class="flex justify-between items-center mb-4">
-              <h3 class="font-medium">Review Import Data</h3>
+              <h3 class="font-medium" transloco="IMPORT.REVIEW_IMPORT_DATA"></h3>
               <mat-slide-toggle
                   color="warn"
                   [checked]="showOnlyRowsWithErrors"
                   (change)="toggleErrorFilter()"
                 >
-                  Show only rows with errors ({{ rowIssues.length }})
+                  <span transloco="IMPORT.SHOW_ERRORS"></span> ({{ rowIssues.length }})
                 </mat-slide-toggle>
               <mat-checkbox 
                 [checked]="allRowsSelected" 
                 (change)="allRowsSelected = !allRowsSelected; toggleAllRows()"
-              >Select All ({{ selectedRowCount }}/{{ fileData.length }})</mat-checkbox>
+              >
+                <span transloco="IMPORT.SELECT_ALL"></span> ({{ selectedRowCount }}/{{ fileData.length }})
+              </mat-checkbox>
             </div>
             
             <mat-card class="mb-4">
@@ -212,11 +217,11 @@
                       </td>
                     </ng-container>
                     <ng-container matColumnDef="teamAssignment">
-                      <th mat-header-cell *matHeaderCellDef>Team Member</th>
+                      <th mat-header-cell *matHeaderCellDef transloco="IMPORT.TEAM_MEMBER"></th>
                       <td mat-cell *matCellDef="let row; let displayIndex = index">
                         <mat-form-field appearance="outline" class="w-full">
                           <mat-select [(value)]="companyTeamAssignments[fileData.indexOf(row)]">
-                            <mat-option [value]="0">Unassigned</mat-option>
+                            <mat-option [value]="0" transloco="IMPORT.UNASSIGNED"></mat-option>
                             <mat-option *ngFor="let employee of employees" [value]="employee.id">
                               {{ employee.name }} ({{ employee.department }})
                             </mat-option>
@@ -226,7 +231,7 @@
                     </ng-container>
                     <!-- Data Columns (Mandatory + Optional) -->
                     <ng-container *ngFor="let field of displayFields" [matColumnDef]="field.key">
-                      <th mat-header-cell *matHeaderCellDef>{{ field.label }}</th>
+                      <th mat-header-cell *matHeaderCellDef>{{ field.label | transloco }}</th>
                       <td mat-cell *matCellDef="let row">{{ row[fieldMapping[field.key]] || '—' }}</td>
                     </ng-container>
                     
@@ -255,122 +260,77 @@
                 <mat-icon class="text-yellow-500 mr-2">warning</mat-icon>
                 <div>
                   <p class="text-sm text-yellow-700">
-                    {{ rowIssues.length }} {{ rowIssues.length === 1 ? 'row has' : 'rows have' }} issues that may cause import problems.
+                    {{ rowIssues.length }} {{ rowIssues.length === 1 ? ('IMPORT.ROW_HAS_ISSUES' | transloco) : ('IMPORT.ROWS_HAVE_ISSUES' | transloco) }}
                   </p>
-                  <p class="text-xs text-yellow-600 mt-1">
-                    You can still import these rows, but some data might be missing.
+                  <p class="text-xs text-yellow-600 mt-1" transloco="IMPORT.ISSUES_HELP">
                   </p>
                 </div>
               </div>
             </div>
-          
-          <div *ngIf="isImporting" class="mt-6">
-            <h3 class="font-medium text-gray-800 mb-3">Import Progress</h3>
-            <div class="flex items-center">
-              <mat-progress-bar mode="determinate" [value]="importProgress" class="flex-1"></mat-progress-bar>
-              <span class="ml-3 text-gray-700">{{importProgress}}%</span>
-            </div>
-            <div class="mt-2 text-sm text-gray-600">
-              Processed: {{importSummary.totalProcessed}} / {{selectedRowCount}}
-            </div>
-            
-            <!-- Real-time results table -->
-            <div *ngIf="importResults.length > 0" class="mt-4 overflow-auto max-h-96">
-              <table mat-table [dataSource]="importResults" class="w-full">
-                <!-- Company Name Column -->
-                <ng-container matColumnDef="companyName">
-                  <th mat-header-cell *matHeaderCellDef>Company</th>
-                  <td mat-cell *matCellDef="let result">{{result.companyName}}</td>
-                </ng-container>
-                
-                <!-- Status Column -->
-                <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef>Status</th>
-                  <td mat-cell *matCellDef="let result">
-                    <mat-chip [color]="getStatusColor(result.status)" selected>
-                      {{getStatusText(result.status)}}
-                    </mat-chip>
-                  </td>
-                </ng-container>
-                
-                <!-- Description Column -->
-                <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef>Details</th>
-                  <td mat-cell *matCellDef="let result">
-                    {{result.description || result.errorMessage || 'Successfully imported'}}
-                  </td>
-                </ng-container>
-                
-                <tr mat-header-row *matHeaderRowDef="['companyName', 'status', 'description']; sticky: true"></tr>
-                <tr mat-row *matRowDef="let row; columns: ['companyName', 'status', 'description'];"></tr>
-              </table>
-            </div>
           </div>
-        </div>
           <div>
-            <button mat-button matStepperPrevious (click)="goBack()">Back</button>
+            <button mat-button matStepperPrevious (click)="goBack()" transloco="BUTTONS.BACK"></button>
             <button 
               mat-raised-button
               color="primary"
-              [disabled]="!canImport"
+              [disabled]="!canImport || isImporting"
               (click)="importCompanies()"
             >
-              Import {{ selectedRowCount }} {{ selectedRowCount === 1 ? 'Company' : 'Companies' }}
+              {{ 'IMPORT.IMPORT' | transloco }} {{ selectedRowCount }} {{ selectedRowCount === 1 ? ('IMPORT.COMPANY' | transloco) : ('IMPORT.COMPANIES' | transloco) }}
             </button>
           </div>
         </mat-step>
-        <mat-step class="flex-1">
-          <ng-template matStepLabel>Results</ng-template>
-          <!--<div class="py-4" *ngIf="importResults.length > 0">-->
-            <div class="py-4 flex-1 flex flex-col">
-              <mat-card class="mb-6">
+        <mat-step>
+          <ng-template matStepLabel>{{ 'IMPORT.STEPS.RESULTS' | transloco }}</ng-template>
+          <div class="py-4" *ngIf="importResults.length > 0">
+            <mat-card class="mb-6">
               <mat-card-header>
-                <mat-card-title class="text-lg">Import Summary</mat-card-title>
+                <mat-card-title class="text-lg" transloco="IMPORT.IMPORT_SUMMARY"></mat-card-title>
               </mat-card-header>
               <mat-card-content>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                   <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
                     <div class="text-3xl font-bold text-green-600">{{importSummary.successful}}</div>
-                    <div class="text-sm text-green-700">Successfully Imported</div>
+                    <div class="text-sm text-green-700" transloco="IMPORT.SUCCESSFULLY_IMPORTED"></div>
                   </div>
                   <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
                     <div class="text-3xl font-bold text-blue-600">{{importSummary.existingCompanies}}</div>
-                    <div class="text-sm text-blue-700">New Leads Created</div>
+                    <div class="text-sm text-blue-700" transloco="IMPORT.NEW_LEADS_CREATED"></div>
                   </div>
                   <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
                     <div class="text-3xl font-bold text-yellow-600">{{importSummary.existingLeads}}</div>
-                    <div class="text-sm text-yellow-700">Already Existed</div>
+                    <div class="text-sm text-yellow-700" transloco="IMPORT.ALREADY_EXISTED"></div>
                   </div>
                   <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
                     <div class="text-3xl font-bold text-red-600">{{importSummary.errors}}</div>
-                    <div class="text-sm text-red-700">Errors</div>
+                    <div class="text-sm text-red-700" transloco="IMPORT.ERRORS"></div>
                   </div>
                 </div>
                 
                 <!-- Visual progress bar -->
                 <div class="mb-6">
-                  <h3 class="font-medium text-gray-800 mb-3">Import Results</h3>
+                  <h3 class="font-medium text-gray-800 mb-3" transloco="IMPORT.IMPORT_RESULTS"></h3>
                   <div class="bg-gray-50 rounded-lg p-4">
                     <div class="flex h-12 rounded overflow-hidden">
                       <div 
                         class="bg-green-500 h-full" 
                         [style.width.%]="(importSummary.successful / importSummary.totalProcessed) * 100"
-                        matTooltip="{{importSummary.successful}} successful imports">
+                        [matTooltip]="importSummary.successful + ' ' + ('IMPORT.SUCCESSFUL_IMPORTS' | transloco)">
                       </div>
                       <div 
                         class="bg-blue-500 h-full" 
                         [style.width.%]="(importSummary.existingCompanies / importSummary.totalProcessed) * 100"
-                        matTooltip="{{importSummary.existingCompanies}} new leads created">
+                        [matTooltip]="importSummary.existingCompanies + ' ' + ('IMPORT.NEW_LEADS_TOOLTIP' | transloco)">
                       </div>
                       <div 
                         class="bg-yellow-500 h-full" 
                         [style.width.%]="(importSummary.existingLeads / importSummary.totalProcessed) * 100"
-                        matTooltip="{{importSummary.existingLeads}} already existed">
+                        [matTooltip]="importSummary.existingLeads + ' ' + ('IMPORT.ALREADY_EXISTED_TOOLTIP' | transloco)">
                       </div>
                       <div 
                         class="bg-red-500 h-full" 
                         [style.width.%]="(importSummary.errors / importSummary.totalProcessed) * 100"
-                        matTooltip="{{importSummary.errors}} errors">
+                        [matTooltip]="importSummary.errors + ' ' + ('IMPORT.ERRORS_TOOLTIP' | transloco)">
                       </div>
                     </div>
                     <div class="flex justify-between text-xs text-gray-600 mt-1">
@@ -381,19 +341,19 @@
                   </div>
                 </div>
                 
-                <h3 class="font-medium text-gray-800 mb-3">Detailed Results</h3>
+                <h3 class="font-medium text-gray-800 mb-3" transloco="IMPORT.DETAILED_RESULTS"></h3>
                 
                 <div class="overflow-auto max-h-96">
                   <table mat-table [dataSource]="importResults" class="w-full">
                     <!-- Company Name Column -->
                     <ng-container matColumnDef="companyName">
-                      <th mat-header-cell *matHeaderCellDef>Company</th>
+                      <th mat-header-cell *matHeaderCellDef transloco="IMPORT.COMPANY_NAME"></th>
                       <td mat-cell *matCellDef="let result">{{result.companyName}}</td>
                     </ng-container>
                     
                     <!-- Status Column -->
                     <ng-container matColumnDef="status">
-                      <th mat-header-cell *matHeaderCellDef>Status</th>
+                      <th mat-header-cell *matHeaderCellDef transloco="IMPORT.STATUS_COLUMN"></th>
                       <td mat-cell *matCellDef="let result">
                         <mat-chip [color]="getStatusColor(result.status)" selected>
                           {{getStatusText(result.status)}}
@@ -403,9 +363,9 @@
                     
                     <!-- Description Column -->
                     <ng-container matColumnDef="description">
-                      <th mat-header-cell *matHeaderCellDef>Details</th>
+                      <th mat-header-cell *matHeaderCellDef transloco="IMPORT.DETAILS_COLUMN"></th>
                       <td mat-cell *matCellDef="let result">
-                        {{result.description || result.errorMessage || 'Successfully imported'}}
+                        {{result.description || result.errorMessage || ('IMPORT.SUCCESS_MESSAGE' | transloco)}}
                       </td>
                     </ng-container>
                     
@@ -417,17 +377,16 @@
             </mat-card>
           </div>
           <div>
-            <button mat-button (click)="resetImport()">Import More</button>
+            <button mat-button (click)="resetImport()" transloco="IMPORT.IMPORT_MORE"></button>
             <button 
               mat-raised-button
               color="primary"
               [routerLink]="['/companies']"
+              transloco="IMPORT.GO_TO_COMPANIES"
             >
-              Go to Companies
             </button>
           </div>
-        </mat-step>
-      </mat-horizontal-stepper>
+        </mat-step>      </mat-horizontal-stepper>
     </mat-card-content>
   </mat-card>
 </div>

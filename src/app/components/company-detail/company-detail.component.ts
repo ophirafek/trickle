@@ -5,6 +5,7 @@ import { CompanyService } from '../../services/company.service';
 import { LeadService } from '../../services/lead.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
+import { TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-company-detail',
@@ -46,6 +47,7 @@ export class CompanyDetailComponent implements OnInit {
   constructor(
     private companyService: CompanyService,
     private leadService: LeadService,
+    private translocoService: TranslocoService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar
@@ -193,10 +195,14 @@ getEmptyCompany(): Company {
 
   save(): void {
     if (!this.editingCompany.name || !this.editingCompany.name.trim()) {
-      this.snackBar.open('Company name is required', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      this.snackBar.open(
+        this.translocoService.translate('COMPANY_DETAIL.NAME_REQUIRED'), 
+        this.translocoService.translate('BUTTONS.CLOSE'), 
+        {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        }
+      );
       return;
     }
     
@@ -206,18 +212,26 @@ getEmptyCompany(): Company {
       // Create new company
       this.companyService.createCompany(this.editingCompany).subscribe({
         next: (company) => {
-          this.snackBar.open('Company created successfully', 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.snackBar.open(
+            this.translocoService.translate('COMPANY_DETAIL.CREATE_SUCCESS'), 
+            this.translocoService.translate('BUTTONS.CLOSE'), 
+            {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            }
+          );
           this.loading = false;
           this.router.navigate(['/companies']);
         },
         error: (err) => {
-          this.snackBar.open('Failed to create company', 'Close', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.snackBar.open(
+            this.translocoService.translate('COMPANY_DETAIL.CREATE_ERROR'), 
+            this.translocoService.translate('BUTTONS.CLOSE'), 
+            {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            }
+          );
           this.loading = false;
           console.error('Error creating company:', err);
         }
@@ -226,18 +240,26 @@ getEmptyCompany(): Company {
       // Update existing company
       this.companyService.updateCompany(this.editingCompany.id, this.editingCompany).subscribe({
         next: () => {
-          this.snackBar.open('Company updated successfully', 'Close', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
+          this.snackBar.open(
+            this.translocoService.translate('COMPANY_DETAIL.UPDATE_SUCCESS'), 
+            this.translocoService.translate('BUTTONS.CLOSE'), 
+            {
+              duration: 3000,
+              panelClass: ['success-snackbar']
+            }
+          );
           this.loading = false;
           this.router.navigate(['/companies']);
         },
         error: (err) => {
-          this.snackBar.open('Failed to update company', 'Close', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.snackBar.open(
+            this.translocoService.translate('COMPANY_DETAIL.UPDATE_ERROR'), 
+            this.translocoService.translate('BUTTONS.CLOSE'), 
+            {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            }
+          );
           this.loading = false;
           console.error('Error updating company:', err);
         }

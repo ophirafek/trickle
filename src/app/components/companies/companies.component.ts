@@ -5,6 +5,7 @@ import { Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ViewEncapsulation } from '@angular/core';
+import { TranslocoService } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-companies',
@@ -33,6 +34,7 @@ export class CompaniesComponent implements OnInit {
   constructor(
     private companyService: CompanyService,
     private snackBar: MatSnackBar,
+    private translocoService: TranslocoService,
     private router: Router
   ) {}
 
@@ -53,7 +55,7 @@ export class CompaniesComponent implements OnInit {
           console.log('Companies loaded:', this.companies.length);
         },
         error: (err) => {
-          this.error = 'Failed to load companies. Please try again later.';
+          this.error = this.translocoService.translate('COMPANIES.LOAD_ERROR');
           this.loading = false;
           console.error('Error loading companies:', err);
         }
@@ -140,7 +142,7 @@ export class CompaniesComponent implements OnInit {
   }
 
   deleteCompany(id: number): void {
-    if (confirm('Are you sure you want to delete this company?')) {
+    if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
       this.loading = true;
       
       this.companyService.deleteCompany(id)
@@ -150,20 +152,28 @@ export class CompaniesComponent implements OnInit {
             this.loadCompanies();
             this.loading = false;
             
-            this.snackBar.open('Company deleted successfully', 'Close', {
-              duration: 3000,
-              panelClass: ['success-snackbar']
-            });
+            this.snackBar.open(
+              this.translocoService.translate('COMPANIES.DELETE_SUCCESS'), 
+              this.translocoService.translate('BUTTONS.CLOSE'), 
+              {
+                duration: 3000,
+                panelClass: ['success-snackbar']
+              }
+            );
           },
           error: (err) => {
-            this.error = 'Failed to delete company. Please try again later.';
+            this.error = this.translocoService.translate('COMPANIES.DELETE_ERROR');
             this.loading = false;
             console.error('Error deleting company:', err);
             
-            this.snackBar.open('Failed to delete company', 'Close', {
-              duration: 3000,
-              panelClass: ['error-snackbar']
-            });
+            this.snackBar.open(
+              this.translocoService.translate('COMPANIES.DELETE_FAILED'), 
+              this.translocoService.translate('BUTTONS.CLOSE'), 
+              {
+                duration: 3000,
+                panelClass: ['error-snackbar']
+              }
+            );
           }
         });
     }
