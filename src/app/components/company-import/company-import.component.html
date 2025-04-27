@@ -18,14 +18,14 @@
     </button>
   </div>
 
-  <mat-card class="max-w-4xl w-full mx-auto">
+  <mat-card class="w-full mx-auto flex-1 flex flex-col">
     <!-- Progress Steps -->
-    <mat-card-content class="p-6">
+    <mat-card-content class="p-6 flex-1 flex flex-col overflow-hidden" class="flex-1 flex flex-col">
       <mat-horizontal-stepper [linear]="true" #stepper>
         <!-- Step 1: File Selection -->
-        <mat-step [completed]="canProceedToMandatoryMapping">
+        <mat-step [completed]="canProceedToMandatoryMapping" class="flex-1">
           <ng-template matStepLabel>Upload File</ng-template>
-          <div class="py-4">
+          <div class="py-4 flex-1 flex flex-col">
             <div *ngIf="!fileSelected" class="text-center">
               <div class="mb-4">
                 <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto">
@@ -103,9 +103,9 @@
         </mat-step>
         
         <!-- Step 2: Mandatory Field Mapping -->
-        <mat-step [completed]="canProceedToOptionalMapping">
+        <mat-step [completed]="canProceedToOptionalMapping" class="flex-1">
           <ng-template matStepLabel>Map Mandatory Fields</ng-template>
-          <div class="py-4">
+          <div class="py-4 flex-1 flex flex-col">
             <mat-card class="mb-4">
               <mat-card-header>
                 <mat-card-title class="text-base">Mandatory Field Mapping</mat-card-title>
@@ -139,9 +139,9 @@
         </mat-step>
         
         <!-- Step 3: Optional Field Mapping -->
-        <mat-step [completed]="canProceedToReview">
+        <mat-step [completed]="canProceedToReview" class="flex-1">
           <ng-template matStepLabel>Map Optional Fields</ng-template>
-          <div class="py-4">
+          <div class="py-4 flex-1 flex flex-col">
             <mat-card class="mb-4">
               <mat-card-header>
                 <mat-card-title class="text-base">Optional Field Mapping</mat-card-title>
@@ -174,9 +174,9 @@
         </mat-step>
         
         <!-- Step 4: Review & Import -->
-        <mat-step>
+        <mat-step class="flex-1">
           <ng-template matStepLabel>Review & Import</ng-template>
-          <div class="py-4">
+          <div class="py-4 flex-1 flex flex-col">
             <div class="flex justify-between items-center mb-4">
               <h3 class="font-medium">Review Import Data</h3>
               <mat-slide-toggle
@@ -263,7 +263,50 @@
                 </div>
               </div>
             </div>
+          
+          <div *ngIf="isImporting" class="mt-6">
+            <h3 class="font-medium text-gray-800 mb-3">Import Progress</h3>
+            <div class="flex items-center">
+              <mat-progress-bar mode="determinate" [value]="importProgress" class="flex-1"></mat-progress-bar>
+              <span class="ml-3 text-gray-700">{{importProgress}}%</span>
+            </div>
+            <div class="mt-2 text-sm text-gray-600">
+              Processed: {{importSummary.totalProcessed}} / {{selectedRowCount}}
+            </div>
+            
+            <!-- Real-time results table -->
+            <div *ngIf="importResults.length > 0" class="mt-4 overflow-auto max-h-96">
+              <table mat-table [dataSource]="importResults" class="w-full">
+                <!-- Company Name Column -->
+                <ng-container matColumnDef="companyName">
+                  <th mat-header-cell *matHeaderCellDef>Company</th>
+                  <td mat-cell *matCellDef="let result">{{result.companyName}}</td>
+                </ng-container>
+                
+                <!-- Status Column -->
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let result">
+                    <mat-chip [color]="getStatusColor(result.status)" selected>
+                      {{getStatusText(result.status)}}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+                
+                <!-- Description Column -->
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef>Details</th>
+                  <td mat-cell *matCellDef="let result">
+                    {{result.description || result.errorMessage || 'Successfully imported'}}
+                  </td>
+                </ng-container>
+                
+                <tr mat-header-row *matHeaderRowDef="['companyName', 'status', 'description']; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['companyName', 'status', 'description'];"></tr>
+              </table>
+            </div>
           </div>
+        </div>
           <div>
             <button mat-button matStepperPrevious (click)="goBack()">Back</button>
             <button 
@@ -273,6 +316,114 @@
               (click)="importCompanies()"
             >
               Import {{ selectedRowCount }} {{ selectedRowCount === 1 ? 'Company' : 'Companies' }}
+            </button>
+          </div>
+        </mat-step>
+        <mat-step class="flex-1">
+          <ng-template matStepLabel>Results</ng-template>
+          <!--<div class="py-4" *ngIf="importResults.length > 0">-->
+            <div class="py-4 flex-1 flex flex-col">
+              <mat-card class="mb-6">
+              <mat-card-header>
+                <mat-card-title class="text-lg">Import Summary</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-green-600">{{importSummary.successful}}</div>
+                    <div class="text-sm text-green-700">Successfully Imported</div>
+                  </div>
+                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-blue-600">{{importSummary.existingCompanies}}</div>
+                    <div class="text-sm text-blue-700">New Leads Created</div>
+                  </div>
+                  <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-yellow-600">{{importSummary.existingLeads}}</div>
+                    <div class="text-sm text-yellow-700">Already Existed</div>
+                  </div>
+                  <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                    <div class="text-3xl font-bold text-red-600">{{importSummary.errors}}</div>
+                    <div class="text-sm text-red-700">Errors</div>
+                  </div>
+                </div>
+                
+                <!-- Visual progress bar -->
+                <div class="mb-6">
+                  <h3 class="font-medium text-gray-800 mb-3">Import Results</h3>
+                  <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex h-12 rounded overflow-hidden">
+                      <div 
+                        class="bg-green-500 h-full" 
+                        [style.width.%]="(importSummary.successful / importSummary.totalProcessed) * 100"
+                        matTooltip="{{importSummary.successful}} successful imports">
+                      </div>
+                      <div 
+                        class="bg-blue-500 h-full" 
+                        [style.width.%]="(importSummary.existingCompanies / importSummary.totalProcessed) * 100"
+                        matTooltip="{{importSummary.existingCompanies}} new leads created">
+                      </div>
+                      <div 
+                        class="bg-yellow-500 h-full" 
+                        [style.width.%]="(importSummary.existingLeads / importSummary.totalProcessed) * 100"
+                        matTooltip="{{importSummary.existingLeads}} already existed">
+                      </div>
+                      <div 
+                        class="bg-red-500 h-full" 
+                        [style.width.%]="(importSummary.errors / importSummary.totalProcessed) * 100"
+                        matTooltip="{{importSummary.errors}} errors">
+                      </div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-600 mt-1">
+                      <div>0%</div>
+                      <div>50%</div>
+                      <div>100%</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <h3 class="font-medium text-gray-800 mb-3">Detailed Results</h3>
+                
+                <div class="overflow-auto max-h-96">
+                  <table mat-table [dataSource]="importResults" class="w-full">
+                    <!-- Company Name Column -->
+                    <ng-container matColumnDef="companyName">
+                      <th mat-header-cell *matHeaderCellDef>Company</th>
+                      <td mat-cell *matCellDef="let result">{{result.companyName}}</td>
+                    </ng-container>
+                    
+                    <!-- Status Column -->
+                    <ng-container matColumnDef="status">
+                      <th mat-header-cell *matHeaderCellDef>Status</th>
+                      <td mat-cell *matCellDef="let result">
+                        <mat-chip [color]="getStatusColor(result.status)" selected>
+                          {{getStatusText(result.status)}}
+                        </mat-chip>
+                      </td>
+                    </ng-container>
+                    
+                    <!-- Description Column -->
+                    <ng-container matColumnDef="description">
+                      <th mat-header-cell *matHeaderCellDef>Details</th>
+                      <td mat-cell *matCellDef="let result">
+                        {{result.description || result.errorMessage || 'Successfully imported'}}
+                      </td>
+                    </ng-container>
+                    
+                    <tr mat-header-row *matHeaderRowDef="['companyName', 'status', 'description']; sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: ['companyName', 'status', 'description'];"></tr>
+                  </table>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+          <div>
+            <button mat-button (click)="resetImport()">Import More</button>
+            <button 
+              mat-raised-button
+              color="primary"
+              [routerLink]="['/companies']"
+            >
+              Go to Companies
             </button>
           </div>
         </mat-step>

@@ -53,6 +53,7 @@ import { LeadsListComponent } from './components/leads-list/leads-list.component
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoRootModule } from '../transloco/transloco-root.module';
 import { LanguageInterceptor } from './services/language-interceptor.service';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 const MaterialModules = [
   MatButtonModule,
@@ -85,7 +86,8 @@ const MaterialModules = [
   MatDividerModule,
   MatExpansionModule,
   MatStepperModule,
-  MatSlideToggleModule
+  MatSlideToggleModule,
+  MatProgressBarModule
 ];
 
 @NgModule({

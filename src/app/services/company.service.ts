@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { Company, Contact, Note } from '../../model/types';
+import { Company, Contact, Note, ImportResult } from '../../model/types';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -63,6 +63,21 @@ export class CompanyService {
       .pipe(
         catchError(this.handleError<any>('importCompanies'))
       );
+  }
+
+  importSingleCompany(company: Company): Observable<ImportResult> {
+    return this.importCompanies([company]).pipe(
+      map(results => results[0]), // Take the first result
+      catchError(error => {
+        console.error('Error importing company:', error);
+        // Return a formatted error response
+        return of({
+          status: 3,
+          companyName: company.name,
+          errorMessage: 'Network or server error occurred'
+        });
+      })
+    );
   }
   // Add contact to company
   addContact(companyId: number, contact: Contact): Observable<Contact> {

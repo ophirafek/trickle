@@ -103,3 +103,10 @@ export interface Employee {
   email?: string;
   phone?: string;
 }
+
+export interface ImportResult {
+  status: number; // 0: OK, 1: Company exists + new lead, 2: Both exist, 3: Error
+  companyName: string;
+  description?: string;
+  errorMessage?: string;
+}

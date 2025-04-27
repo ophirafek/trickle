@@ -1,12 +1,13 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Company, Employee } from '../../../model/types';
+import { Company, Employee, ImportResult } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { EmployeeService } from  '../../services/employees.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
+import { ThemePalette } from '@angular/material/core';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 @Component({
   selector: 'app-company-import',
   templateUrl: './company-import.component.html',
@@ -25,9 +26,25 @@ export class CompanyImportComponent implements OnInit {
   fieldMapping: { [key: string]: string } = {};
   showOnlyRowsWithErrors: boolean = false;
   
+  importResults: ImportResult[] = [];
+  importProgress: number = 0;
+  importSummary: {
+    totalProcessed: number;
+    successful: number;
+    existingCompanies: number;
+    existingLeads: number;
+    errors: number;
+  } = {
+    totalProcessed: 0,
+    successful: 0,
+    existingCompanies: 0,
+    existingLeads: 0,
+    errors: 0
+  };
+  isImporting: boolean = false;
   // Track current step in the import process
   // Track current step in the import process
-  currentStep: 'file-selection' | 'mandatory-mapping' | 'optional-mapping' | 'review' = 'file-selection';
+  currentStep: 'file-selection' | 'mandatory-mapping' | 'optional-mapping' | 'review' | 'results' = 'file-selection';
   
   // Track which rows are selected for import
   selectedRows: boolean[] = [];
@@ -331,8 +348,6 @@ export class CompanyImportComponent implements OnInit {
   importCompanies(): void {
     if (!this.canImport) return;
     
-    this.loading = true;
-    
     const selectedData = this.fileData.filter((_, index) => this.selectedRows[index]);
     const mappedCompanies: Company[] = selectedData.map(row => {
       const company: any = {};
@@ -350,6 +365,7 @@ export class CompanyImportComponent implements OnInit {
           company[field.key] = row[sourceField] || '';
         }
       });
+      
       const originalIndex = this.fileData.indexOf(row);
       if (this.companyTeamAssignments[originalIndex]) {
         company.assignedTeamMemberId = this.companyTeamAssignments[originalIndex];
@@ -363,53 +379,92 @@ export class CompanyImportComponent implements OnInit {
       return company as Company;
     });
     
-    // Since we're handling multiple companies, we'll create them one at a time
-    let successCount = 0;
-    let failCount = 0;
-    let processedCount = 0;
+    // Reset import state
+    this.importResults = [];
+    this.importProgress = 0;
+    this.importSummary = {
+      totalProcessed: 0,
+      successful: 0,
+      existingCompanies: 0,
+      existingLeads: 0,
+      errors: 0
+    };
+    this.isImporting = true;
+    this.loading = true;
     
-    const processCompany = (index: number) => {
-      if (index >= mappedCompanies.length) {
-        // All companies processed
-        this.loading = false;
-        
-        const message = successCount === mappedCompanies.length
-          ? `Successfully imported ${successCount} companies`
-          : `Imported ${successCount} companies (${failCount} failed)`;
-        
-        this.snackBar.open(message, 'Close', {
-          duration: 5000,
-          panelClass: failCount > 0 ? ['warning-snackbar'] : ['success-snackbar']
-        });
-        
-        // Return to companies list
-        this.router.navigate(['/companies']);
-        return;
+    // Import companies sequentially
+    this.importCompaniesSequentially(mappedCompanies, 0);
+  }
+
+  importCompaniesSequentially(companies: Company[], index: number): void {
+    this.stepper.selected!.completed = true;
+    if (index >= companies.length) {
+      // All companies processed
+      this.loading = false;
+      this.isImporting = false;
+      if (this.stepper) {
+        this.stepper.next(); // This advances to the Results step
       }
-      
-      const company = mappedCompanies[index];
-      
-      this.companyService.createCompany(company).subscribe({
-        next: () => {
-          successCount++;
-          processedCount++;
-          processNextCompany();
-        },
-        error: (err) => {
-          console.error(`Error importing company ${index}:`, err);
-          failCount++;
-          processedCount++;
-          processNextCompany();
-        }
+  
+      this.snackBar.open(`Processed ${this.importSummary.totalProcessed} companies`, 'Close', {
+        duration: 5000,
+        panelClass: this.importSummary.errors > 0 ? ['warning-snackbar'] : ['success-snackbar']
       });
-    };
+      return;
+    }
     
-    const processNextCompany = () => {
-      processCompany(processedCount);
-    };
+    const company = companies[index];
     
-    // Start processing
-    processCompany(0);
+    this.companyService.importSingleCompany(company).subscribe({
+      next: (result) => {
+        // Add result to our results array
+        this.importResults.push(result);
+        
+        // Update summary based on status
+        this.importSummary.totalProcessed++;
+        switch (result.status) {
+          case 0: // Success
+            this.importSummary.successful++;
+            break;
+          case 1: // Company exists, lead created
+            this.importSummary.existingCompanies++;
+            break;
+          case 2: // Both company and lead exist
+            this.importSummary.existingLeads++;
+            break;
+          case 3: // Error
+            this.importSummary.errors++;
+            break;
+        }
+        
+        // Update progress
+        this.importProgress = Math.round((index + 1) / companies.length * 100);
+        
+        // Process next company
+        setTimeout(() => {
+          this.importCompaniesSequentially(companies, index + 1);
+        }, 100); // Small delay to avoid overwhelming the server
+      },
+      error: () => {
+        // This shouldn't happen since we're handling errors in the service
+        // But just in case, add a generic error result
+        this.importResults.push({
+          status: 3,
+          companyName: company.name,
+          errorMessage: 'Unknown error occurred'
+        });
+        this.importSummary.totalProcessed++;
+        this.importSummary.errors++;
+        
+        // Update progress
+        this.importProgress = Math.round((index + 1) / companies.length * 100);
+        
+        // Continue with next company despite error
+        setTimeout(() => {
+          this.importCompaniesSequentially(companies, index + 1);
+        }, 100);
+      }
+    });
   }
 
   // Navigation methods
@@ -461,5 +516,39 @@ export class CompanyImportComponent implements OnInit {
     this.companyTeamAssignments[rowIndex] = employeeId;
   }
     // Navigation methods
+    getStatusColor(status: number): ThemePalette {
+      switch(status) {
+        case 0: return 'primary'; // OK
+        case 1: return 'accent';  // Company exists + new lead
+        case 2: return 'warn';    // Both exist
+        case 3: return 'warn';    // Error
+        default: return undefined;
+      }
+    }
+  
+    getStatusText(status: number): string {
+      switch(status) {
+        case 0: return 'Success';
+        case 1: return 'New Lead Created';
+        case 2: return 'Already Exists';
+        case 3: return 'Error';
+        default: return 'Unknown';
+      }
+    }
+  
+    resetImport(): void {
+      this.resetFile();
+      this.importResults = [];
+      this.importProgress = 0;
+      this.importSummary = {
+        totalProcessed: 0,
+        successful: 0,
+        existingCompanies: 0,
+        existingLeads: 0,
+        errors: 0
+      };
+    }
+
+
 
 }
