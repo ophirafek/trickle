@@ -225,7 +225,18 @@
   "SUCCESSFUL_IMPORTS": "successful imports",
   "NEW_LEADS_TOOLTIP": "new leads created",
   "ALREADY_EXISTED_TOOLTIP": "already existed",
-  "ERRORS_TOOLTIP": "errors"
+  "ERRORS_TOOLTIP": "errors",
+  "APPLY_ASSIGNMENTS": "Apply Draft Assignments",
+  "ASSIGNMENTS_APPLIED": "Team members assigned successfully",
+  "SELECTED_COUNT": "Selected",
+  "VALIDATION_ERRORS": {
+  "MISSING_FIELD": "Missing {{field}}",
+  "INVALID_VALUE": "Invalid value for {{field}}",
+  "DUPLICATE_ENTRY": "Duplicate entry found",
+  "FORMAT_ERROR": "Incorrect format for {{field}}"
+}
+
+
 
 }
 }

@@ -104,7 +104,7 @@ export class CompanyImportComponent implements OnInit {
     // Initialize component
       // Initialize component
   this.mandatoryFields = [
-    { key: 'name', label: 'COMPANY_DETAIL.COMPANY_NAME' },
+    { key: 'name', label: 'COMPANY_DETAIL.COMPANY_NAME'},
     { key: 'registrationNumber', label: 'COMPANY_DETAIL.REGISTRATION_NUMBER' }
   ];
   
@@ -335,7 +335,10 @@ export class CompanyImportComponent implements OnInit {
         const value = row[sourceField];
         
         if (!value || value.trim() === '') {
-          issues.push(`Missing ${field.label}`);
+          // Use transloco for error message
+          issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.MISSING_FIELD', { 
+            field: this.translocoService.translate(field.label) 
+          }));
         }
       });
       
@@ -524,6 +527,7 @@ export class CompanyImportComponent implements OnInit {
     return issue ? issue.issues : [];
   }
 
+
   // Get employee name by ID
   getEmployeeName(employeeId: number): string {
     const employee = this.employees.find(e => e.id === employeeId);
@@ -571,6 +575,59 @@ getStatusText(status: number): string {
       };
     }
 
-
+// First, add this method to the CompanyImportComponent class
+// This implements the draft order algorithm for assigning employees
+applyDraftOrderAssignments(): void {
+  // Create a copy of employees array to work with
+  const availableEmployees = [...this.employees];
+  
+  // Shuffle the employees to randomize initial order
+  this.shuffleArray(availableEmployees);
+  
+  // Get selected rows
+  const selectedRows = this.fileData.filter((_, index) => this.selectedRows[index]);
+  
+  // Only assign to rows that don't already have an assignment
+  const unassignedSelectedRows = selectedRows
+  
+    .map((row, i) => ({ 
+      row, 
+      originalIndex: this.fileData.indexOf(row)
+    }));
+    /*.filter(item => !this.companyTeamAssignments[item.originalIndex]);*/
+  
+  
+  // Implement a proper "snake draft" algorithm
+  let employeeIndex = 0;
+  let direction = 1; // 1 for forward, -1 for backward
+  
+  for (let i = 0; i < unassignedSelectedRows.length; i++) {
+    const { originalIndex } = unassignedSelectedRows[i];
+    
+    // Assign the current employee
+    this.companyTeamAssignments[originalIndex] = availableEmployees[employeeIndex].id;
+    
+    // Move to next employee in the snake pattern
+    employeeIndex += direction;
+    
+    // Check if we need to change direction
+    if (employeeIndex >= availableEmployees.length) {
+      // We've reached the end, go back one step and reverse direction
+      employeeIndex = availableEmployees.length - 1;
+      direction = -1;
+    } else if (employeeIndex < 0) {
+      // We've reached the beginning, go back one step and reverse direction
+      employeeIndex = 0;
+      direction = 1;
+    }
+  }
+}
+// Helper method to shuffle an array (Fisher-Yates algorithm)
+private shuffleArray<T>(array: T[]): void {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
 
 }

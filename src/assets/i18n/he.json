@@ -225,6 +225,15 @@
   "SUCCESSFUL_IMPORTS": "ייבואים מוצלחים",
   "NEW_LEADS_TOOLTIP": "לידים חדשים נוצרו",
   "ALREADY_EXISTED_TOOLTIP": "כבר קיימים",
-  "ERRORS_TOOLTIP": "שגיאות"
+  "ERRORS_TOOLTIP": "שגיאות",
+  "APPLY_ASSIGNMENTS": "החל שיבוץ אוטומטי",
+  "ASSIGNMENTS_APPLIED": "חברי צוות הוקצו בהצלחה",
+  "SELECTED_COUNT": "נבחרו",
+  "VALIDATION_ERRORS": {
+  "MISSING_FIELD": "חסר {{field}}",
+  "INVALID_VALUE": "ערך לא תקין עבור {{field}}",
+  "DUPLICATE_ENTRY": "נמצא ערך כפול",
+  "FORMAT_ERROR": "פורמט שגוי עבור {{field}}"
+}
 }
 }
