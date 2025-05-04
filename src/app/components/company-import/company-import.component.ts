@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Company, Employee, ImportResult } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
-import { EmployeeService } from  '../../services/employees.service';
+import { EmployeeService } from  '../../services/employee.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatStepper } from '@angular/material/stepper';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -115,18 +115,25 @@ export class CompanyImportComponent implements OnInit {
     { key: 'postalCode', label: 'COMPANY_DETAIL.POSTAL_CODE' },
     { key: 'website', label: 'COMPANY_DETAIL.WEBSITE' }
   ];
-    this.employeeService.getEmployees().subscribe({
-      next: (employees) => {
-        this.employees = employees;
-      },
-      error: (err) => {
-        console.error('Error loading employees:', err);
-        this.snackBar.open('Failed to load employees list', 'Close', {
+  this.employeeService.getEmployees().subscribe({
+    next: (employees) => {
+      this.employees = employees;
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Error loading employees:', err);
+      this.snackBar.open(
+        this.translocoService.translate('COMMON.ERROR') + ': ' + 
+        this.translocoService.translate('IMPORT.EMPLOYEE_LOAD_ERROR'), 
+        this.translocoService.translate('BUTTONS.CLOSE'), 
+        {
           duration: 3000,
           panelClass: ['error-snackbar']
-        });
-      }
-    });
+        }
+      );
+      this.loading = false;
+    }
+  });
   }
 
   get canProceedToMandatoryMapping(): boolean {

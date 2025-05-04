@@ -233,7 +233,8 @@
   "MISSING_FIELD": "חסר {{field}}",
   "INVALID_VALUE": "ערך לא תקין עבור {{field}}",
   "DUPLICATE_ENTRY": "נמצא ערך כפול",
-  "FORMAT_ERROR": "פורמט שגוי עבור {{field}}"
+  "FORMAT_ERROR": "פורמט שגוי עבור {{field}}",
+  "EMPLOYEE_LOAD_ERROR": "נכשל בטעינת רשימת העובדים"
 }
 }
 }

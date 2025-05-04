@@ -233,7 +233,8 @@
   "MISSING_FIELD": "Missing {{field}}",
   "INVALID_VALUE": "Invalid value for {{field}}",
   "DUPLICATE_ENTRY": "Duplicate entry found",
-  "FORMAT_ERROR": "Incorrect format for {{field}}"
+  "FORMAT_ERROR": "Incorrect format for {{field}}",
+   "EMPLOYEE_LOAD_ERROR": "Failed to load employees list"
 }
 
 
