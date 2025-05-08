@@ -80,3 +80,58 @@
 ::ng-deep .mat-mdc-list-base {
   padding: 0 !important;
 }
+
+/* Add these styles to your companies.component.css file */
+
+/* Component layout styling */
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Table styling improvements */
+::ng-deep .mat-mdc-table {
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-header-row {
+  background-color: #f5f7fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+::ng-deep .mat-mdc-header-cell {
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.7);
+  padding: 12px 16px !important;
+}
+
+::ng-deep .mat-mdc-cell {
+  padding: 12px 16px !important;
+  font-size: 14px;
+}
+
+/* Add border between rows */
+::ng-deep .mat-mdc-row:not(:last-child) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Hover effect on rows */
+::ng-deep .mat-mdc-row:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Style the sort icons */
+::ng-deep .mat-sort-header-arrow {
+  color: rgba(0, 0, 0, 0.3);
+}
+
+/* Style the chips that show status */
+::ng-deep .mat-mdc-row .mat-mdc-chip {
+  height: 24px !important;
+  font-size: 12px !important;
+  min-width: 80px !important;
+  text-align: center !important;
+}

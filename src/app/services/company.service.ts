@@ -59,6 +59,11 @@ export class CompanyService {
       );
   }
   importCompanies(companies: Company[]): Observable<any> {
+    //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+    //const options = { headers: headers };
+    
+    // Clean and stringify the object
+    //const jsonString = JSON.stringify(companies);
     return this.http.post<any>(`${this.apiUrl}/import`, companies)
       .pipe(
         catchError(this.handleError<any>('importCompanies'))
@@ -66,6 +71,8 @@ export class CompanyService {
   }
 
   importSingleCompany(company: Company): Observable<ImportResult> {
+   
+  
     return this.importCompanies([company]).pipe(
       map(results => results[0]), // Take the first result
       catchError(error => {

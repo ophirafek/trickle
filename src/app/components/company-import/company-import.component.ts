@@ -1,4 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { read, utils, writeFileXLSX } from 'xlsx';
+
+
+
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Company, Employee, ImportResult } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
@@ -8,6 +12,8 @@ import { MatStepper } from '@angular/material/stepper';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ThemePalette } from '@angular/material/core';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { MatTableDataSource } from '@angular/material/table';
+
 import { TranslocoService } from '@ngneat/transloco';
 @Component({
   selector: 'app-company-import',
@@ -91,13 +97,15 @@ export class CompanyImportComponent implements OnInit {
   
   // Loading state
   loading: boolean = false;
-  
+  resultsDataSource = new MatTableDataSource<ImportResult>([]);
+
   constructor(
     private companyService: CompanyService,
     private employeeService: EmployeeService,
     private translocoService: TranslocoService,
     private snackBar: MatSnackBar,
-    private router: Router
+    private router: Router,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -186,13 +194,16 @@ export class CompanyImportComponent implements OnInit {
     this.fileSelected = true;
     
     // Set icon based on file type
-    if (this.fileName.endsWith('.csv')) {
-      this.fileIcon = 'fas fa-file-csv text-green-500';
-    } else if (this.fileName.endsWith('.json')) {
-      this.fileIcon = 'fas fa-file-code text-orange-500';
-    } else {
-      this.fileIcon = 'fas fa-file text-gray-500';
-    }
+    // Set icon based on file type
+if (this.fileName.endsWith('.csv')) {
+  this.fileIcon = 'fas fa-file-csv text-green-500';
+} else if (this.fileName.endsWith('.json')) {
+  this.fileIcon = 'fas fa-file-code text-orange-500';
+} else if (this.fileName.endsWith('.xlsx') || this.fileName.endsWith('.xls')) {
+  this.fileIcon = 'fas fa-file-excel text-green-600';
+} else {
+  this.fileIcon = 'fas fa-file text-gray-500';
+}
 
     this.parseFile();
   }
@@ -221,17 +232,19 @@ export class CompanyImportComponent implements OnInit {
 
   parseFile(): void {
     if (!this.selectedFile) return;
-
+  
     const reader = new FileReader();
     
     reader.onload = (e) => {
       try {
-        const content = e.target?.result as string;
+        const content = e.target?.result;
         
         if (this.fileName.endsWith('.csv')) {
-          this.parseCSV(content);
+          this.parseCSV(content as string);
         } else if (this.fileName.endsWith('.json')) {
-          this.parseJSON(content);
+          this.parseJSON(content as string);
+        } else if (this.fileName.endsWith('.xlsx') || this.fileName.endsWith('.xls')) {
+          this.parseExcel(content as ArrayBuffer);
         } else {
           this.parseError = 'Unsupported file format';
         }
@@ -240,18 +253,64 @@ export class CompanyImportComponent implements OnInit {
         console.error('Parse error:', error);
       }
     };
-
+  
     reader.onerror = () => {
       this.parseError = 'Error reading file';
     };
-
+  
     if (this.fileName.endsWith('.csv') || this.fileName.endsWith('.json')) {
       reader.readAsText(this.selectedFile);
+    } else if (this.fileName.endsWith('.xlsx') || this.fileName.endsWith('.xls')) {
+      reader.readAsArrayBuffer(this.selectedFile);
     } else {
       this.parseError = 'Unsupported file format';
     }
   }
-
+  parseExcel(content: ArrayBuffer): void {
+    try {
+      // Import the SheetJS library
+      
+      // Read the Excel file
+      const workbook = read(content, {
+        type: 'array',
+        cellDates: true,
+        cellStyles: true
+      });
+      
+      // Get the first sheet
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      
+      // Convert to JSON
+      const jsonData = utils.sheet_to_json(worksheet, { header: 1 });
+      
+      // Extract headers from the first row
+      const headers = jsonData[0] as string[];
+      this.previewHeaders = headers;
+      
+      // Process the data rows
+      this.fileData = [];
+      for (let i = 1; i < jsonData.length; i++) {
+        if (!jsonData[i] || (jsonData[i] as any[]).length === 0) continue;
+        
+        const values = jsonData[i] as any[];
+        const rowData: any = {};
+        
+        headers.forEach((header, index) => {
+          rowData[header] = values[index] !== undefined ? values[index] : '';
+        });
+        
+        this.fileData.push(rowData);
+      }
+      
+      this.previewData = this.fileData.slice(0, 5); // Show first 5 rows for preview
+      this.selectedRows = new Array(this.fileData.length).fill(true);
+      this.allRowsSelected = true;
+    } catch (error) {
+      this.parseError = 'Invalid Excel format or corrupted file';
+      console.error('Excel parse error:', error);
+    }
+  }
   parseCSV(content: string): void {
     // Simple CSV parsing - in a real app, use a library like papaparse
     const lines = content.split('\n');
@@ -339,10 +398,20 @@ export class CompanyImportComponent implements OnInit {
       // Validate mandatory fields
       this.mandatoryFields.forEach(field => {
         const sourceField = this.fieldMapping[field.key];
+        
+        // First check if the field is mapped
+        if (!sourceField) {
+          issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.MISSING_FIELD', { 
+            field: this.translocoService.translate(field.label) 
+          }));
+          return;
+        }
+        
+        // Then check if the value exists in the row
         const value = row[sourceField];
         
-        if (!value || value.trim() === '') {
-          // Use transloco for error message
+        // This is where the bug is - we need to check for empty strings too
+        if (!value || value.toString().trim() === '') {
           issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.MISSING_FIELD', { 
             field: this.translocoService.translate(field.label) 
           }));
@@ -427,9 +496,13 @@ export class CompanyImportComponent implements OnInit {
       // All companies processed
       this.loading = false;
       this.isImporting = false;
+      this.resultsDataSource = new MatTableDataSource(this.importResults);
+      console.log('Import results count:', this.importResults.length);
+  
       if (this.stepper) {
         this.stepper.next(); // This advances to the Results step
       }
+      
   
       this.snackBar.open(
         this.translocoService.translate('IMPORT.PROCESSED_COMPANIES', { count: this.importSummary.totalProcessed }),
@@ -442,7 +515,7 @@ export class CompanyImportComponent implements OnInit {
       return;
     }
     
-    const company = companies[index];
+    const company = {...companies[index], "id": 0, "registrationNumber": companies[index].registrationNumber?.toString()}; // Ensure ID is not set for new companies
     
     this.companyService.importSingleCompany(company).subscribe({
       next: (result) => {

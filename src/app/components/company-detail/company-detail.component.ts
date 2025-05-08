@@ -6,7 +6,7 @@ import { LeadService } from '../../services/lead.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@ngneat/transloco';
-
+import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
 @Component({
   selector: 'app-company-detail',
   templateUrl: './company-detail.component.html',
@@ -16,9 +16,6 @@ import { TranslocoService } from '@ngneat/transloco';
 export class CompanyDetailComponent implements OnInit {
   // For contact table
   displayedContactColumns: string[] = ['name', 'jobTitle', 'email', 'phone', 'actions'];
-  
-  // For lead table
-  //displayedLeadColumns: string[] = ['title', 'status', 'value', 'probability', 'owner', 'actions'];
   
   editingCompany: Company = this.getEmptyCompany();
   isNewCompany: boolean = true;
@@ -41,13 +38,19 @@ export class CompanyDetailComponent implements OnInit {
   // Active tab
   activeTab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' = 'general';
   
+  // Expanded section (for collapsible sections)
+  expandedSection: string = 'companyInfo';
+  
   // Loading state
   loading: boolean = false;
+  idTypeCodes: GeneralCode[] = [];
+  currentLanguageCode: number = 1; // Default to English (1), adjust based on your language setup
 
   constructor(
     private companyService: CompanyService,
     private leadService: LeadService,
     private translocoService: TranslocoService,
+    private generalCodeService: GeneralCodeService,
     private route: ActivatedRoute,
     private router: Router,
     private snackBar: MatSnackBar
@@ -66,6 +69,19 @@ export class CompanyDetailComponent implements OnInit {
       }
     });
     
+    const languageMap: { [key: string]: number } = {
+      'en': 1, // English
+      'he': 2  // Hebrew
+      // Add more languages as needed
+    };
+    
+    // Set the current language code
+    const currentLang = this.translocoService.getActiveLang();
+    this.currentLanguageCode = languageMap[currentLang] || 1; // Default to 1 if not found
+    
+    // Load ID type codes
+    this.loadIdTypeCodes();
+
     this.route.queryParamMap.subscribe(params => {
       const tab = params.get('tab');
       if (tab) {
@@ -108,23 +124,41 @@ export class CompanyDetailComponent implements OnInit {
     });
   }
 
-  // Update this method in both companies.component.ts and company-detail.component.ts
+  loadIdTypeCodes(): void {
+    this.generalCodeService.getIdTypeCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.idTypeCodes = codes.filter(code => code.isActive);
+          console.log('Loaded ID Type Codes:', this.idTypeCodes);
+        },
+        error: (err) => {
+          console.error('Error loading ID type codes:', err);
+        }
+      });
+  }
 
-getEmptyCompany(): Company {
-  return {
-    id: 0,
-    name: '',
-    industry: '',
-    size: '100-500 employees',
-    location: '',
-    website: '',
-    status: 'Active',
-    registrationNumber: '',  // Added field
-    dunsNumber: '',         // Added field
-    contacts: [],
-    notes: []
-  };
-}
+  getIdTypeDescription(idTypeCode: number | undefined): string {
+    if (!idTypeCode || !this.idTypeCodes.length) return 'N/A';
+    
+    const idType = this.idTypeCodes.find(code => code.codeNumber === idTypeCode);
+    return idType ? idType.codeShortDescription : 'N/A';
+  }
+  getEmptyCompany(): Company {
+    return {
+      id: 0,
+      idTypeCode: 0,
+      name: '',
+      industry: '',
+      size: '100-500 employees',
+      location: '',
+      website: '',
+      status: 'Active',
+      registrationNumber: '',  // Added field
+      dunsNumber: '',         // Added field
+      contacts: [],
+      notes: []
+    };
+  }
   
   getEmptyContact(): Contact {
     return {
@@ -147,30 +181,13 @@ getEmptyCompany(): Company {
     };
   }
 
-  getTabIndex(): number {
-    // Only handle regular company info tabs
-    const tabMap: { [key: string]: number } = {
-      'general': 0,
-      'address': 1,
-      'contacts': 2,
-      'notes': 3
-    };
-    
-    // If activeTab is 'leads', we'll return the general tab index
-    // as the leads tab is handled separately outside the mat-tab-group
-    return this.activeTab === 'leads' ? 0 : (tabMap[this.activeTab] || 0);
-  }
-  
-  onTabChange(index: number): void {
-    const tabMap: { [key: number]: string } = {
-      0: 'general',
-      1: 'address',
-      2: 'contacts',
-      3: 'notes'
-    };
-    
-    const newTab = tabMap[index] as 'general' | 'address' | 'contacts' | 'notes' | 'leads';
-    this.navigateToTab(newTab);
+  // Toggle section expansion
+  toggleSection(section: string): void {
+    if (this.expandedSection === section) {
+      this.expandedSection = '';
+    } else {
+      this.expandedSection = section;
+    }
   }
   
   navigateToTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads'): void {
@@ -189,7 +206,7 @@ getEmptyCompany(): Company {
     }
   }
 
-  close(): void {
+  navigateToCompanies(): void {
     this.router.navigate(['/companies']);
   }
 
@@ -282,7 +299,7 @@ getEmptyCompany(): Company {
   
   addContact(): void {
     if (!this.newContact.name) {
-      this.contactError = 'Contact name is required';
+      this.contactError = this.translocoService.translate('COMPANY_DETAIL.CONTACT_NAME_REQUIRED');
       return;
     }
     
@@ -304,10 +321,14 @@ getEmptyCompany(): Company {
           this.loading = false;
           
           // Show success message
-          this.snackBar.open('Contact added successfully', 'Close', { duration: 3000 });
+          this.snackBar.open(
+            this.translocoService.translate('COMPANY_DETAIL.CONTACT_ADD_SUCCESS'), 
+            this.translocoService.translate('BUTTONS.CLOSE'), 
+            { duration: 3000 }
+          );
         },
         error: (err) => {
-          this.contactError = 'Failed to add contact. Please try again.';
+          this.contactError = this.translocoService.translate('COMPANY_DETAIL.CONTACT_ADD_ERROR');
           this.loading = false;
           console.error('Error adding contact:', err);
         }
@@ -315,7 +336,7 @@ getEmptyCompany(): Company {
   }
   
   deleteContact(contactId: number): void {
-    if (confirm('Are you sure you want to delete this contact?')) {
+    if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
       this.loading = true;
       
       this.companyService.deleteContact(contactId)
@@ -328,10 +349,14 @@ getEmptyCompany(): Company {
             this.loading = false;
             
             // Show success message
-            this.snackBar.open('Contact deleted successfully', 'Close', { duration: 3000 });
+            this.snackBar.open(
+              this.translocoService.translate('COMPANY_DETAIL.CONTACT_DELETE_SUCCESS'), 
+              this.translocoService.translate('BUTTONS.CLOSE'), 
+              { duration: 3000 }
+            );
           },
           error: (err) => {
-            this.contactError = 'Failed to delete contact. Please try again.';
+            this.contactError = this.translocoService.translate('COMPANY_DETAIL.CONTACT_DELETE_ERROR');
             this.loading = false;
             console.error('Error deleting contact:', err);
           }
@@ -354,7 +379,7 @@ getEmptyCompany(): Company {
   
   addNote(): void {
     if (!this.newNote.title || !this.newNote.content) {
-      this.noteError = 'Note title and content are required';
+      this.noteError = this.translocoService.translate('COMPANY_DETAIL.NOTE_FIELDS_REQUIRED');
       return;
     }
     
@@ -376,10 +401,14 @@ getEmptyCompany(): Company {
           this.loading = false;
           
           // Show success message
-          this.snackBar.open('Note added successfully', 'Close', { duration: 3000 });
+          this.snackBar.open(
+            this.translocoService.translate('COMPANY_DETAIL.NOTE_ADD_SUCCESS'), 
+            this.translocoService.translate('BUTTONS.CLOSE'), 
+            { duration: 3000 }
+          );
         },
         error: (err) => {
-          this.noteError = 'Failed to add note. Please try again.';
+          this.noteError = this.translocoService.translate('COMPANY_DETAIL.NOTE_ADD_ERROR');
           this.loading = false;
           console.error('Error adding note:', err);
         }
@@ -387,7 +416,7 @@ getEmptyCompany(): Company {
   }
   
   deleteNote(noteId: number): void {
-    if (confirm('Are you sure you want to delete this note?')) {
+    if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
       this.loading = true;
       
       this.companyService.deleteNote(noteId)
@@ -400,10 +429,14 @@ getEmptyCompany(): Company {
             this.loading = false;
             
             // Show success message
-            this.snackBar.open('Note deleted successfully', 'Close', { duration: 3000 });
+            this.snackBar.open(
+              this.translocoService.translate('COMPANY_DETAIL.NOTE_DELETE_SUCCESS'), 
+              this.translocoService.translate('BUTTONS.CLOSE'), 
+              { duration: 3000 }
+            );
           },
           error: (err) => {
-            this.noteError = 'Failed to delete note. Please try again.';
+            this.noteError = this.translocoService.translate('COMPANY_DETAIL.NOTE_DELETE_ERROR');
             this.loading = false;
             console.error('Error deleting note:', err);
           }
@@ -426,14 +459,18 @@ getEmptyCompany(): Company {
           console.log('Loaded leads:', leads.length);
         },
         error: (err) => {
-          this.leadError = 'Failed to load company leads';
+          this.leadError = this.translocoService.translate('COMPANY_DETAIL.LEAD_LOAD_ERROR');
           this.leadLoading = false;
           console.error('Error loading company leads:', err);
           
-          this.snackBar.open('Failed to load leads', 'Close', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
+          this.snackBar.open(
+            this.translocoService.translate('COMPANY_DETAIL.LEAD_LOAD_ERROR'), 
+            this.translocoService.translate('BUTTONS.CLOSE'), 
+            {
+              duration: 3000,
+              panelClass: ['error-snackbar']
+            }
+          );
         }
       });
   }
@@ -477,7 +514,7 @@ getEmptyCompany(): Company {
   }
 
   deleteLead(leadId: number): void {
-    if (confirm('Are you sure you want to delete this lead?')) {
+    if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
       this.leadLoading = true;
       
       this.leadService.deleteLead(leadId)
@@ -503,10 +540,4 @@ getEmptyCompany(): Company {
         });
     }
   }
-  
-  // Navigation method added for clarity
-  navigateToCompanies(): void {
-    this.router.navigate(['/companies']);
-  }
-  
 }

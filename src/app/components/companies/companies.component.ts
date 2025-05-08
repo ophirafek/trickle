@@ -1,6 +1,9 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import { ThemePalette } from '@angular/material/core';
 import { Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -11,10 +14,17 @@ import { TranslocoService } from '@ngneat/transloco';
   selector: 'app-companies',
   templateUrl: './companies.component.html',
   styleUrls: ['./companies.component.css'],
-  encapsulation: ViewEncapsulation.None  // This helps with styling nested Material components
+  encapsulation: ViewEncapsulation.None
 })
-export class CompaniesComponent implements OnInit {
+export class CompaniesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+  
+  // Material table data source
+  dataSource = new MatTableDataSource<Company>([]);
+  
+  // Define displayed columns
+  displayedColumns: string[] = ['name', 'industry', 'size', 'location', 'status', 'website', 'actions'];
   
   Math = Math;
   companies: Company[] = [];
@@ -40,6 +50,25 @@ export class CompaniesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCompanies();
+  }
+  
+  ngAfterViewInit() {
+    // Set up sorting and pagination after view initialization
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+    
+    // Custom sort for complex columns if needed
+    this.dataSource.sortingDataAccessor = (company, property) => {
+      switch(property) {
+        case 'name': return company.name || '';
+        case 'industry': return company.industry || '';
+        case 'size': return company.size || '';
+        case 'location': return company.location || '';
+        case 'status': return company.status || 'Active';
+        case 'website': return company.website || '';
+        default: return (company as any)[property];
+      }
+    };
   }
 
   loadCompanies() {
@@ -74,8 +103,10 @@ export class CompaniesComponent implements OnInit {
       );
     }
     
+    // Update the data source
+    this.dataSource.data = this.filteredCompanies;
+    
     // Reset to first page when filtering
-    this.currentPage = 1;
     if (this.paginator) {
       this.paginator.firstPage();
     }
@@ -96,49 +127,13 @@ export class CompaniesComponent implements OnInit {
     // Get companies for current page
     const startIndex = (this.currentPage - 1) * this.pageSize;
     this.pagedCompanies = this.filteredCompanies.slice(startIndex, startIndex + this.pageSize);
-    console.log('Page companies:', this.pagedCompanies.length);
   }
   
-  // Pagination controls
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updatePagination();
-    }
-  }
-  
-  previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePagination();
-    }
-  }
-  
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePagination();
-    }
-  }
-  
-  // Get an array of page numbers for pagination UI
-  get pageNumbers(): number[] {
-    const pageArray: number[] = [];
-    
-    // Show 5 page numbers centered around current page when possible
-    let startPage = Math.max(1, this.currentPage - 2);
-    let endPage = Math.min(this.totalPages, startPage + 4);
-    
-    // Adjust start page if we're near the end
-    if (endPage - startPage < 4) {
-      startPage = Math.max(1, endPage - 4);
-    }
-    
-    for (let i = startPage; i <= endPage; i++) {
-      pageArray.push(i);
-    }
-    
-    return pageArray;
+  // Handle pagination events from mat-paginator
+  onPageChange(event: any): void {
+    this.pageSize = event.pageSize;
+    this.currentPage = event.pageIndex + 1;
+    this.updatePagination();
   }
 
   deleteCompany(id: number): void {
@@ -179,26 +174,40 @@ export class CompaniesComponent implements OnInit {
     }
   }
   
-
-getEmptyCompany(): Company {
-  return {
-    id: 0,
-    name: '',
-    industry: '',
-    size: '100-500 employees',
-    location: '',
-    website: '',
-    status: 'Active',
-    registrationNumber: '',  // Added field
-    dunsNumber: '',         // Added field
-    contacts: [],
-    notes: []
-  };
-}
-  // Handle pagination events from mat-paginator
-  onPageChange(event: any): void {
-    this.pageSize = event.pageSize;
-    this.currentPage = event.pageIndex + 1;
-    this.updatePagination();
+  getEmptyCompany(): Company {
+    return {
+      id: 0,
+      name: '',
+      industry: '',
+      size: '100-500 employees',
+      location: '',
+      website: '',
+      status: 'Active',
+      registrationNumber: '',
+      dunsNumber: '',
+      contacts: [],
+      notes: []
+    };
+  }
+  
+  // Get color for status chip
+  getStatusColor(status: string | undefined): ThemePalette {
+    if (!status) return 'primary';
+    
+    switch(status.toLowerCase()) {
+      case 'active': return 'primary';
+      case 'prospect': return 'accent';
+      case 'inactive': return undefined; // grey
+      default: return 'primary';
+    }
+  }
+  
+  // Ensure website URLs have http prefix
+  ensureHttpPrefix(url: string): string {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return 'https://' + url;
   }
 }

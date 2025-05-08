@@ -1,6 +1,6 @@
 {
   "APP": {
-    "TITLE": "מנהל לידים פרו"
+    "TITLE": "ACIA - M&S"
   },
   "MENU": {
     "DASHBOARD": "לוח בקרה",
@@ -66,7 +66,11 @@
     "SUCCESS": "הפעולה הושלמה בהצלחה",
     "CONFIRM_DELETE": "האם אתה בטוח שברצונך למחוק פריט זה?",
     "YES": "כן",
-    "NO": "לא"
+    "NO": "לא",
+    "ACTIONS": "פעולות",
+    "CALL": "התקשר",
+    "EMAIL": "שלח דוא\"ל",
+    "LOCATION": "צפה במיקום"
   },
   "COMPANY_DETAIL": {
   "NEW_COMPANY": "חברה חדשה",
@@ -78,6 +82,9 @@
     "NOTES": "הערות",
     "LEADS": "לידים"
   },
+  "ID_TYPE": "סוג מזהה",
+  "ID_TYPE_PLACEHOLDER": "בחר סוג מזהה",
+
   "BUSINESS_IDENTIFIERS": "מזהי עסק",
   "REGISTRATION_NUMBER": "מספר רישום (ח.פ.)",
   "REGISTRATION_NUMBER_PLACEHOLDER": "מספר רישום חברה",
@@ -234,7 +241,8 @@
   "INVALID_VALUE": "ערך לא תקין עבור {{field}}",
   "DUPLICATE_ENTRY": "נמצא ערך כפול",
   "FORMAT_ERROR": "פורמט שגוי עבור {{field}}",
-  "EMPLOYEE_LOAD_ERROR": "נכשל בטעינת רשימת העובדים"
+  "EMPLOYEE_LOAD_ERROR": "נכשל בטעינת רשימת העובדים",
+  "FORMAT_EXCEL": "קבצי אקסל (.xlsx, .xls)"
 }
 }
 }

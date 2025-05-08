@@ -7,6 +7,7 @@ export interface MenuItem {
 // Update the Company interface in src/model/types.ts
 export interface Company {
   id: number;
+  idTypeCode?: number;          // New field: Defines the type of registration number
   name: string;
   industry?: string;
   size?: string;

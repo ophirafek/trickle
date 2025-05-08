@@ -47,38 +47,76 @@
         </div>
       </div>
 
-      <!-- Companies List - Using a custom table-like layout -->
+      <!-- Companies Table -->
       <div class="overflow-auto" style="max-height: 65vh;">
-        <div *ngFor="let company of filteredCompanies" 
-             class="border-b hover:bg-gray-50 cursor-pointer px-4 py-3"
-             [routerLink]="['/companies', company.id]">
-          <div class="company-content">
-            <div class="company-info">
+        <table mat-table [dataSource]="dataSource" matSort class="w-full">
+
+          <!-- Company Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.COMPANY_NAME' | transloco }} </th>
+            <td mat-cell *matCellDef="let company"> 
               <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                <div class="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center">
                   <mat-icon class="text-gray-500">business</mat-icon>
                 </div>
-                <div>
-                  <h3 class="font-medium text-gray-800">{{ company.name }}</h3>
-                  <p class="text-sm text-gray-500">{{ company.industry || 'N/A' }} • {{ company.size || 'N/A' }}</p>
-                </div>
+                <span class="font-medium">{{ company.name }}</span>
               </div>
-              <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                <span *ngIf="company.location">{{ company.location }}</span>
-                <span *ngIf="company.website">{{ company.website }}</span>
-              </div>
-            </div>
-            <div class="company-actions">
-              <button mat-icon-button color="primary" (click)="$event.stopPropagation()" matTooltip="{{ 'COMMON.CALL' | transloco }}">
+            </td>
+          </ng-container>
+          
+          <!-- Industry Column -->
+          <ng-container matColumnDef="industry">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.INDUSTRY' | transloco }} </th>
+            <td mat-cell *matCellDef="let company"> {{ company.industry || 'N/A' }} </td>
+          </ng-container>
+          
+          <!-- Size Column -->
+          <ng-container matColumnDef="size">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.SIZE' | transloco }} </th>
+            <td mat-cell *matCellDef="let company"> {{ company.size || 'N/A' }} </td>
+          </ng-container>
+          
+          <!-- Location Column -->
+          <ng-container matColumnDef="location">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.LOCATION' | transloco }} </th>
+            <td mat-cell *matCellDef="let company"> {{ company.location || 'N/A' }} </td>
+          </ng-container>
+          
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.STATUS' | transloco }} </th>
+            <td mat-cell *matCellDef="let company"> 
+              <mat-chip-option [color]="getStatusColor(company.status)" selected disabled>
+                {{ company.status || 'Active' }}
+              </mat-chip-option>
+            </td>
+          </ng-container>
+          
+          <!-- Website Column -->
+          <ng-container matColumnDef="website">
+            <th mat-header-cell *matHeaderCellDef> {{ 'COMPANY_DETAIL.WEBSITE' | transloco }} </th>
+            <td mat-cell *matCellDef="let company"> 
+              <a *ngIf="company.website" [href]="ensureHttpPrefix(company.website)" target="_blank" class="text-blue-600 hover:underline">
+                {{ company.website }}
+              </a>
+              <span *ngIf="!company.website">N/A</span>
+            </td>
+          </ng-container>
+          
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'COMMON.ACTIONS' | transloco }} </th>
+            <td mat-cell *matCellDef="let company" class="text-right">
+              <button mat-icon-button color="primary" matTooltip="{{ 'COMMON.CALL' | transloco }}">
                 <mat-icon>phone</mat-icon>
               </button>
-              <button mat-icon-button color="primary" (click)="$event.stopPropagation()" matTooltip="{{ 'COMMON.EMAIL' | transloco }}">
+              <button mat-icon-button color="primary" matTooltip="{{ 'COMMON.EMAIL' | transloco }}">
                 <mat-icon>email</mat-icon>
               </button>
-              <button mat-icon-button color="primary" (click)="$event.stopPropagation()" matTooltip="{{ 'COMMON.LOCATION' | transloco }}">
+              <button mat-icon-button color="primary" matTooltip="{{ 'COMMON.LOCATION' | transloco }}">
                 <mat-icon>place</mat-icon>
               </button>
-              <button mat-icon-button [matMenuTriggerFor]="companyMenu" (click)="$event.stopPropagation()">
+              <button mat-icon-button [matMenuTriggerFor]="companyMenu">
                 <mat-icon>more_vert</mat-icon>
               </button>
               <mat-menu #companyMenu="matMenu">
@@ -91,12 +129,27 @@
                   <span transloco="BUTTONS.DELETE"></span>
                 </button>
               </mat-menu>
-            </div>
-          </div>
-        </div>
+            </td>
+          </ng-container>
 
-        <!-- Empty State -->
-        <div *ngIf="filteredCompanies.length === 0" class="p-8 text-center">
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr 
+            mat-row 
+            *matRowDef="let company; columns: displayedColumns;"
+            class="cursor-pointer hover:bg-gray-50"
+            [routerLink]="['/companies', company.id]"
+          ></tr>
+          
+          <!-- When no data matches the filter -->
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell text-center p-4" [attr.colspan]="displayedColumns.length">
+              {{ 'COMPANIES.NO_COMPANIES' | transloco }}
+            </td>
+          </tr>
+        </table>
+
+        <!-- Empty State for when there are no companies at all -->
+        <div *ngIf="filteredCompanies.length === 0 && !loading" class="p-8 text-center">
           <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <mat-icon class="text-gray-400 text-3xl">business</mat-icon>
           </div>
@@ -123,9 +176,8 @@
 
       <!-- Pagination -->
       <mat-paginator 
-        *ngIf="filteredCompanies.length > 10"
         [length]="filteredCompanies.length"
-        [pageSize]="10"
+        [pageSize]="pageSize"
         [pageSizeOptions]="[5, 10, 25, 50]"
         (page)="onPageChange($event)"
         class="border-t">

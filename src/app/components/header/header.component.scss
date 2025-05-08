@@ -31,3 +31,22 @@
   top: 1px !important;
   right: 1px !important;
 }
+
+/* Vertically center search field */
+:host ::ng-deep .search-field {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 20px !important;
+}
+
+:host ::ng-deep .search-field .mat-mdc-form-field-flex {
+  align-items: center !important;
+  height: 40px; /* Adjust height as needed */
+}
+
+:host ::ng-deep .search-field .mat-mdc-form-field-infix {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  display: flex;
+  align-items: center;
+}

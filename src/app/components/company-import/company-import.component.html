@@ -42,7 +42,7 @@
                 #fileInput
                 type="file" 
                 class="hidden"
-                accept=".csv,.json"
+                accept=".csv,.json, .xlsx, .xls"
                 (change)="onFileSelected($event)"
               >
               <div class="text-sm text-gray-500 text-left">
@@ -50,15 +50,18 @@
                 <ul class="list-disc list-inside">
                   <li transloco="IMPORT.FORMAT_CSV"></li>
                   <li transloco="IMPORT.FORMAT_JSON"></li>
+                  <li transloco="IMPORT.FORMAT_EXCEL"></li>
                 </ul>
               </div>
             </div>
             <div *ngIf="fileSelected" class="mb-6">
               <div class="flex items-center mb-4">
                 <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center">
-                  <mat-icon [ngClass]="fileIcon === 'fas fa-file-csv text-green-500' ? 'text-green-500' : 'text-orange-500'">
-                    {{ fileIcon.includes('csv') ? 'table_view' : 'code' }}
-                  </mat-icon>
+                  <mat-icon [ngClass]="fileIcon === 'fas fa-file-csv text-green-500' ? 'text-green-500' : 
+                  fileIcon === 'fas fa-file-excel text-green-600' ? 'text-green-600' : 'text-orange-500'">
+{{ fileIcon.includes('csv') ? 'table_view' : 
+  fileIcon.includes('excel') ? 'table_chart' : 'code' }}
+</mat-icon>
                 </div>
                 <div class="ml-3">
                   <p class="font-medium">{{ fileName }}</p>
@@ -350,7 +353,7 @@
                 <h3 class="font-medium text-gray-800 mb-3" transloco="IMPORT.DETAILED_RESULTS"></h3>
                 
                 <div class="overflow-auto max-h-96">
-                  <table mat-table [dataSource]="importResults" class="w-full">
+                  <table mat-table [dataSource]="resultsDataSource" class="w-full">
                     <!-- Company Name Column -->
                     <ng-container matColumnDef="companyName">
                       <th mat-header-cell *matHeaderCellDef transloco="IMPORT.COMPANY_NAME"></th>
