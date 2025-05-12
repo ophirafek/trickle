@@ -81,3 +81,69 @@
 .section-expanded-exit-active {
   max-height: 0;
 }
+
+/* Status badges */
+.bg-green-100 {
+  background-color: #d1fae5;
+}
+
+.text-green-800 {
+  color: #065f46;
+}
+
+.bg-red-100 {
+  background-color: #fee2e2;
+}
+
+.text-red-800 {
+  color: #991b1b;
+}
+
+.bg-yellow-100 {
+  background-color: #fef3c7;
+}
+
+.text-yellow-800 {
+  color: #92400e;
+}
+
+/* Entity type badges */
+.bg-purple-100 {
+  background-color: #ede9fe;
+}
+
+.text-purple-800 {
+  color: #5b21b6;
+}
+
+.bg-blue-100 {
+  background-color: #dbeafe;
+}
+
+.text-blue-800 {
+  color: #1e40af;
+}
+
+.bg-orange-100 {
+  background-color: #ffedd5;
+}
+
+.text-orange-800 {
+  color: #9a3412;
+}
+
+/* Rounded corners for badges */
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Better button spacing in filter section */
+.space-x-2 > * + * {
+  margin-left: 0.5rem;
+}
+
+/* RTL support for filters */
+:host-context([dir="rtl"]) .space-x-2 > * + * {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}

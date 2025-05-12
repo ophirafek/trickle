@@ -1,0 +1,260 @@
+<div class="h-screen flex flex-col bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold text-gray-800">Company Browse</h1>
+    </header>
+  
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-auto">
+      <div class="bg-white rounded-lg shadow-md">
+        <!-- Filter Section -->
+        <div class="border-b border-gray-200">
+          <div class="flex justify-between items-center px-6 py-4">
+            <h2 class="text-lg font-medium text-gray-800">Search Companies</h2>
+            <button 
+              class="text-gray-500 hover:text-gray-700"
+              (click)="toggleFilters()"
+            >
+              <i class="fa" [ngClass]="showFilters ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+            </button>
+          </div>
+          
+          <div *ngIf="showFilters" class="px-6 py-4">
+            <!-- Basic Search Filters -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                <div class="flex">
+                  <input 
+                    type="text" 
+                    name="companyName"
+                    [(ngModel)]="filters.companyName"
+                    (ngModelChange)="handleFilterChange($event)"
+                    placeholder="Search company name..." 
+                    class="border border-gray-300 rounded-l px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button 
+                    class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 flex items-center"
+                    (click)="applyFilters()"
+                  >
+                    <i class="fa fa-search"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Primary ID</label>
+                <input 
+                  type="text" 
+                  name="primaryId"
+                  [(ngModel)]="filters.primaryId"
+                  (ngModelChange)="handleFilterChange($event)"
+                  placeholder="Registration/VAT/DUNS number..." 
+                  class="border border-gray-300 rounded px-3 py-2 w-full"
+                />
+              </div>
+            </div>
+            
+            <!-- Toggle Advanced Search Button -->
+            <div class="flex justify-center mb-2">
+              <button 
+                class="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center"
+                (click)="toggleAdvancedFilters()"
+              >
+                <i class="fa mr-1" [ngClass]="showAdvancedFilters ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                {{ showAdvancedFilters ? 'Hide Advanced Search' : 'Show Advanced Search' }}
+              </button>
+            </div>
+            
+            <!-- Advanced Search Filters -->
+            <div *ngIf="showAdvancedFilters" class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-200">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <select 
+                  name="country"
+                  [(ngModel)]="filters.country"
+                  (ngModelChange)="handleFilterChange($event)"
+                  class="border border-gray-300 rounded px-3 py-2 w-full"
+                >
+                  <option value="">All Countries</option>
+                  <option value="United States">United States</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Germany">Germany</option>
+                  <option value="Canada">Canada</option>
+                  <option value="France">France</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Business Field</label>
+                <select 
+                  name="businessField"
+                  [(ngModel)]="filters.businessField"
+                  (ngModelChange)="handleFilterChange($event)"
+                  class="border border-gray-300 rounded px-3 py-2 w-full"
+                >
+                  <option value="">All Fields</option>
+                  <option value="Technology">Technology</option>
+                  <option value="Manufacturing">Manufacturing</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Retail">Retail</option>
+                  <option value="Business Services">Business Services</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Company Status</label>
+                <select 
+                  name="companyStatus"
+                  [(ngModel)]="filters.companyStatus"
+                  (ngModelChange)="handleFilterChange($event)"
+                  class="border border-gray-300 rounded px-3 py-2 w-full"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="On Hold">On Hold</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Entity Type</label>
+                <select 
+                  name="entityType"
+                  [(ngModel)]="filters.entityType"
+                  (ngModelChange)="handleFilterChange($event)"
+                  class="border border-gray-300 rounded px-3 py-2 w-full"
+                >
+                  <option value="">All Entity Types</option>
+                  <option value="debtor">Debtor</option>
+                  <option value="insured">Insured</option>
+                  <option value="potential">Potential Customer</option>
+                </select>
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Obligatory Amount</label>
+                <div class="flex items-center space-x-2">
+                  <input 
+                    type="text" 
+                    name="obligatoryMin"
+                    [(ngModel)]="filters.obligatoryMin"
+                    (ngModelChange)="handleFilterChange($event)"
+                    placeholder="Min" 
+                    class="border border-gray-300 rounded px-3 py-2 w-full"
+                  />
+                  <span class="text-gray-500">-</span>
+                  <input 
+                    type="text" 
+                    name="obligatoryMax"
+                    [(ngModel)]="filters.obligatoryMax"
+                    (ngModelChange)="handleFilterChange($event)"
+                    placeholder="Max" 
+                    class="border border-gray-300 rounded px-3 py-2 w-full"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex justify-end space-x-2 mt-4">
+              <button 
+                class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 flex items-center space-x-1"
+                (click)="clearFilters()"
+              >
+                <i class="fa fa-times"></i>
+                <span>Clear Filters</span>
+              </button>
+              <button 
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center space-x-1"
+                (click)="applyFilters()"
+              >
+                <i class="fa fa-filter"></i>
+                <span>Apply Filters</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Results Table -->
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-medium text-gray-700">Results ({{ companies.length }})</h3>
+          </div>
+          
+          <div class="overflow-x-auto">
+            <table class="min-w-full bg-white border border-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Company Name</th>
+                  <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Primary ID</th>
+                  <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Country</th>
+                  <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Business Field</th>
+                  <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Status</th>
+                  <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Entity Type</th>
+                  <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Obligatory Amount</th>
+                  <th class="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr *ngFor="let company of companies" class="hover:bg-gray-50">
+                  <td class="py-3 px-4 text-sm font-medium text-gray-900">{{ company.name }}</td>
+                  <td class="py-3 px-4 text-sm text-gray-500">
+                    <div class="flex flex-col">
+                      <span class="text-xs text-gray-400">{{ company.primaryIdType }}</span>
+                      <span>{{ company.primaryId }}</span>
+                    </div>
+                  </td>
+                  <td class="py-3 px-4 text-sm text-gray-500">{{ company.country }}</td>
+                  <td class="py-3 px-4 text-sm text-gray-500">{{ company.businessField }}</td>
+                  <td class="py-3 px-4 text-sm text-gray-500">
+                    <span class="px-2 py-1 text-xs rounded-full" 
+                          [ngClass]="{
+                            'bg-green-100 text-green-800': company.status === 'Active',
+                            'bg-red-100 text-red-800': company.status === 'Inactive',
+                            'bg-yellow-100 text-yellow-800': company.status === 'On Hold'
+                          }">
+                      {{ company.status }}
+                    </span>
+                  </td>
+                  <td class="py-3 px-4 text-sm text-gray-500">
+                    <div *ngIf="company.entityType && company.entityType.length > 0" class="flex flex-wrap gap-1">
+                      <span *ngIf="company.entityType.includes('debtor')" class="px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
+                        Debtor
+                      </span>
+                      <span *ngIf="company.entityType.includes('insured')" class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                        Insured
+                      </span>
+                      <span *ngIf="company.entityType.includes('potential')" class="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800">
+                        Potential
+                      </span>
+                    </div>
+                    <span *ngIf="!company.entityType || company.entityType.length === 0">-</span>
+                  </td>
+                  <td class="py-3 px-4 text-sm text-gray-500">{{ company.obligatoryAmount }}</td>
+                  <td class="py-3 px-4 text-sm text-gray-500 text-center">
+                    <button 
+                      class="p-1.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 transition-colors"
+                      (click)="viewCompanyDetails(company)"
+                    >
+                      <i class="fa fa-arrow-right"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div *ngIf="companies.length === 0" class="text-center py-8">
+            <p class="text-gray-500">No companies match your search criteria.</p>
+            <button 
+              class="mt-4 px-4 py-2 text-blue-600 underline"
+              (click)="clearFilters()"
+            >
+              Clear filters to see all companies
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>

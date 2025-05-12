@@ -54,6 +54,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoRootModule } from '../transloco/transloco-root.module';
 import { LanguageInterceptor } from './services/language-interceptor.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { CompanyListComponent } from './components/company-list/company-list.component';
 
 const MaterialModules = [
   MatButtonModule,
@@ -105,6 +106,7 @@ const MaterialModules = [
     LeadDetailComponent,
     LoadingIndicatorComponent,
     LeadsListComponent,
+    CompanyListComponent,
     
   ],
   imports: [

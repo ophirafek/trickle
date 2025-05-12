@@ -41,6 +41,8 @@ export interface Company {
   closingRef?: string;
   assignedTeamMemberId?: number|  null;
   assignedTeamMemberName?: string;
+  obligatoryAmount: any;
+  
   contacts?: Contact[];
   notes?: Note[];
 }

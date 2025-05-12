@@ -227,6 +227,7 @@ export class CompanyDetailComponent implements OnInit {
       openingRef: '',
       closingRef: '',
       assignedTeamMemberName: '',
+      obligatoryAmount: 0,
       contacts: [],
       notes: []
     };

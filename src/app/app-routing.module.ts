@@ -6,10 +6,11 @@ import { CompanyImportComponent } from './components/company-import/company-impo
 import { LeadsComponent } from './components/leads/leads.component';
 import { MeetingsComponent } from './components/meetings/meetings.component';
 import { CompanyDetailComponent } from './components/company-detail/company-detail.component';
+import { CompanyListComponent } from './components/company-list/company-list.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'companies', component: CompaniesComponent },
+  { path: 'companies', component: CompanyListComponent },
   { path: 'companies/import', component: CompanyImportComponent },
   { path: 'companies/:id', component: CompanyDetailComponent },
   { path: 'leads', component: LeadsComponent },
