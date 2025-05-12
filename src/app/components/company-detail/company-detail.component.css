@@ -1,3 +1,5 @@
+/* src/app/components/company-detail/company-detail.component.css */
+
 /* Component layout styling */
 :host {
   display: flex;
@@ -200,6 +202,14 @@ button mat-icon {
 
 .text-blue-600 {
   color: #2563eb;
+}
+
+.bg-yellow-100 {
+  background-color: #fef3c7;
+}
+
+.text-yellow-800 {
+  color: #92400e;
 }
 
 /* Fix for mat-icon color with parent color */

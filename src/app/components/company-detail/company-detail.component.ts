@@ -1,3 +1,4 @@
+// src/app/components/company-detail/company-detail.component.ts
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Company, Contact, Note, Lead } from '../../../model/types';
@@ -6,7 +7,8 @@ import { LeadService } from '../../services/lead.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@ngneat/transloco';
-import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
+import { GeneralCode, GeneralCodeService } from '../../services/general-codes.service';
+
 @Component({
   selector: 'app-company-detail',
   templateUrl: './company-detail.component.html',
@@ -36,15 +38,22 @@ export class CompanyDetailComponent implements OnInit {
   leadError: string | null = null;
   
   // Active tab
-  activeTab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' = 'general';
+  activeTab: 'general' | 'details' | 'address' | 'communication' | 'contacts' | 'notes' | 'leads' | 'insured' = 'general';
   
   // Expanded section (for collapsible sections)
   expandedSection: string = 'companyInfo';
   
   // Loading state
   loading: boolean = false;
-  idTypeCodes: GeneralCode[] = [];
-  currentLanguageCode: number = 1; // Default to English (1), adjust based on your language setup
+  
+  // Code tables
+  idTypeCodes: any[] = [];
+  statusCodes: any[] = [];
+  businessFieldCodes: any[] = [];
+  entityTypeCodes: any[] = [];
+  countryCodes: any[] = [];
+  
+  currentLanguageCode: number = 1; // Default to English (1)
 
   constructor(
     private companyService: CompanyService,
@@ -57,6 +66,8 @@ export class CompanyDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.setupLanguage();
+    
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       
@@ -69,18 +80,8 @@ export class CompanyDetailComponent implements OnInit {
       }
     });
     
-    const languageMap: { [key: string]: number } = {
-      'en': 1, // English
-      'he': 2  // Hebrew
-      // Add more languages as needed
-    };
-    
-    // Set the current language code
-    const currentLang = this.translocoService.getActiveLang();
-    this.currentLanguageCode = languageMap[currentLang] || 1; // Default to 1 if not found
-    
-    // Load ID type codes
-    this.loadIdTypeCodes();
+    // Load required code tables
+    this.loadCodeTables();
 
     this.route.queryParamMap.subscribe(params => {
       const tab = params.get('tab');
@@ -93,6 +94,18 @@ export class CompanyDetailComponent implements OnInit {
         }
       }
     });
+  }
+  
+  setupLanguage(): void {
+    // Set the current language code based on the active language
+    const languageMap: { [key: string]: number } = {
+      'en': 1, // English
+      'he': 2  // Hebrew
+      // Add more languages as needed
+    };
+    
+    const currentLang = this.translocoService.getActiveLang();
+    this.currentLanguageCode = languageMap[currentLang] || 1; // Default to 1 if not found
   }
 
   loadCompany(id: number): void {
@@ -124,37 +137,96 @@ export class CompanyDetailComponent implements OnInit {
     });
   }
 
-  loadIdTypeCodes(): void {
+  loadCodeTables(): void {
+    // Load all required code tables
     this.generalCodeService.getIdTypeCodes(this.currentLanguageCode)
       .subscribe({
         next: (codes) => {
           this.idTypeCodes = codes.filter(code => code.isActive);
-          console.log('Loaded ID Type Codes:', this.idTypeCodes);
         },
         error: (err) => {
           console.error('Error loading ID type codes:', err);
         }
       });
+      
+    this.generalCodeService.getStatusCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.statusCodes = codes.filter(code => code.isActive);
+        },
+        error: (err) => {
+          console.error('Error loading status codes:', err);
+        }
+      });
+      
+    this.generalCodeService.getBusinessFieldCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.businessFieldCodes = codes.filter(code => code.isActive);
+        },
+        error: (err) => {
+          console.error('Error loading business field codes:', err);
+        }
+      });
+      
+    this.generalCodeService.getEntityTypeCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.entityTypeCodes = codes.filter(code => code.isActive);
+        },
+        error: (err: Error) => {
+          console.error('Error loading entity type codes:', err);
+        }
+      });
+      
+    this.generalCodeService.getCountryCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes : GeneralCode[]) => {
+          this.countryCodes = codes.filter(code => code.isActive);
+        },
+        error: (err) => {
+          console.error('Error loading country codes:', err);
+        }
+      });
   }
 
-  getIdTypeDescription(idTypeCode: number | undefined): string {
-    if (!idTypeCode || !this.idTypeCodes.length) return 'N/A';
+  // Get code description by code number from a code table
+  getCodeDescription(codes: any[], codeNumber: number): string {
+    if (!codeNumber || !codes || !codes.length) return 'N/A';
     
-    const idType = this.idTypeCodes.find(code => code.codeNumber === idTypeCode);
-    return idType ? idType.codeShortDescription : 'N/A';
+    const code = codes.find(c => c.codeNumber === codeNumber);
+    return code ? code.codeShortDescription : 'N/A';
   }
+  
   getEmptyCompany(): Company {
     return {
       id: 0,
-      idTypeCode: 0,
-      name: '',
-      industry: '',
-      size: '100-500 employees',
-      location: '',
+      idTypeCode: 1, // Default ID type code
+      registrationNumber: '',
+      dunsNumber: '',
+      vatNumber: '',
+      registrationName: '',
+      tradeName: '',
+      englishName: '',
+      companyStatusCode: 1, // Default to 'Active'
+      businessFieldCode: 0,
+      entityTypeCode: 0,
+      foundingYear: 0,
+      countryCode: 0,
       website: '',
-      status: 'Active',
-      registrationNumber: '',  // Added field
-      dunsNumber: '',         // Added field
+      streetAddress: '',
+      city: '',
+      stateProvince: '',
+      postalCode: '',
+      phoneNumber: '',
+      mobileNumber: '',
+      faxNumber: '',
+      emailAddress: '',
+      remarks: '',
+      lastReportName: '',
+      openingRef: '',
+      closingRef: '',
+      assignedTeamMemberName: '',
       contacts: [],
       notes: []
     };
@@ -190,7 +262,7 @@ export class CompanyDetailComponent implements OnInit {
     }
   }
   
-  navigateToTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads'): void {
+  navigateToTab(tab: 'general' | 'details' | 'address' | 'communication' | 'contacts' | 'notes' | 'leads' | 'insured'): void {
     this.activeTab = tab;
     
     // Update the URL without reloading the component
@@ -211,7 +283,7 @@ export class CompanyDetailComponent implements OnInit {
   }
 
   save(): void {
-    if (!this.editingCompany.name || !this.editingCompany.name.trim()) {
+    if (!this.editingCompany.registrationName || !this.editingCompany.registrationName.trim()) {
       this.snackBar.open(
         this.translocoService.translate('COMPANY_DETAIL.NAME_REQUIRED'), 
         this.translocoService.translate('BUTTONS.CLOSE'), 
@@ -475,17 +547,6 @@ export class CompanyDetailComponent implements OnInit {
       });
   }
 
-  getLeadStatusColor(status: string): ThemePalette {
-    const colorMap: { [key: string]: ThemePalette } = {
-      'New': 'primary',
-      'Contacted': 'accent',
-      'Qualified': 'primary',
-      'Proposal': 'accent',
-      'Negotiation': 'warn'
-    };
-    return colorMap[status] || 'primary';
-  }
-
   createNewLead(): void {
     if (!this.editingCompany) return;
     
@@ -493,7 +554,7 @@ export class CompanyDetailComponent implements OnInit {
     this.router.navigate(['/leads/new'], {
       queryParams: {
         companyId: this.editingCompany.id,
-        companyName: this.editingCompany.name
+        companyName: this.editingCompany.registrationName
       }
     });
   }
@@ -513,31 +574,24 @@ export class CompanyDetailComponent implements OnInit {
     }
   }
 
-  deleteLead(leadId: number): void {
-    if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
-      this.leadLoading = true;
-      
-      this.leadService.deleteLead(leadId)
-        .subscribe({
-          next: () => {
-            // Refresh the leads list
-            this.loadCompanyLeads();
-            
-            this.snackBar.open('Lead deleted successfully', 'Close', {
-              duration: 3000
-            });
-          },
-          error: (err) => {
-            this.leadError = 'Failed to delete lead';
-            this.leadLoading = false;
-            console.error('Error deleting lead:', err);
-            
-            this.snackBar.open('Failed to delete lead', 'Close', {
-              duration: 3000,
-              panelClass: ['error-snackbar']
-            });
-          }
-        });
-    }
+  // Helper methods for template
+  getStatusText(statusCode: number): string {
+    return this.getCodeDescription(this.statusCodes, statusCode);
+  }
+  
+  getBusinessFieldText(businessFieldCode: number): string {
+    return this.getCodeDescription(this.businessFieldCodes, businessFieldCode);
+  }
+  
+  getEntityTypeText(entityTypeCode: number): string {
+    return this.getCodeDescription(this.entityTypeCodes, entityTypeCode);
+  }
+  
+  getCountryText(countryCode: number): string {
+    return this.getCodeDescription(this.countryCodes, countryCode);
+  }
+  
+  getIdTypeText(idTypeCode: number): string {
+    return this.getCodeDescription(this.idTypeCodes, idTypeCode);
   }
 }

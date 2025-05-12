@@ -1,3 +1,4 @@
+// src/app/components/companies/companies.component.ts
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
@@ -6,6 +7,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ThemePalette } from '@angular/material/core';
 import { Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
+import { GeneralCodeService } from '../../services/general-codes.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ViewEncapsulation } from '@angular/core';
 import { TranslocoService } from '@ngneat/transloco';
@@ -23,14 +25,26 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   // Material table data source
   dataSource = new MatTableDataSource<Company>([]);
   
-  // Define displayed columns
-  displayedColumns: string[] = ['name', 'industry', 'size', 'location', 'status', 'website', 'actions'];
+  // Define displayed columns for the new company model
+  displayedColumns: string[] = ['registrationName', 'registrationNumber', 'businessField', 'country', 'status', 'website', 'actions'];
   
   Math = Math;
   companies: Company[] = [];
   filteredCompanies: Company[] = [];
   pagedCompanies: Company[] = []; // Companies on the current page
   searchTerm: string = '';
+
+  // Filters
+  filters: any = {
+    registrationName: '',
+    registrationNumber: '',
+    countryCode: '',
+    businessFieldCode: '',
+    companyStatusCode: '',
+    entityTypeCode: '',
+    valueMin: '',
+    valueMax: ''
+  };
 
   // Loading and error state
   loading: boolean = false;
@@ -41,15 +55,96 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   pageSize: number = 10;
   totalPages: number = 1;
 
+  // Filter display toggle
+  showFilters: boolean = true;
+  
+  // Code tables
+  statusCodes: any[] = [];
+  businessFieldCodes: any[] = [];
+  entityTypeCodes: any[] = [];
+  countryCodes: any[] = [];
+  idTypeCodes: any[] = [];
+  
+  // Language code for localized data
+  currentLanguageCode: number = 1; // Default to English (1)
+
   constructor(
     private companyService: CompanyService,
+    private generalCodeService: GeneralCodeService,
     private snackBar: MatSnackBar,
     private translocoService: TranslocoService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    this.setupLanguage();
+    this.loadCodeTables();
     this.loadCompanies();
+  }
+  
+  setupLanguage(): void {
+    // Set the current language code based on the active language
+    const languageMap: { [key: string]: number } = {
+      'en': 1, // English
+      'he': 2  // Hebrew
+      // Add more languages as needed
+    };
+    
+    const currentLang = this.translocoService.getActiveLang();
+    this.currentLanguageCode = languageMap[currentLang] || 1; // Default to 1 if not found
+  }
+  
+  loadCodeTables(): void {
+    // Load all required code tables
+    this.generalCodeService.getStatusCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.statusCodes = codes.filter(code => code.isActive);
+        },
+        error: (err) => {
+          console.error('Error loading status codes:', err);
+        }
+      });
+      
+    this.generalCodeService.getBusinessFieldCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.businessFieldCodes = codes.filter(code => code.isActive);
+        },
+        error: (err : Error) => {
+          console.error('Error loading business field codes:', err);
+        }
+      });
+      
+    this.generalCodeService.getEntityTypeCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.entityTypeCodes = codes.filter(code => code.isActive);
+        },
+        error: (err) => {
+          console.error('Error loading entity type codes:', err);
+        }
+      });
+      
+    this.generalCodeService.getCountryCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.countryCodes = codes.filter(code => code.isActive);
+        },
+        error: (err) => {
+          console.error('Error loading country codes:', err);
+        }
+      });
+      
+    this.generalCodeService.getIdTypeCodes(this.currentLanguageCode)
+      .subscribe({
+        next: (codes) => {
+          this.idTypeCodes = codes.filter(code => code.isActive);
+        },
+        error: (err) => {
+          console.error('Error loading ID type codes:', err);
+        }
+      });
   }
   
   ngAfterViewInit() {
@@ -60,11 +155,11 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     // Custom sort for complex columns if needed
     this.dataSource.sortingDataAccessor = (company, property) => {
       switch(property) {
-        case 'name': return company.name || '';
-        case 'industry': return company.industry || '';
-        case 'size': return company.size || '';
-        case 'location': return company.location || '';
-        case 'status': return company.status || 'Active';
+        case 'registrationName': return company.registrationName || '';
+        case 'registrationNumber': return company.registrationNumber || '';
+        case 'businessField': return company.businessFieldCode.toString() || '';
+        case 'country': return company.countryCode.toString() || '';
+        case 'status': return company.companyStatusCode.toString() || '';
         case 'website': return company.website || '';
         default: return (company as any)[property];
       }
@@ -92,15 +187,51 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   }
 
   filterCompanies(): void {
-    if (!this.searchTerm.trim()) {
+    // If no filters are applied, return all companies
+    const hasActiveFilters = Object.values(this.filters).some(value => value !== '' && value !== null && value !== undefined);
+    
+    if (!hasActiveFilters) {
       this.filteredCompanies = [...this.companies];
     } else {
-      const search = this.searchTerm.toLowerCase();
-      this.filteredCompanies = this.companies.filter(company => 
-        company.name.toLowerCase().includes(search) || 
-        (company.industry && company.industry.toLowerCase().includes(search)) ||
-        (company.location && company.location.toLowerCase().includes(search))
-      );
+      this.filteredCompanies = this.companies.filter(company => {
+        // Check name filter
+        if (this.filters.registrationName && 
+            !company.registrationName.toLowerCase().includes(this.filters.registrationName.toLowerCase())) {
+          return false;
+        }
+        
+        // Check registration number filter
+        if (this.filters.registrationNumber && 
+            !company.registrationNumber.toLowerCase().includes(this.filters.registrationNumber.toLowerCase())) {
+          return false;
+        }
+        
+        // Check country filter
+        if (this.filters.countryCode && 
+            company.countryCode !== parseInt(this.filters.countryCode)) {
+          return false;
+        }
+        
+        // Check business field filter
+        if (this.filters.businessFieldCode && 
+            company.businessFieldCode !== parseInt(this.filters.businessFieldCode)) {
+          return false;
+        }
+        
+        // Check status filter
+        if (this.filters.companyStatusCode && 
+            company.companyStatusCode !== parseInt(this.filters.companyStatusCode)) {
+          return false;
+        }
+        
+        // Check entity type filter
+        if (this.filters.entityTypeCode && 
+            company.entityTypeCode !== parseInt(this.filters.entityTypeCode)) {
+          return false;
+        }
+        
+        return true;
+      });
     }
     
     // Update the data source
@@ -112,7 +243,24 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     }
     
     this.updatePagination();
-    console.log('Filtered companies:', this.filteredCompanies.length);
+  }
+
+  applyFilters(): void {
+    this.filterCompanies();
+  }
+
+  clearFilters(): void {
+    this.filters = {
+      registrationName: '',
+      registrationNumber: '',
+      countryCode: '',
+      businessFieldCode: '',
+      companyStatusCode: '',
+      entityTypeCode: '',
+      valueMin: '',
+      valueMax: ''
+    };
+    this.filterCompanies();
   }
   
   updatePagination(): void {
@@ -177,29 +325,69 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   getEmptyCompany(): Company {
     return {
       id: 0,
-      name: '',
-      industry: '',
-      size: '100-500 employees',
-      location: '',
-      website: '',
-      status: 'Active',
+      idTypeCode: 0, // Default ID type code
       registrationNumber: '',
       dunsNumber: '',
+      vatNumber: '',
+      registrationName: '',
+      tradeName: '',
+      englishName: '',
+      companyStatusCode: 1, // Default to 'Active'
+      businessFieldCode: 0,
+      entityTypeCode: 0,
+      foundingYear: 0,
+      countryCode: 0,
+      website: '',
+      streetAddress: '',
+      city: '',
+      stateProvince: '',
+      postalCode: '',
+      phoneNumber: '',
+      mobileNumber: '',
+      faxNumber: '',
+      emailAddress: '',
+      remarks: '',
+      lastReportName: '',
+      openingRef: '',
+      closingRef: '',
+      assignedTeamMemberId: 0,
+      assignedTeamMemberName: '',
       contacts: [],
       notes: []
     };
   }
   
-  // Get color for status chip
-  getStatusColor(status: string | undefined): ThemePalette {
-    if (!status) return 'primary';
-    
-    switch(status.toLowerCase()) {
-      case 'active': return 'primary';
-      case 'prospect': return 'accent';
-      case 'inactive': return undefined; // grey
+  // Get color for status chip based on company status code
+  getStatusColor(statusCode: number): ThemePalette {
+    switch(statusCode) {
+      case 1: return 'primary'; // Active
+      case 2: return 'accent';  // Prospect
+      case 3: return undefined; // Inactive (grey)
       default: return 'primary';
     }
+  }
+  
+  // Get code description by code number from a code table
+  getCodeDescription(codes: any[], codeNumber: number): string {
+    if (!codeNumber || !codes || !codes.length) return 'N/A';
+    
+    const code = codes.find(c => c.codeNumber === codeNumber);
+    return code ? code.codeShortDescription : 'N/A';
+  }
+  
+  // Get status text from status code
+  getStatusText(statusCode: number): string {
+    return this.getCodeDescription(this.statusCodes, statusCode);
+  }
+  
+  // Get business field text from business field code
+  getBusinessFieldText(businessFieldCode: number): string {
+    return this.getCodeDescription(this.businessFieldCodes, businessFieldCode);
+  }
+  
+  // Get country text from country code
+  getCountryText(countryCode: number): string {
+    return this.getCodeDescription(this.countryCodes, countryCode);
   }
   
   // Ensure website URLs have http prefix
@@ -209,5 +397,13 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
       return url;
     }
     return 'https://' + url;
+  }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
+  }
+  
+  openCompanyDetail(company: Company): void {
+    this.router.navigate(['/companies', company.id]);
   }
 }

@@ -43,6 +43,22 @@ export class GeneralCodeService {
     return this.getCodesByType(10, languageCode);
   }
 
+    // Helper method to get Country Codes (type 25) for the current language
+    getCountryCodes(languageCode: number): Observable<GeneralCode[]> {
+      return this.getCodesByType(25, languageCode);
+    }
+    // Get Company Status Codes (type 20)
+    getStatusCodes(languageCode: number): Observable<GeneralCode[]> {
+      return this.getCodesByType(15, languageCode);
+    }
+    getBusinessFieldCodes(languageCode: number): Observable<GeneralCode[]> {
+      return this.getCodesByType(20, languageCode);
+    }
+  
+    // Get Entity Type Codes (type 40)
+    getEntityTypeCodes(languageCode: number): Observable<GeneralCode[]> {
+      return this.getCodesByType(40, languageCode);
+    }
   // Error handling method
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {

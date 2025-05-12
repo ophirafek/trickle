@@ -1,3 +1,5 @@
+// src/app/services/company.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
@@ -58,12 +60,8 @@ export class CompanyService {
         catchError(this.handleError<any>(`deleteCompany id=${id}`))
       );
   }
+  
   importCompanies(companies: Company[]): Observable<any> {
-    //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
-    //const options = { headers: headers };
-    
-    // Clean and stringify the object
-    //const jsonString = JSON.stringify(companies);
     return this.http.post<any>(`${this.apiUrl}/import`, companies)
       .pipe(
         catchError(this.handleError<any>('importCompanies'))
@@ -71,8 +69,6 @@ export class CompanyService {
   }
 
   importSingleCompany(company: Company): Observable<ImportResult> {
-   
-  
     return this.importCompanies([company]).pipe(
       map(results => results[0]), // Take the first result
       catchError(error => {
@@ -80,12 +76,13 @@ export class CompanyService {
         // Return a formatted error response
         return of({
           status: 3,
-          companyName: company.name,
+          companyName: company.registrationName,
           errorMessage: 'Network or server error occurred'
         });
       })
     );
   }
+  
   // Add contact to company
   addContact(companyId: number, contact: Contact): Observable<Contact> {
     return this.http.post<Contact>(`${this.apiUrl}/${companyId}/contacts`, contact)

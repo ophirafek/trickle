@@ -1,35 +1,46 @@
+// src/model/types.ts
+
 export interface MenuItem {
   id: string;
   icon: string;
   label: string;
 }
 
-// Update the Company interface in src/model/types.ts
+// Updated Company interface to match the new model structure with IdTypeCode after Id
 export interface Company {
   id: number;
-  idTypeCode?: number;          // New field: Defines the type of registration number
-  name: string;
-  industry?: string;
-  size?: string;
-  location?: string;
+  idTypeCode: number;          // Added right after id as requested
+  registrationNumber: string;
+  dunsNumber?: string;
+  vatNumber?: string;
+  registrationName: string;
+  tradeName?: string;
+  englishName?: string;
+  companyStatusCode: number;
+  businessFieldCode: number;
+  entityTypeCode: number;
+  foundingYear?: number | null;
+  countryCode: number;
   website?: string;
-  status?: string;
   streetAddress?: string;
-  suite?: string;
   city?: string;
   stateProvince?: string;
   postalCode?: string;
-  country?: string;
-  billingStreet?: string;
-  billingCity?: string;
-  billingPostalCode?: string;
-  linkedInProfile?: string;
-  foundingYear?: number;
-  description?: string;
-  registrationNumber?: string;  // Added field
-  dunsNumber?: string;         // Added field
-  createdAt?: Date;
-  updatedAt?: Date;
+  phoneNumber?: string;
+  mobileNumber?: string;
+  faxNumber?: string;
+  emailAddress?: string;
+  remarks?: string;
+  lastReportDate?: Date | null;
+  lastReportName?: string;
+  openingEffectiveDate?: Date | null;
+  closingEffectiveDate?: Date | null;
+  openingRegDate?: Date | null;
+  closingRegDate?: Date | null;
+  openingRef?: string;
+  closingRef?: string;
+  assignedTeamMemberId?: number|  null;
+  assignedTeamMemberName?: string;
   contacts?: Contact[];
   notes?: Note[];
 }
@@ -56,7 +67,7 @@ export interface Meeting {
   title: string;
   type: string;
   company: string;
-  companyId?: number;  // Added to link to company record
+  companyId?: number;  
   date: string;
   time: string;
   duration: string;
@@ -68,6 +79,7 @@ export interface Meeting {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
 export interface Attendee {
   name: string;
   role: string;
@@ -103,11 +115,22 @@ export interface Employee {
   position: string;
   email?: string;
   phone?: string;
+  employeeId?: string;
+  activeFlag?: boolean;
+  openingEffectiveDate?: string;
+  closingEffectiveDate?: string;
 }
 
 export interface ImportResult {
-  status: number; // 0: OK, 1: Company exists + new lead, 2: Both exist, 3: Error
+  status: number;
   companyName: string;
   description?: string;
   errorMessage?: string;
+}
+
+export interface GeneralCode {
+  codeNumber: number;
+  codeShortDescription: string;
+  codeLongDescription?: string;
+  isActive: boolean;
 }

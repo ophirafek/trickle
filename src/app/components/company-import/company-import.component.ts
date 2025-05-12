@@ -112,7 +112,7 @@ export class CompanyImportComponent implements OnInit {
     // Initialize component
       // Initialize component
   this.mandatoryFields = [
-    { key: 'name', label: 'COMPANY_DETAIL.COMPANY_NAME'},
+    { key: 'registrationName', label: 'COMPANY_DETAIL.COMPANY_NAME'},
     { key: 'registrationNumber', label: 'COMPANY_DETAIL.REGISTRATION_NUMBER' }
   ];
   
@@ -552,7 +552,7 @@ if (this.fileName.endsWith('.csv')) {
         // But just in case, add a generic error result
         this.importResults.push({
           status: 3,
-          companyName: company.name,
+          companyName: company.registrationName,
           errorMessage: 'Unknown error occurred'
         });
         this.importSummary.totalProcessed++;

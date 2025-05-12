@@ -7,91 +7,6 @@
   overflow: hidden;
 }
 
-/* Fix for Angular Material list items to show full content */
-::ng-deep .mat-mdc-list-item {
-  height: auto !important;
-  min-height: 72px !important;
-  width: 100% !important;
-  padding: 0 !important;
-}
-
-/* Fix for the list item content container */
-::ng-deep .mdc-list-item__content {
-  width: 100% !important;
-  height: auto !important;
-  padding: 8px 16px !important;
-}
-
-/* Remove the unwanted rounded highlight effect on hover */
-::ng-deep .mat-mdc-list-item:hover::before {
-  background-color: rgba(0, 0, 0, 0.04) !important;
-  border-radius: 0 !important;
-}
-
-/* Override the ripple effect to be full width */
-::ng-deep .mat-mdc-list-item .mat-ripple-element {
-  border-radius: 0 !important;
-}
-
-/* Fix for Material list item to ensure proper content display */
-::ng-deep .mat-mdc-list-item-unscoped-content {
-  width: 100% !important;
-  display: block !important;
-  overflow: visible !important;
-}
-
-/* Ensure company content is fully visible */
-.company-content {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  min-height: 72px;
-  padding: 8px 0;
-}
-
-/* Style for company info section */
-.company-info {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* Style for company actions section */
-.company-actions {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-}
-
-/* Border between list items */
-::ng-deep .mat-mdc-list-item:not(:last-child) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-/* Ensure card content allows for scrolling */
-.mat-mdc-card-content {
-  overflow: auto;
-  height: 100%;
-}
-
-/* Fix for Material nav list padding */
-::ng-deep .mat-mdc-list-base {
-  padding: 0 !important;
-}
-
-/* Add these styles to your companies.component.css file */
-
-/* Component layout styling */
-:host {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
 /* Table styling improvements */
 ::ng-deep .mat-mdc-table {
   width: 100%;
@@ -134,4 +49,35 @@
   font-size: 12px !important;
   min-width: 80px !important;
   text-align: center !important;
+}
+
+/* Fix for Material form fields */
+::ng-deep .mat-mdc-form-field {
+  width: 100%;
+}
+
+/* Cursor pointer for clickable rows */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Animation for filter section */
+.section-expanded-enter {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.section-expanded-enter-active {
+  max-height: 1000px;
+}
+
+.section-expanded-exit {
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in;
+}
+
+.section-expanded-exit-active {
+  max-height: 0;
 }

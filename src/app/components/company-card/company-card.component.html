@@ -7,12 +7,12 @@
             <mat-icon class="text-gray-500">business</mat-icon>
           </div>
           <div>
-            <h3 class="font-medium text-gray-800">{{ company.name }}</h3>
-            <p class="text-sm text-gray-500">{{ company.industry || 'No industry' }} • {{ company.size || 'Unknown size' }}</p>
+            <h3 class="font-medium text-gray-800">{{ company.registrationName }}</h3>
+            <p class="text-sm text-gray-500">{{ company.businessFieldCode || 'No industry' }}</p>
           </div>
         </div>
-        <div *ngIf="extended || company.location" class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-          <span *ngIf="company.location">{{ company.location }}</span>
+        <div *ngIf="extended || company.city" class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
+          <span *ngIf="company.city">{{ company.city }}</span>
           <span *ngIf="company.website">{{ company.website }}</span>
         </div>
       </div>
