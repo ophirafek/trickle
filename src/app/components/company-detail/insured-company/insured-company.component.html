@@ -1,0 +1,118 @@
+<!-- insured.component.html -->
+<div class="p-4">
+    <div class="row">
+      <!-- Financial Size Section -->
+      <div class="col-12 mb-4">
+        <mat-card class="mat-elevation-z1">
+          <mat-card-content>
+            <div class="d-flex justify-content-between align-items-start mb-4">
+              <div>
+                <h4 class="section-title mb-1">Financial Size</h4>
+                <p class="text-muted small">Indicates the company's financial circulation volume</p>
+              </div>
+              <div>
+                <mat-form-field appearance="outline">
+                  <mat-select value="value">
+                    <mat-option value="small">Small</mat-option>
+                    <mat-option value="medium">Medium</mat-option>
+                    <mat-option value="large">Large</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+  
+            <!-- Status Section -->
+            <div class="d-flex justify-content-between align-items-start mb-4 pt-4 border-top">
+              <div>
+                <h4 class="section-title mb-1">Status</h4>
+                <p class="text-muted small">Current status of the insured company</p>
+              </div>
+              <div>
+                <mat-form-field appearance="outline">
+                  <mat-select value="value">
+                    <mat-option value="active">Active</mat-option>
+                    <mat-option value="inactive">Inactive</mat-option>
+                    <mat-option value="pending">Pending</mat-option>
+                    <mat-option value="suspended">Suspended</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+  
+            <div class="info-box p-3">
+              <h5 class="info-title">About Financial Size</h5>
+              <p class="mb-2">
+                The financial size indicates the financial circulation of the company:
+              </p>
+              <ul class="info-list">
+                <li>
+                  <span class="info-marker small"></span>
+                  <span><strong>Small</strong>: Annual revenue less than $5 million</span>
+                </li>
+                <li>
+                  <span class="info-marker medium"></span>
+                  <span><strong>Medium</strong>: Annual revenue between $5 million and $50 million</span>
+                </li>
+                <li>
+                  <span class="info-marker large"></span>
+                  <span><strong>Large</strong>: Annual revenue greater than $50 million</span>
+                </li>
+              </ul>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      
+      <!-- Employee Assignment Section -->
+      <div class="col-12">
+        <mat-card class="mat-elevation-z1">
+          <mat-card-content>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4 class="section-title">Employee Assignments</h4>
+              <button mat-flat-button color="primary" (click)="openAssignmentModal()">
+                <mat-icon>add</mat-icon>
+                <span class="ms-1">Add Assignment</span>
+              </button>
+            </div>
+            
+            <!-- Employee Assignments List -->
+            <div>
+              <div class="assignment-item">
+                <div>
+                  <h5 class="assignment-title">Client Portfolio Manager</h5>
+                  <p class="assignment-subtitle">Portfolio Management</p>
+                </div>
+                <div>
+                  <mat-form-field appearance="outline">
+                    <mat-select value="David Wilson">
+                      <mat-option value="David Wilson">David Wilson</mat-option>
+                      <mat-option value="Robert Johnson">Robert Johnson</mat-option>
+                      <mat-option value="Lisa Chen">Lisa Chen</mat-option>
+                      <mat-option value="Michael Brown">Michael Brown</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              
+              <div class="assignment-item">
+                <div>
+                  <h5 class="assignment-title">Signed by Risk Department</h5>
+                  <p class="assignment-subtitle">Risk Department</p>
+                </div>
+                <div>
+                  <mat-form-field appearance="outline">
+                    <mat-select value="Robert Johnson">
+                      <mat-option value="Robert Johnson">Robert Johnson</mat-option>
+                      <mat-option value="David Wilson">David Wilson</mat-option>
+                      <mat-option value="Lisa Chen">Lisa Chen</mat-option>
+                      <mat-option value="Michael Brown">Michael Brown</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>

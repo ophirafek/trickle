@@ -1,0 +1,80 @@
+<h2 mat-dialog-title>{{ data.isEditing ? 'Edit Contact Person' : 'Add New Contact Person' }}</h2>
+    <mat-dialog-content>
+      <form [formGroup]="contactForm" class="contact-form">
+        <div class="row">
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>First Name</mat-label>
+              <input matInput formControlName="firstName">
+              <mat-error *ngIf="contactForm.get('firstName')?.hasError('required')">
+                First name is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="lastName">
+              <mat-error *ngIf="contactForm.get('lastName')?.hasError('required')">
+                Last name is required
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Role</mat-label>
+              <input matInput formControlName="role">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Belongs To</mat-label>
+              <mat-select formControlName="belongsTo">
+                <mat-option value="debtor">Debtor</mat-option>
+                <mat-option value="insured">Insured</mat-option>
+                <mat-option value="both">Both</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Department</mat-label>
+              <input matInput formControlName="department">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Telephone</mat-label>
+              <input matInput formControlName="telephone">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Mobile</mat-label>
+              <input matInput formControlName="mobile">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email">
+              <mat-error *ngIf="contactForm.get('email')?.hasError('email')">
+                Please enter a valid email address
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="col-12">
+            <mat-form-field appearance="outline" class="w-100">
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="3"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+      </form>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-raised-button color="primary" [disabled]="contactForm.invalid" (click)="saveContact()">
+        {{ data.isEditing ? 'Update' : 'Save' }}
+      </button>
+    </mat-dialog-actions>

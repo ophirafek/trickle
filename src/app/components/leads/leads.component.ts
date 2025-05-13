@@ -135,9 +135,7 @@ export class LeadsComponent implements OnInit {
     if (this.searchTerm.trim()) {
       const search = this.searchTerm.toLowerCase();
       results = results.filter(lead => 
-        lead.title.toLowerCase().includes(search) || 
-        lead.company.toLowerCase().includes(search) ||
-        lead.owner.toLowerCase().includes(search)
+        lead.leadName.toLowerCase().includes(search)
       );
     }
     
@@ -148,14 +146,14 @@ export class LeadsComponent implements OnInit {
   sortLeads(): void {
     switch (this.sortBy) {
       case 'value':
-        this.filteredLeads.sort((a, b) => b.value - a.value);
+        this.filteredLeads.sort((a, b) => b.salesGapValue - a.salesGapValue);
         break;
       case 'probability':
         this.filteredLeads.sort((a, b) => b.probability - a.probability);
         break;
       case 'lastUpdate':
         // Simple sort for demo purposes - in a real app would parse the date
-        this.filteredLeads.sort((a, b) => a.lastUpdate.localeCompare(b.lastUpdate));
+        //this.filteredLeads.sort((a, b) => a.lastUpdate.localeCompare(b.lastUpdate));
         break;
     }
   }

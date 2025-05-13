@@ -1,16 +1,11 @@
+// company-list.component.ts
 import { Component, OnInit } from '@angular/core';
-
-interface Company {
-  id: number;
-  name: string;
-  primaryIdType: string;
-  primaryId: string;
-  country: string;
-  businessField: string;
-  status: string;
-  obligatoryAmount: string;
-  entityType: string[];
-}
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Company, CompanyFilter } from '../../../model/types';
+import { CompanyService } from '../../services/company.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatToolbarModule } from '@angular/material/toolbar';
 
 @Component({
   selector: 'app-company-list',
@@ -18,174 +13,233 @@ interface Company {
   styleUrls: ['./company-list.component.scss']
 })
 export class CompanyListComponent implements OnInit {
-  // Filter visibility toggles
+  allCompanies: Company[] = [];
+  companies: Company[] = [];
+  filterForm: FormGroup;
   showFilters = true;
   showAdvancedFilters = false;
-
-  // Filter states
-  filters = {
-    companyName: '',
-    primaryId: '',
-    country: '',
-    businessField: '',
-    companyStatus: '',
-    entityType: '',
-    obligatoryMin: '',
-    obligatoryMax: ''
-  };
-
-  // Mock company data
-  allCompanies: Company[] = [
-    { 
-      id: 1,
-      name: 'Acme Global Solutions', 
-      primaryIdType: 'Registration Number',
-      primaryId: 'REG-123456',
-      country: 'United States',
-      businessField: 'Technology',
-      status: 'Active',
-      obligatoryAmount: '$250,000',
-      entityType: ['debtor', 'insured']
-    },
-    { 
-      id: 2,
-      name: 'TechCorp International', 
-      primaryIdType: 'VAT Number',
-      primaryId: 'GB987654321',
-      country: 'United Kingdom',
-      businessField: 'Technology',
-      status: 'Active',
-      obligatoryAmount: '$175,000',
-      entityType: ['insured']
-    },
-    { 
-      id: 3,
-      name: 'Global Manufacturing Ltd', 
-      primaryIdType: 'DUNS Number',
-      primaryId: '456789123',
-      country: 'Germany',
-      businessField: 'Manufacturing',
-      status: 'Inactive',
-      obligatoryAmount: '$100,000',
-      entityType: ['potential']
-    },
-    { 
-      id: 4,
-      name: 'Sunrise Healthcare', 
-      primaryIdType: 'Registration Number',
-      primaryId: 'REG-789123',
-      country: 'Canada',
-      businessField: 'Healthcare',
-      status: 'Active',
-      obligatoryAmount: '$320,000',
-      entityType: ['debtor', 'potential']
-    },
-    { 
-      id: 5,
-      name: 'Capital Finance Group', 
-      primaryIdType: 'DUNS Number',
-      primaryId: '987321654',
-      country: 'United States',
-      businessField: 'Finance',
-      status: 'On Hold',
-      obligatoryAmount: '$500,000',
-      entityType: ['debtor']
-    }
+  displayedColumns: string[] = [
+    'registrationName', 
+    'primaryId', 
+    'country', 
+    'businessField', 
+    'status', 
+    'entityType', 
+    'obligatoryAmount', 
+    'actions'
   ];
-  
-  // Filtered companies
-  companies: Company[] = [];
-  
-  constructor() { }
+
+  countries = ['United States', 'United Kingdom', 'Germany', 'Canada', 'France'];
+  businessFields = ['Technology', 'Manufacturing', 'Healthcare', 'Finance', 'Retail', 'Business Services'];
+  companyStatuses = ['Active', 'Inactive', 'On Hold'];
+  entityTypes = ['debtor', 'insured', 'potential'];
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private companyService: CompanyService,
+    private router: Router,
+    private snackBar: MatSnackBar
+  ) {
+    this.filterForm = this.formBuilder.group({
+      companyName: [''],
+      primaryId: [''],
+      country: [''],
+      businessField: [''],
+      companyStatus: [''],
+      entityType: [''],
+      obligatoryMin: [''],
+      obligatoryMax: ['']
+    });
+  }
 
   ngOnInit(): void {
-    // Initialize companies with all companies
+    this.loadCompanies();
+  }
+
+  loadCompanies(): void {
+    // In a real application, this would be an API call
+    this.allCompanies = [
+      { 
+        id: 1,
+        idTypeCode: 1,
+        registrationNumber: 'REG-123456',
+        dunsNumber: '',
+        vatNumber: 'GB123456789',
+        registrationName: 'Acme Global Solutions', 
+        tradeName: 'Acme Solutions',
+        englishName: 'Technology solutions provider',
+        companyStatusCode: 1,
+        businessFieldCode: 1,
+        entityTypeCode: 1,
+        countryCode: 1,
+        website: 'https://www.acmeglobalsolutions.com',
+        streetAddress: '123 Business Avenue',
+        city: 'San Francisco',
+        stateProvince: 'California',
+        postalCode: '94105',
+        phoneNumber: '+1 (555) 123-4567',
+        mobileNumber: '+1 (555) 987-6543',
+        faxNumber: '+1 (555) 123-4568',
+        emailAddress: 'info@acmeglobalsolutions.com',
+        remarks: 'Acme Global Solutions is a key client with strong growth potential. They are planning to expand to European markets in Q3 2025. Maintain regular contact with CEO John Smith.',
+        obligatoryAmount: '$250,000',
+        isDebtor: true,
+        isInsuredCompany: true,
+        isPotentialCustomer: false,
+        isAgent: false
+      },
+      { 
+        id: 2,
+        idTypeCode: 2,
+        registrationNumber: '',
+        dunsNumber: '',
+        vatNumber: 'GB987654321',
+        registrationName: 'TechCorp International', 
+        tradeName: 'TechCorp',
+        englishName: 'Technology solutions provider',
+        companyStatusCode: 1,
+        businessFieldCode: 1,
+        entityTypeCode: 2,
+        countryCode: 2,
+        website: 'https://www.techcorp.com',
+        obligatoryAmount: '$175,000',
+        isDebtor: false,
+        isInsuredCompany: true,
+        isPotentialCustomer: false,
+        isAgent: false
+      },
+      { 
+        id: 3,
+        idTypeCode: 3,
+        registrationNumber: '',
+        dunsNumber: '456789123',
+        vatNumber: '',
+        registrationName: 'Global Manufacturing Ltd', 
+        tradeName: 'Global Manufacturing',
+        englishName: 'Manufacturing solutions provider',
+        companyStatusCode: 2,
+        businessFieldCode: 2,
+        entityTypeCode: 3,
+        countryCode: 3,
+        website: 'https://www.globalmanufacturing.com',
+        obligatoryAmount: '$100,000',
+        isDebtor: false,
+        isInsuredCompany: false,
+        isPotentialCustomer: true,
+        isAgent: false
+      },
+      { 
+        id: 4,
+        idTypeCode: 1,
+        registrationNumber: 'REG-789123',
+        dunsNumber: '',
+        vatNumber: '',
+        registrationName: 'Sunrise Healthcare', 
+        tradeName: 'Sunrise',
+        englishName: 'Healthcare provider',
+        companyStatusCode: 1,
+        businessFieldCode: 3,
+        entityTypeCode: 4,
+        countryCode: 4,
+        website: 'https://www.sunrisehealthcare.com',
+        obligatoryAmount: '$320,000',
+        isDebtor: true,
+        isInsuredCompany: false,
+        isPotentialCustomer: true,
+        isAgent: false
+      },
+      { 
+        id: 5,
+        idTypeCode: 3,
+        registrationNumber: '',
+        dunsNumber: '987321654',
+        vatNumber: '',
+        registrationName: 'Capital Finance Group', 
+        tradeName: 'Capital Finance',
+        englishName: 'Financial services provider',
+        companyStatusCode: 3,
+        businessFieldCode: 4,
+        entityTypeCode: 5,
+        countryCode: 1,
+        website: 'https://www.capitalfinance.com',
+        obligatoryAmount: '$500,000',
+        isDebtor: true,
+        isInsuredCompany: false,
+        isPotentialCustomer: false,
+        isAgent: false
+      }
+    ];
     this.companies = [...this.allCompanies];
   }
 
-  // Toggle filters visibility
   toggleFilters(): void {
     this.showFilters = !this.showFilters;
   }
 
-  // Toggle advanced filters visibility
   toggleAdvancedFilters(): void {
     this.showAdvancedFilters = !this.showAdvancedFilters;
   }
 
-  // Handle filter input changes
-  handleFilterChange(event: any): void {
-    const { name, value } = event.target;
-    this.filters = {
-      ...this.filters,
-      [name]: value
-    };
-  }
-
-  // Clear all filters
   clearFilters(): void {
-    this.filters = {
-      companyName: '',
-      primaryId: '',
-      country: '',
-      businessField: '',
-      companyStatus: '',
-      entityType: '',
-      obligatoryMin: '',
-      obligatoryMax: ''
-    };
+    this.filterForm.reset();
     this.companies = [...this.allCompanies];
   }
 
-  // Apply filters
   applyFilters(): void {
+    const filters = this.filterForm.value as CompanyFilter;
     let filteredResults = [...this.allCompanies];
     
     // Filter by company name
-    if (this.filters.companyName) {
+    if (filters.companyName) {
       filteredResults = filteredResults.filter(company => 
-        company.name.toLowerCase().includes(this.filters.companyName.toLowerCase())
+        company.registrationName.toLowerCase().includes(filters.companyName.toLowerCase())
       );
     }
     
     // Filter by primary ID
-    if (this.filters.primaryId) {
+    if (filters.primaryId) {
       filteredResults = filteredResults.filter(company => 
-        company.primaryId.toLowerCase().includes(this.filters.primaryId.toLowerCase())
+        (company.registrationNumber && company.registrationNumber.toLowerCase().includes(filters.primaryId.toLowerCase())) ||
+        (company.vatNumber && company.vatNumber.toLowerCase().includes(filters.primaryId.toLowerCase())) ||
+        (company.dunsNumber && company.dunsNumber.toLowerCase().includes(filters.primaryId.toLowerCase()))
       );
     }
     
     // Filter by country
-    if (this.filters.country) {
+    if (filters.country) {
       filteredResults = filteredResults.filter(company => 
-        company.country === this.filters.country
+        this.getCountryName(company.countryCode) === filters.country
       );
     }
     
     // Filter by business field
-    if (this.filters.businessField) {
+    if (filters.businessField) {
       filteredResults = filteredResults.filter(company => 
-        company.businessField === this.filters.businessField
+        this.getBusinessFieldName(company.businessFieldCode) === filters.businessField
       );
     }
     
     // Filter by status
-    if (this.filters.companyStatus) {
+    if (filters.companyStatus) {
       filteredResults = filteredResults.filter(company => 
-        company.status === this.filters.companyStatus
+        this.getStatusName(company.companyStatusCode) === filters.companyStatus
       );
     }
     
     // Filter by entity type
-    if (this.filters.entityType) {
-      filteredResults = filteredResults.filter(company => 
-        company.entityType && company.entityType.includes(this.filters.entityType)
-      );
+    if (filters.entityType) {
+      filteredResults = filteredResults.filter(company => {
+        if (filters.entityType === 'debtor') return company.isDebtor;
+        if (filters.entityType === 'insured') return company.isInsuredCompany;
+        if (filters.entityType === 'potential') return company.isPotentialCustomer;
+        if (filters.entityType === 'agent') return company.isAgent;
+        return false;
+      });
     }
     
     // Filter by obligatory amount (min)
-    if (this.filters.obligatoryMin) {
-      const min = parseFloat(this.filters.obligatoryMin);
+    if (filters.obligatoryMin) {
+      const min = parseFloat(filters.obligatoryMin);
       filteredResults = filteredResults.filter(company => {
         const amount = parseFloat(company.obligatoryAmount.replace('$', '').replace(',', ''));
         return amount >= min;
@@ -193,8 +247,8 @@ export class CompanyListComponent implements OnInit {
     }
     
     // Filter by obligatory amount (max)
-    if (this.filters.obligatoryMax) {
-      const max = parseFloat(this.filters.obligatoryMax);
+    if (filters.obligatoryMax) {
+      const max = parseFloat(filters.obligatoryMax);
       filteredResults = filteredResults.filter(company => {
         const amount = parseFloat(company.obligatoryAmount.replace('$', '').replace(',', ''));
         return amount <= max;
@@ -203,11 +257,56 @@ export class CompanyListComponent implements OnInit {
     
     this.companies = filteredResults;
   }
-  
-  // View company details (placeholder for navigation)
+
   viewCompanyDetails(company: Company): void {
-    console.log('View company', company);
-    // Here you would typically navigate to the company details page
-    // this.router.navigate(['/companies', company.id]);
+    this.companyService.setSelectedCompany(company);
+    this.router.navigate(['/company', company.id]);
+  }
+
+  // Utility methods to map codes to values
+  getCountryName(code: number): string {
+    const countryMap: Record<number, string> = {
+      1: 'United States',
+      2: 'United Kingdom',
+      3: 'Germany',
+      4: 'Canada',
+      5: 'France'
+    };
+    return countryMap[code] || 'Unknown';
+  }
+
+  getBusinessFieldName(code: number): string {
+    const fieldMap: Record<number, string> = {
+      1: 'Technology',
+      2: 'Manufacturing',
+      3: 'Healthcare',
+      4: 'Finance',
+      5: 'Retail',
+      6: 'Business Services'
+    };
+    return fieldMap[code] || 'Unknown';
+  }
+
+  getStatusName(code: number): string {
+    const statusMap: Record<number, string> = {
+      1: 'Active',
+      2: 'Inactive',
+      3: 'On Hold'
+    };
+    return statusMap[code] || 'Unknown';
+  }
+
+  getPrimaryIdType(company: Company): string {
+    if (company.idTypeCode === 1) return 'Registration Number';
+    if (company.idTypeCode === 2) return 'VAT Number';
+    if (company.idTypeCode === 3) return 'DUNS Number';
+    return 'Unknown';
+  }
+
+  getPrimaryId(company: Company): string {
+    if (company.idTypeCode === 1) return company.registrationNumber || '';
+    if (company.idTypeCode === 2) return company.vatNumber || '';
+    if (company.idTypeCode === 3) return company.dunsNumber || '';
+    return '';
   }
 }

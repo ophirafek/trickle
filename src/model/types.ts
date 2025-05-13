@@ -42,6 +42,10 @@ export interface Company {
   assignedTeamMemberId?: number|  null;
   assignedTeamMemberName?: string;
   obligatoryAmount: any;
+  isDebtor?: boolean;
+  isPotentialCustomer?: boolean;
+  isInsuredCompany?: boolean;
+  isAgent?: boolean;
   
   contacts?: Contact[];
   notes?: Note[];
@@ -49,11 +53,24 @@ export interface Company {
 
 export interface Contact {
   id: number;
-  name: string;
-  jobTitle?: string;
+  companyId?: number;
+  firstName: string;
+  lastName: string;
+  role: string;
+  belongsTo: string;
+  department?: string;
+  telephone?: string;
+  mobile?: string;
   email?: string;
-  phone?: string;
-  companyId: number;
+  notes?: string;
+}
+
+export interface Account {
+  id: number;
+  companyId?: number;
+  accountNumber: string;
+  accountType: string;
+  status: string;
 }
 
 export interface Note {
@@ -90,14 +107,17 @@ export interface Attendee {
 
 export interface Lead {
   id?: number;
-  title: string;
-  company: string;
+  leadName: string;
+  leadTypeCode: number;
+  company?: string;
   companyId?: number;
   status: string;
-  value: number;
+  value?: number;
   probability: number;
-  owner: string;
-  lastUpdate: string;
+  salesGapValue: number;
+  contactName: string;
+  owner?: string;
+  lastUpdate?: string;
   source?: string;
   expectedCloseDate?: Date;
   description?: string;
@@ -135,4 +155,34 @@ export interface GeneralCode {
   codeShortDescription: string;
   codeLongDescription?: string;
   isActive: boolean;
+}
+
+// Lookup data for dropdowns
+export interface LookupData {
+  idTypes: LookupItem[];
+  countries: LookupItem[];
+  businessFields: LookupItem[];
+  companyStatuses: LookupItem[];
+  entityTypes: LookupItem[];
+  leadTypes: LookupItem[];
+  leadSources: LookupItem[];
+  marketTypes: LookupItem[];
+  accountTypes: LookupItem[];
+}
+
+export interface LookupItem {
+  code: number;
+  value: string;
+}
+
+// Filter interface
+export interface CompanyFilter {
+  companyName: string;
+  primaryId: string;
+  country: string;
+  businessField: string;
+  companyStatus: string;
+  entityType: string;
+  obligatoryMin: string;
+  obligatoryMax: string;
 }

@@ -1,847 +1,356 @@
-<!-- src/app/components/company-detail/company-detail.component.html -->
-
-<div class="h-screen flex flex-col bg-gray-50">
-  <!-- Loading indicator -->
-  <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
-    <mat-spinner [diameter]="48"></mat-spinner>
-    <p class="ml-4 text-gray-700" transloco="COMMON.LOADING"></p>
-  </div>
-
+<!-- company-detail.component.html -->
+<div class="container-fluid h-100 d-flex flex-column bg-light">
   <!-- Header -->
-  <header class="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-    <div class="flex items-center">
-      <button 
-        mat-icon-button
-        color="primary"
-        (click)="navigateToCompanies()"
-        class="mr-2"
-      >
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <h1 class="text-xl font-bold text-gray-800">
-        {{ isNewCompany ? ('COMPANY_DETAIL.NEW_COMPANY' | transloco) : editingCompany.registrationName }}
-      </h1>
-    </div>
-    <button 
-      mat-raised-button
-      color="primary"
-      (click)="save()"
-      class="flex items-center"
-    >
-      <mat-icon class="mr-1">save</mat-icon>
-      {{ 'COMPANY_DETAIL.SAVE_COMPANY' | transloco }}
+  <mat-toolbar color="primary" class="mat-elevation-z4">
+    <span class="font-weight-bold">Customer Management</span>
+    <span class="flex-spacer"></span>
+    <button mat-stroked-button color="basic" (click)="backToList()">
+      Back to Browse
     </button>
-  </header>
+  </mat-toolbar>
 
   <!-- Main Content -->
-  <main class="flex-1 p-6 overflow-auto">
-    <div class="bg-white rounded-lg shadow-md">
-      <!-- Company Registration Bar -->
-      <div class="bg-gray-100 px-6 py-4 rounded-t-lg flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-          <span class="font-semibold text-gray-700">{{ getIdTypeText(editingCompany.idTypeCode) || 'Registration Number' }}:</span>
-          <span class="text-gray-900">{{ editingCompany.registrationNumber || 'N/A' }}</span>
-          <span class="ml-2 text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">{{ 'COMPANY_DETAIL.DUNS_NUMBER' | transloco }}: {{ editingCompany.dunsNumber || 'N/A' }}</span>
-          <span class="ml-2 text-xs text-gray-500 bg-gray-200 px-2 py-1 rounded">{{ 'COMPANY_DETAIL.VAT_NUMBER' | transloco }}: {{ editingCompany.vatNumber || 'N/A' }}</span>
+  <div class="content-area p-4 overflow-auto">
+    <mat-card class="mat-elevation-z2">
+      <!-- Company Bar -->
+      <div class="company-header d-flex justify-content-between align-items-center p-3">
+        <div class="d-flex align-items-center">
+          <span class="company-title">{{ selectedCompany?.registrationName || 'Company Details' }}</span>
         </div>
+        <button mat-flat-button color="primary" (click)="saveCompany()">
+          <mat-icon>save</mat-icon>
+          <span class="ms-1">Save</span>
+        </button>
       </div>
 
       <!-- Tabs -->
-      <div class="border-b border-gray-200">
-        <nav class="flex px-6 -mb-px">
-          <button 
-            (click)="navigateToTab('general')"
-            class="py-4 px-6 font-medium transition-colors"
-            [ngClass]="activeTab === 'general' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'"
-          >
-            {{ 'COMPANY_DETAIL.TABS.GENERAL' | transloco }}
-          </button>
-          
-          <button 
-            (click)="navigateToTab('details')"
-            class="py-4 px-6 font-medium transition-colors"
-            [ngClass]="activeTab === 'details' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'"
-          >
-            {{ 'COMPANY_DETAIL.TABS.DETAILS' | transloco }}
-          </button>
-          
-          <button 
-            (click)="navigateToTab('address')"
-            class="py-4 px-6 font-medium transition-colors"
-            [ngClass]="activeTab === 'address' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'"
-          >
-            {{ 'COMPANY_DETAIL.TABS.ADDRESS' | transloco }}
-          </button>
-          
-          <button 
-            (click)="navigateToTab('communication')"
-            class="py-4 px-6 font-medium transition-colors"
-            [ngClass]="activeTab === 'communication' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'"
-          >
-            {{ 'COMPANY_DETAIL.TABS.COMMUNICATION' | transloco }}
-          </button>
-          
-          <button 
-            (click)="navigateToTab('contacts')"
-            class="py-4 px-6 font-medium transition-colors"
-            [ngClass]="activeTab === 'contacts' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'"
-          >
-            {{ 'COMPANY_DETAIL.TABS.CONTACTS' | transloco }} ({{ editingCompany.contacts?.length || 0 }})
-          </button>
-          
-          <button 
-            (click)="navigateToTab('notes')"
-            class="py-4 px-6 font-medium transition-colors"
-            [ngClass]="activeTab === 'notes' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'"
-          >
-            {{ 'COMPANY_DETAIL.TABS.NOTES' | transloco }} ({{ editingCompany.notes?.length || 0 }})
-          </button>
-          
-          <button 
-            (click)="navigateToTab('leads')"
-            class="py-4 px-6 font-medium transition-colors"
-            [ngClass]="activeTab === 'leads' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'"
-          >
-            {{ 'COMPANY_DETAIL.TABS.LEADS' | transloco }}
-          </button>
-          
-          <button 
-            (click)="navigateToTab('insured')"
-            class="py-4 px-6 font-medium transition-colors"
-            [ngClass]="activeTab === 'insured' 
-              ? 'border-b-2 border-blue-600 text-blue-600' 
-              : 'text-gray-500 hover:text-gray-700'"
-          >
-            {{ 'COMPANY_DETAIL.TABS.INSURED' | transloco }}
-          </button>
-        </nav>
-      </div>
-
-      <!-- Tab Content -->
-      <div class="p-6">
-        <!-- General Information Tab Content -->
-        <div *ngIf="activeTab === 'general'" class="space-y-4">
-          <!-- Corporate Registration Numbers Section -->
-          <div class="border border-gray-200 rounded-md overflow-hidden">
-            <div 
-              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-              (click)="toggleSection('corpRegistration')"
-            >
-              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.CORPORATE_REGISTRATION' | transloco }}</h3>
-              <mat-icon>{{ expandedSection === 'corpRegistration' ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
+      <mat-tab-group [selectedIndex]="['general', 'contacts', 'accounts', 'leads', 'insured'].indexOf(activeTab)" 
+        (selectedIndexChange)="setActiveTab(['general', 'contacts', 'accounts', 'leads', 'insured'][$event])">
+        <mat-tab label="General Information">
+          <div class="p-4 space-y">
+            <!-- Corporate Registration Numbers Section -->
+            <mat-accordion>
+              <mat-expansion-panel [expanded]="expandedSection === 'corpRegistration'" (opened)="expandedSection = 'corpRegistration'" (closed)="expandedSection = ''">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Corporate Registration Numbers</mat-panel-title>
+                </mat-expansion-panel-header>
+                
+                <div class="row">
+                  <div class="col-12">
+                    <div class="mb-4">
+                      <h4 class="section-title mb-3">Company Entity Type</h4>
+                      <div class="entity-type-container">
+                        <div 
+                          class="entity-type-option debtor-option" 
+                          [class.selected]="entityTypes.debtor"
+                          (click)="handleEntityTypeChange('debtor')"
+                        >
+                          <mat-checkbox 
+                            [checked]="entityTypes.debtor" 
+                            (change)="handleEntityTypeChange('debtor')"
+                            color="primary"
+                            class="me-2"
+                          ></mat-checkbox>
+                          <span>Debtor</span>
+                        </div>
+                        
+                        <div 
+                          class="entity-type-option insured-option"
+                          [class.selected]="entityTypes.insured"
+                          (click)="handleEntityTypeChange('insured')"
+                        >
+                          <mat-checkbox 
+                            [checked]="entityTypes.insured" 
+                            (change)="handleEntityTypeChange('insured')"
+                            color="primary"
+                            class="me-2"
+                          ></mat-checkbox>
+                          <span>Insured</span>
+                        </div>
+                        
+                        <div 
+                          class="entity-type-option agent-option"
+                          [class.selected]="entityTypes.agent"
+                          (click)="handleEntityTypeChange('agent')"
+                        >
+                          <mat-checkbox 
+                            [checked]="entityTypes.agent" 
+                            (change)="handleEntityTypeChange('agent')"
+                            color="primary"
+                            class="me-2"
+                          ></mat-checkbox>
+                          <span>Agent</span>
+                        </div>
+                        
+                        <div 
+                          class="entity-type-option potential-option"
+                          [class.selected]="entityTypes.potential"
+                          (click)="handleEntityTypeChange('potential')"
+                        >
+                          <mat-checkbox 
+                            [checked]="entityTypes.potential" 
+                            (change)="handleEntityTypeChange('potential')"
+                            color="primary"
+                            class="me-2"
+                          ></mat-checkbox>
+                          <span>Potential</span>
+                        </div>
+                      </div>
+                      
+                      <div *ngIf="entityTypeError" class="alert alert-danger mt-2">
+                        <strong>Note:</strong> {{ entityTypeError }}
+                      </div>
+                      
+                      <div class="alert alert-info mt-3">
+                        <strong>Business Rule:</strong> A company cannot be both "Insured" and "Potential" at the same time.
+                      </div>
+                    </div>
+                  </div>
+                
+                  <div class="col-12">
+                    <div class="alert alert-warning mb-3">
+                      <p class="mb-0">
+                        <strong>Note:</strong> At least one identifier (Registration Number, VAT Number, or DUNS Number) is required.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div class="col-12 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Primary ID *</mat-label>
+                      <mat-select [(value)]="selectedCompany!.idTypeCode">
+                        <mat-option [value]="1">Registration Number</mat-option>
+                        <mat-option [value]="2">VAT Number</mat-option>
+                        <mat-option [value]="3">DUNS Number</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  
+                  <div class="col-md-6 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Registration Number *</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.registrationNumber">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>VAT Number</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.vatNumber">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>DUNS Number</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.dunsNumber">
+                    </mat-form-field>
+                  </div>
+                </div>
+              </mat-expansion-panel>
+            </mat-accordion>
             
-            <div *ngIf="expandedSection === 'corpRegistration'" class="p-4 grid grid-cols-2 gap-4">
-              <div class="col-span-2 bg-yellow-50 p-3 rounded border border-yellow-200 mb-2">
-                <p class="text-sm text-yellow-800">
-                  <span class="font-semibold">{{ 'COMPANY_DETAIL.NOTE' | transloco }}:</span> 
-                  {{ 'COMPANY_DETAIL.ID_REQUIRED_NOTE' | transloco }}
-                </p>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.ID_TYPE' | transloco }}</mat-label>
-                  <mat-select [(ngModel)]="editingCompany.idTypeCode">
-                    <mat-option *ngFor="let type of idTypeCodes" [value]="type.codeNumber">
-                      {{ type.codeShortDescription }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.REGISTRATION_NUMBER' | transloco }} <span class="text-red-500">*</span></mat-label>
-                  <input matInput [(ngModel)]="editingCompany.registrationNumber" required>
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.VAT_NUMBER' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.vatNumber">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.DUNS_NUMBER' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.dunsNumber">
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Company Information Section -->
-          <div class="border border-gray-200 rounded-md overflow-hidden">
-            <div 
-              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-              (click)="toggleSection('companyInfo')"
-            >
-              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.COMPANY_INFORMATION' | transloco }}</h3>
-              <mat-icon>{{ expandedSection === 'companyInfo' ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
-            
-            <div *ngIf="expandedSection === 'companyInfo'" class="p-4 grid grid-cols-3 gap-4">
-              <div class="col-span-3">
-                <div class="flex justify-between mb-6">
-                  <h4 class="text-base font-medium text-gray-800">{{ 'COMPANY_DETAIL.COMPANY_ENTITY_TYPE' | transloco }}</h4>
-                  <div class="flex items-center">
-                    <mat-form-field appearance="outline" class="w-48">
-                      <mat-select [(ngModel)]="editingCompany.entityTypeCode">
-                        <mat-option *ngFor="let type of entityTypeCodes" [value]="type.codeNumber">
-                          {{ type.codeShortDescription }}
-                        </mat-option>
+            <!-- Company Information Section -->
+            <mat-accordion class="mt-3">
+              <mat-expansion-panel [expanded]="expandedSection === 'companyInfo'" (opened)="expandedSection = 'companyInfo'" (closed)="expandedSection = ''">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Company Information</mat-panel-title>
+                </mat-expansion-panel-header>
+                
+                <div class="row">
+                  <div class="col-12 mb-4">
+                    <h4 class="section-title">Company Details</h4>
+                  </div>
+                  
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Company Name</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.registrationName">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Trade Name</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.tradeName">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Description (English)</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.englishName">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Business Field</mat-label>
+                      <mat-select [(value)]="selectedCompany!.businessFieldCode">
+                        <mat-option [value]="1">Technology</mat-option>
+                        <mat-option [value]="2">Manufacturing</mat-option>
+                        <mat-option [value]="3">Healthcare</mat-option>
+                        <mat-option [value]="4">Finance</mat-option>
+                        <mat-option [value]="5">Retail</mat-option>
+                        <mat-option [value]="6">Business Services</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Sub Business Field</mat-label>
+                      <mat-select>
+                        <mat-option value="software">Software Development</mat-option>
+                        <mat-option value="consulting">IT Consulting</mat-option>
+                        <mat-option value="hardware">Hardware Manufacturing</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Entity Type</mat-label>
+                      <mat-select [(value)]="selectedCompany!.entityTypeCode">
+                        <mat-option [value]="1">Corporation</mat-option>
+                        <mat-option [value]="2">LLC</mat-option>
+                        <mat-option [value]="3">Partnership</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Company Status</mat-label>
+                      <mat-select [(value)]="selectedCompany!.companyStatusCode">
+                        <mat-option [value]="1">Active</mat-option>
+                        <mat-option [value]="2">Inactive</mat-option>
+                        <mat-option [value]="3">On Hold</mat-option>
                       </mat-select>
                     </mat-form-field>
                   </div>
                 </div>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.REGISTRATION_NAME' | transloco }} <span class="text-red-500">*</span></mat-label>
-                  <input matInput [(ngModel)]="editingCompany.registrationName" required>
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.TRADE_NAME' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.tradeName">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.ENGLISH_NAME' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.englishName">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.BUSINESS_FIELD' | transloco }}</mat-label>
-                  <mat-select [(ngModel)]="editingCompany.businessFieldCode">
-                    <mat-option *ngFor="let field of businessFieldCodes" [value]="field.codeNumber">
-                      {{ field.codeShortDescription }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.COMPANY_STATUS' | transloco }}</mat-label>
-                  <mat-select [(ngModel)]="editingCompany.companyStatusCode">
-                    <mat-option *ngFor="let status of statusCodes" [value]="status.codeNumber">
-                      {{ status.codeShortDescription }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Timeline Section -->
-          <div class="border border-gray-200 rounded-md overflow-hidden">
-            <div 
-              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-              (click)="toggleSection('timeline')"
-            >
-              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.TIMELINE' | transloco }}</h3>
-              <mat-icon>{{ expandedSection === 'timeline' ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
+              </mat-expansion-panel>
+            </mat-accordion>
             
-            <div *ngIf="expandedSection === 'timeline'" class="p-4 grid grid-cols-2 gap-4">
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.YEAR_FOUNDED' | transloco }}</mat-label>
-                  <input matInput type="number" [(ngModel)]="editingCompany.foundingYear">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.OPENING_EFFECTIVE_DATE' | transloco }}</mat-label>
-                  <input matInput [matDatepicker]="openPicker" [(ngModel)]="editingCompany.openingEffectiveDate">
-                  <mat-datepicker-toggle matIconSuffix [for]="openPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #openPicker></mat-datepicker>
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.CLOSING_EFFECTIVE_DATE' | transloco }}</mat-label>
-                  <input matInput [matDatepicker]="closePicker" [(ngModel)]="editingCompany.closingEffectiveDate">
-                  <mat-datepicker-toggle matIconSuffix [for]="closePicker"></mat-datepicker-toggle>
-                  <mat-datepicker #closePicker></mat-datepicker>
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.LAST_REPORT_DATE' | transloco }}</mat-label>
-                  <input matInput [matDatepicker]="reportPicker" [(ngModel)]="editingCompany.lastReportDate" disabled>
-                  <mat-datepicker-toggle matIconSuffix [for]="reportPicker"></mat-datepicker-toggle>
-                  <mat-datepicker #reportPicker></mat-datepicker>
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.LAST_REPORT_NAME' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.lastReportName" disabled>
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-          
-          <!-- References Section -->
-          <div class="border border-gray-200 rounded-md overflow-hidden">
-            <div 
-              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-              (click)="toggleSection('references')"
-            >
-              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.REFERENCES' | transloco }}</h3>
-              <mat-icon>{{ expandedSection === 'references' ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
-            
-            <div *ngIf="expandedSection === 'references'" class="p-4 grid grid-cols-2 gap-4">
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.OPENING_REF' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.openingRef">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.CLOSING_REF' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.closingRef">
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Team Assignment Section -->
-          <div class="border border-gray-200 rounded-md overflow-hidden">
-            <div 
-              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-              (click)="toggleSection('assignment')"
-            >
-              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.TEAM_ASSIGNMENT' | transloco }}</h3>
-              <mat-icon>{{ expandedSection === 'assignment' ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
-            
-            <div *ngIf="expandedSection === 'assignment'" class="p-4 grid grid-cols-2 gap-4">
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.ASSIGNED_TEAM_MEMBER' | transloco }}</mat-label>
-                  <mat-select [(ngModel)]="editingCompany.assignedTeamMemberId">
-                    <mat-option [value]="null">{{ 'COMPANY_DETAIL.NONE' | transloco }}</mat-option>
-                    <!-- This would normally be populated from a service -->
-                    <mat-option [value]="1">David Wilson</mat-option>
-                    <mat-option [value]="2">Lisa Chen</mat-option>
-                    <mat-option [value]="3">Robert Johnson</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Address Tab Content -->
-        <div *ngIf="activeTab === 'address'" class="space-y-4">
-          <!-- Address Section -->
-          <div class="border border-gray-200 rounded-md overflow-hidden">
-            <div 
-              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-              (click)="toggleSection('address')"
-            >
-              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.ADDRESS' | transloco }}</h3>
-              <mat-icon>{{ expandedSection === 'address' ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
-            
-            <div *ngIf="expandedSection === 'address'" class="p-4 grid grid-cols-3 gap-4">
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.STREET_ADDRESS' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.streetAddress">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.CITY' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.city">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.STATE_PROVINCE' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.stateProvince">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.POSTAL_CODE' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.postalCode">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.COUNTRY' | transloco }}</mat-label>
-                  <mat-select [(ngModel)]="editingCompany.countryCode">
-                    <mat-option *ngFor="let country of countryCodes" [value]="country.codeNumber">
-                      {{ country.codeShortDescription }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Communication Tab Content -->
-        <div *ngIf="activeTab === 'communication'" class="space-y-4">
-          <!-- Communication Section -->
-          <div class="border border-gray-200 rounded-md overflow-hidden">
-            <div 
-              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-              (click)="toggleSection('communication')"
-            >
-              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.COMMUNICATION' | transloco }}</h3>
-              <mat-icon>{{ expandedSection === 'communication' ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
-            
-            <div *ngIf="expandedSection === 'communication'" class="p-4 grid grid-cols-3 gap-4">
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.PHONE_NUMBER' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.phoneNumber">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.MOBILE_NUMBER' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.mobileNumber">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.FAX_NUMBER' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.faxNumber">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.EMAIL_ADDRESS' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.emailAddress">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.WEBSITE' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.website">
-                </mat-form-field>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Remarks Section -->
-          <div class="border border-gray-200 rounded-md overflow-hidden">
-            <div 
-              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-              (click)="toggleSection('remarks')"
-            >
-              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.REMARKS' | transloco }}</h3>
-              <mat-icon>{{ expandedSection === 'remarks' ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
-            
-            <div *ngIf="expandedSection === 'remarks'" class="p-4">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'COMPANY_DETAIL.GENERAL_REMARKS' | transloco }}</mat-label>
-                <textarea 
-                  matInput 
-                  [(ngModel)]="editingCompany.remarks"
-                  rows="4"
-                ></textarea>
-              </mat-form-field>
-            </div>
-          </div>
-        </div>
-
-        <!-- Contact Persons Tab Content -->
-        <div *ngIf="activeTab === 'contacts'">
-          <div class="flex justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-700">{{ 'COMPANY_DETAIL.CONTACT_PERSONS' | transloco }}</h3>
-            <button 
-              mat-raised-button
-              color="primary"
-              (click)="startAddingContact()"
-              *ngIf="!isAddingContact"
-              class="flex items-center"
-            >
-              <mat-icon class="mr-1">add</mat-icon>
-              <span>{{ 'COMPANY_DETAIL.ADD_CONTACT' | transloco }}</span>
-            </button>
-          </div>
-          
-          <!-- Contact error message -->
-          <div *ngIf="contactError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-            {{ contactError }}
-          </div>
-          
-          <!-- Add Contact Form -->
-          <div *ngIf="isAddingContact" class="border border-gray-200 rounded-md p-4 mb-6 bg-gray-50">
-            <h3 class="text-lg font-medium text-gray-700 mb-4">{{ 'COMPANY_DETAIL.NEW_CONTACT' | transloco }}</h3>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.CONTACT_NAME' | transloco }} <span class="text-red-500">*</span></mat-label>
-                  <input matInput [(ngModel)]="newContact.name" placeholder="Full name">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.CONTACT_JOB_TITLE' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="newContact.jobTitle" placeholder="Job title">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.CONTACT_EMAIL' | transloco }}</mat-label>
-                  <input matInput type="email" [(ngModel)]="newContact.email" placeholder="Email address">
-                </mat-form-field>
-              </div>
-              
-              <div>
-                <mat-form-field appearance="outline" class="w-full">
-                  <mat-label>{{ 'COMPANY_DETAIL.CONTACT_PHONE' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="newContact.phone" placeholder="Phone number">
-                </mat-form-field>
-              </div>
-            </div>
-            <div class="flex justify-end space-x-2 mt-4">
-              <button mat-button (click)="cancelAddContact()">{{ 'BUTTONS.CANCEL' | transloco }}</button>
-              <button mat-raised-button color="primary" (click)="addContact()">{{ 'BUTTONS.SAVE' | transloco }}</button>
-            </div>
-          </div>
-          
-          <!-- Contacts Table -->
-          <div class="overflow-x-auto">
-            <table mat-table [dataSource]="editingCompany.contacts || []" class="w-full bg-white border border-gray-200">
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"> 
-                  {{ 'COMPANY_DETAIL.CONTACT_NAME' | transloco }} 
-                </th>
-                <td mat-cell *matCellDef="let contact" class="py-3 px-4 text-sm text-gray-900"> 
-                  {{contact.name}} 
-                </td>
-              </ng-container>
-              
-              <ng-container matColumnDef="jobTitle">
-                <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"> 
-                  {{ 'COMPANY_DETAIL.CONTACT_JOB_TITLE' | transloco }} 
-                </th>
-                <td mat-cell *matCellDef="let contact" class="py-3 px-4 text-sm text-gray-900"> 
-                  {{contact.jobTitle}} 
-                </td>
-              </ng-container>
-              
-              <ng-container matColumnDef="email">
-                <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"> 
-                  {{ 'COMPANY_DETAIL.CONTACT_EMAIL' | transloco }} 
-                </th>
-                <td mat-cell *matCellDef="let contact" class="py-3 px-4 text-sm text-gray-900"> 
-                  {{contact.email}} 
-                </td>
-              </ng-container>
-              
-              <ng-container matColumnDef="phone">
-                <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"> 
-                  {{ 'COMPANY_DETAIL.CONTACT_PHONE' | transloco }} 
-                </th>
-                <td mat-cell *matCellDef="let contact" class="py-3 px-4 text-sm text-gray-900"> 
-                  {{contact.phone}} 
-                </td>
-              </ng-container>
-              
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"> 
-                  {{ 'COMMON.ACTIONS' | transloco }} 
-                </th>
-                <td mat-cell *matCellDef="let contact" class="py-3 px-4 text-sm text-gray-900"> 
-                  <div class="flex space-x-2">
-                    <button mat-icon-button color="warn" (click)="deleteContact(contact.id)" class="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors">
-                      <mat-icon>delete</mat-icon>
-                    </button>
+            <!-- Address Section -->
+            <mat-accordion class="mt-3">
+              <mat-expansion-panel [expanded]="expandedSection === 'address'" (opened)="expandedSection = 'address'" (closed)="expandedSection = ''">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Address</mat-panel-title>
+                </mat-expansion-panel-header>
+                
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Street Address</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.streetAddress">
+                    </mat-form-field>
                   </div>
-                </td>
-              </ng-container>
-              
-              <tr mat-header-row *matHeaderRowDef="displayedContactColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedContactColumns;" class="hover:bg-gray-50"></tr>
-              
-              <!-- No data row -->
-              <tr class="mat-row" *matNoDataRow>
-                <td class="mat-cell text-center p-4" colspan="5">
-                  {{ 'COMPANY_DETAIL.NO_CONTACTS' | transloco }}
-                </td>
-              </tr>
-            </table>
-          </div>
-        </div>
-
-        <!-- Notes Tab Content -->
-        <div *ngIf="activeTab === 'notes'">
-          <div class="flex justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-700">{{ 'COMPANY_DETAIL.NOTES_TITLE' | transloco }}</h3>
-            <button 
-              mat-raised-button
-              color="primary"
-              (click)="startAddingNote()"
-              *ngIf="!isAddingNote"
-              class="flex items-center"
-            >
-              <mat-icon class="mr-1">add</mat-icon>
-              <span>{{ 'COMPANY_DETAIL.ADD_NOTE' | transloco }}</span>
-            </button>
-          </div>
-          
-          <!-- Note error message -->
-          <div *ngIf="noteError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-            {{ noteError }}
-          </div>
-          
-          <!-- Add Note Form -->
-          <div *ngIf="isAddingNote" class="border border-gray-200 rounded-md p-4 mb-6 bg-gray-50">
-            <h3 class="text-lg font-medium text-gray-700 mb-4">{{ 'COMPANY_DETAIL.NEW_NOTE' | transloco }}</h3>
-            <div>
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'COMPANY_DETAIL.NOTE_TITLE' | transloco }} <span class="text-red-500">*</span></mat-label>
-                <input matInput [(ngModel)]="newNote.title" placeholder="Note title">
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'COMPANY_DETAIL.NOTE_CONTENT' | transloco }} <span class="text-red-500">*</span></mat-label>
-                <textarea matInput [(ngModel)]="newNote.content" placeholder="Note content..." rows="6"></textarea>
-              </mat-form-field>
-            </div>
-            <div class="flex justify-end space-x-2 mt-4">
-              <button mat-button (click)="cancelAddNote()">{{ 'BUTTONS.CANCEL' | transloco }}</button>
-              <button mat-raised-button color="primary" (click)="addNote()">{{ 'BUTTONS.SAVE' | transloco }}</button>
-            </div>
-          </div>
-          
-          <!-- Empty State -->
-          <div *ngIf="!editingCompany.notes || editingCompany.notes.length === 0" class="text-center py-8 bg-gray-50 rounded-lg">
-            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <mat-icon class="text-gray-400 text-3xl">notes</mat-icon>
-            </div>
-            <p class="text-gray-700">{{ 'COMPANY_DETAIL.NO_NOTES' | transloco }}</p>
-            <p class="text-sm text-gray-500 mt-1">{{ 'COMPANY_DETAIL.NOTES_HELP' | transloco }}</p>
-          </div>
-          
-          <!-- Notes List -->
-          <div *ngIf="editingCompany.notes && editingCompany.notes.length > 0" class="space-y-4">
-            <div *ngFor="let note of editingCompany.notes" class="border border-gray-200 rounded-md overflow-hidden">
-              <div class="flex justify-between items-center p-4 bg-gray-50">
-                <div>
-                  <h3 class="font-medium text-gray-700">{{ note.title }}</h3>
-                  <p class="text-xs text-gray-500">{{ note.createdAt | date:'medium' }}</p>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Building/Suite</mat-label>
+                      <input matInput>
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>City</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.city">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>State/Province</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.stateProvince">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Postal Code</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.postalCode">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Country</mat-label>
+                      <input matInput [value]="getCountryName(selectedCompany!.countryCode)" readonly>
+                    </mat-form-field>
+                  </div>
                 </div>
-                <button mat-icon-button color="warn" (click)="deleteNote(note.id)" class="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-              <div class="p-4 bg-white">
-                <p class="whitespace-pre-line">{{ note.content }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Leads Tab Content -->
-        <div *ngIf="activeTab === 'leads'">
-          <!-- Lead error message -->
-          <div *ngIf="leadError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-            {{ leadError }}
-          </div>
-          
-          <!-- Lead actions header -->
-          <div class="flex justify-between mb-4">
-            <h3 class="text-lg font-medium text-gray-700">{{ 'COMPANY_DETAIL.COMPANY_LEADS' | transloco }}</h3>
-            <button 
-              mat-raised-button
-              color="primary"
-              (click)="createNewLead()"
-              class="flex items-center"
-            >
-              <mat-icon class="mr-1">add</mat-icon>
-              <span>{{ 'COMPANY_DETAIL.ADD_LEAD' | transloco }}</span>
-            </button>
-          </div>
-          
-          <!-- Using leads-list component to reuse the existing component -->
-          <app-leads-list
-            [leads]="companyLeads"
-            [loading]="leadLoading"
-            [showCompanyColumn]="false"
-            (leadSelected)="editLead($event)">
-            <button 
-              mat-raised-button
-              color="primary"
-              (click)="createNewLead()"
-              emptyActionButton
-              class="flex items-center"
-            >
-              <mat-icon class="mr-1">add</mat-icon>
-              <span>{{ 'COMPANY_DETAIL.CREATE_FIRST_LEAD' | transloco }}</span>
-            </button>
-          </app-leads-list>
-        </div>
-
-        <!-- Insured Companies Tab Content -->
-        <div *ngIf="activeTab === 'insured'" class="space-y-6">
-          <!-- Financial Size Section -->
-          <div class="bg-white border border-gray-200 rounded-md p-6">
-            <div class="flex justify-between items-center mb-8">
-              <div>
-                <h4 class="text-base font-medium text-gray-800 mb-1">{{ 'COMPANY_DETAIL.FINANCIAL_SIZE' | transloco }}</h4>
-                <p class="text-sm text-gray-500">{{ 'COMPANY_DETAIL.FINANCIAL_SIZE_DESCRIPTION' | transloco }}</p>
-              </div>
-              <div class="flex items-center">
-                <mat-form-field appearance="outline" class="w-48">
-                  <mat-select [value]="'medium'">
-                    <mat-option value="small">{{ 'COMPANY_DETAIL.SIZE_OPTIONS.SMALL' | transloco }}</mat-option>
-                    <mat-option value="medium">{{ 'COMPANY_DETAIL.SIZE_OPTIONS.MEDIUM' | transloco }}</mat-option>
-                    <mat-option value="large">{{ 'COMPANY_DETAIL.SIZE_OPTIONS.LARGE' | transloco }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <!-- Status Section Added -->
-            <div class="flex justify-between items-center mb-8 border-t border-gray-100 pt-6">
-              <div>
-                <h4 class="text-base font-medium text-gray-800 mb-1">{{ 'COMPANY_DETAIL.STATUS' | transloco }}</h4>
-                <p class="text-sm text-gray-500">{{ 'COMPANY_DETAIL.STATUS_DESCRIPTION' | transloco }}</p>
-              </div>
-              <div class="flex items-center">
-                <mat-form-field appearance="outline" class="w-48">
-                  <mat-select [value]="'active'">
-                    <mat-option value="active">{{ 'COMPANY_DETAIL.STATUS_OPTIONS.ACTIVE' | transloco }}</mat-option>
-                    <mat-option value="inactive">{{ 'COMPANY_DETAIL.STATUS_OPTIONS.INACTIVE' | transloco }}</mat-option>
-                    <mat-option value="pending">{{ 'COMPANY_DETAIL.STATUS_OPTIONS.PENDING' | transloco }}</mat-option>
-                    <mat-option value="suspended">{{ 'COMPANY_DETAIL.STATUS_OPTIONS.SUSPENDED' | transloco }}</mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-            </div>
-
-            <div class="bg-blue-50 p-4 rounded-md">
-              <h4 class="text-sm font-semibold text-blue-800 mb-2">{{ 'COMPANY_DETAIL.ABOUT_FINANCIAL_SIZE' | transloco }}</h4>
-              <p class="text-sm text-blue-700">
-                {{ 'COMPANY_DETAIL.FINANCIAL_SIZE_INFO' | transloco }}
-              </p>
-              <ul class="mt-2 space-y-1 text-sm text-blue-700">
-                <li class="flex items-center">
-                  <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
-                  <span><strong>{{ 'COMPANY_DETAIL.SIZE_OPTIONS.SMALL' | transloco }}</strong>: {{ 'COMPANY_DETAIL.SMALL_DESCRIPTION' | transloco }}</span>
-                </li>
-                <li class="flex items-center">
-                  <span class="w-2 h-2 bg-yellow-500 rounded-full mr-2"></span>
-                  <span><strong>{{ 'COMPANY_DETAIL.SIZE_OPTIONS.MEDIUM' | transloco }}</strong>: {{ 'COMPANY_DETAIL.MEDIUM_DESCRIPTION' | transloco }}</span>
-                </li>
-                <li class="flex items-center">
-                  <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span><strong>{{ 'COMPANY_DETAIL.SIZE_OPTIONS.LARGE' | transloco }}</strong>: {{ 'COMPANY_DETAIL.LARGE_DESCRIPTION' | transloco }}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <!-- Employee Assignment Section -->
-          <div class="bg-white border border-gray-200 rounded-md p-6">
-            <div class="flex justify-between items-center mb-6">
-              <h4 class="text-base font-medium text-gray-800">{{ 'COMPANY_DETAIL.EMPLOYEE_ASSIGNMENTS' | transloco }}</h4>
-              <button 
-                mat-raised-button
-                color="primary"
-                class="flex items-center space-x-1 text-sm"
-              >
-                <mat-icon>add</mat-icon>
-                <span>{{ 'COMPANY_DETAIL.ADD_ASSIGNMENT' | transloco }}</span>
-              </button>
-            </div>
+              </mat-expansion-panel>
+            </mat-accordion>
             
-            <!-- Employee Assignments List -->
-            <div class="space-y-4">
-              <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                <div>
-                  <h5 class="text-sm font-medium text-gray-700">{{ 'COMPANY_DETAIL.CLIENT_PORTFOLIO_MANAGER' | transloco }}</h5>
-                  <p class="text-xs text-gray-500 mt-1">{{ 'COMPANY_DETAIL.PORTFOLIO_MANAGEMENT' | transloco }}</p>
+            <!-- Communication Section -->
+            <mat-accordion class="mt-3">
+              <mat-expansion-panel [expanded]="expandedSection === 'communication'" (opened)="expandedSection = 'communication'" (closed)="expandedSection = ''">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Communication</mat-panel-title>
+                </mat-expansion-panel-header>
+                
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Mobile</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.mobileNumber">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Telephone</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.phoneNumber">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Fax</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.faxNumber">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Email</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.emailAddress">
+                    </mat-form-field>
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>Website</mat-label>
+                      <input matInput [(ngModel)]="selectedCompany!.website">
+                    </mat-form-field>
+                  </div>
                 </div>
-                <div class="flex items-center">
-                  <mat-form-field appearance="outline" class="w-48">
-                    <mat-select [value]="'david'">
-                      <mat-option value="david">David Wilson</mat-option>
-                      <mat-option value="robert">Robert Johnson</mat-option>
-                      <mat-option value="lisa">Lisa Chen</mat-option>
-                      <mat-option value="michael">Michael Brown</mat-option>
-                      <mat-option value="jessica">Jessica Martinez</mat-option>
-                    </mat-select>
-                  </mat-form-field>
+              </mat-expansion-panel>
+            </mat-accordion>
+            
+            <!-- Remarks Section -->
+            <mat-accordion class="mt-3">
+              <mat-expansion-panel [expanded]="expandedSection === 'remarks'" (opened)="expandedSection = 'remarks'" (closed)="expandedSection = ''">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Remarks</mat-panel-title>
+                </mat-expansion-panel-header>
+                
+                <div class="row">
+                  <div class="col-12">
+                    <mat-form-field appearance="outline" class="w-100">
+                      <mat-label>General Remarks</mat-label>
+                      <textarea matInput rows="4" [(ngModel)]="selectedCompany!.remarks"></textarea>
+                    </mat-form-field>
+                  </div>
                 </div>
-              </div>
-              
-              <div class="flex justify-between items-center py-3 border-b border-gray-100">
-                <div>
-                  <h5 class="text-sm font-medium text-gray-700">{{ 'COMPANY_DETAIL.SIGNED_BY_RISK_DEPARTMENT' | transloco }}</h5>
-                  <p class="text-xs text-gray-500 mt-1">{{ 'COMPANY_DETAIL.RISK_DEPARTMENT' | transloco }}</p>
-                </div>
-                <div class="flex items-center">
-                  <mat-form-field appearance="outline" class="w-48">
-                    <mat-select [value]="'robert'">
-                      <mat-option value="robert">Robert Johnson</mat-option>
-                      <mat-option value="david">David Wilson</mat-option>
-                      <mat-option value="lisa">Lisa Chen</mat-option>
-                      <mat-option value="michael">Michael Brown</mat-option>
-                      <mat-option value="jessica">Jessica Martinez</mat-option>
-                    </mat-select>
-                  </mat-form-field>
-                </div>
-              </div>
-            </div>
+              </mat-expansion-panel>
+            </mat-accordion>
           </div>
-        </div>
-      </div>
-    </div>
-  </main>
+        </mat-tab>
+
+        <mat-tab label="Contact Persons">
+          <app-contacts [companyId]="selectedCompany?.id"></app-contacts>
+        </mat-tab>
+        
+        <mat-tab label="Accounts">
+          <app-accounts [companyId]="selectedCompany?.id"></app-accounts>
+        </mat-tab>
+        
+        <mat-tab label="Leads">
+          <app-company-leads [companyId]="selectedCompany?.id"></app-company-leads>
+        </mat-tab>
+        
+        <mat-tab label="Insured Companies">
+          <app-insured-company [company]="selectedCompany"></app-insured-company>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  </div>
 </div>

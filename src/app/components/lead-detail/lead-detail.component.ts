@@ -65,7 +65,10 @@ export class LeadDetailComponent implements OnInit {
   getEmptyLead(): Lead {
     return {
       id: 0,
-      title: '',
+      leadTypeCode: 1,
+      salesGapValue: 0,
+      contactName: '',
+      leadName: '',
       company: '',
       status: 'New',
       value: 0,
@@ -87,7 +90,7 @@ export class LeadDetailComponent implements OnInit {
 
   save(): void {
     // Validate the form
-    if (!this.editingLead.title) {
+    if (!this.editingLead.leadName) {
       this.error = 'Lead title is required';
       return;
     }

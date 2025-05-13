@@ -1,0 +1,117 @@
+/* company-detail.component.scss */
+.container-fluid {
+  height: 100vh;
+}
+
+.content-area {
+  flex: 1;
+  overflow: auto;
+}
+
+.flex-spacer {
+  flex: 1 1 auto;
+}
+
+.company-header {
+  background-color: #f5f5f5;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.company-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: #333;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.space-y {
+  > * + * {
+    margin-top: 16px;
+  }
+}
+
+// Entity type styles
+.entity-type-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.entity-type-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.debtor-option {
+  &.selected {
+    background-color: #e1bee7;
+    border-color: #9c27b0;
+    color: #6a1b9a;
+    font-weight: 500;
+  }
+}
+
+.insured-option {
+  &.selected {
+    background-color: #bbdefb;
+    border-color: #2196f3;
+    color: #0d47a1;
+    font-weight: 500;
+  }
+}
+
+.agent-option {
+  &.selected {
+    background-color: #c8e6c9;
+    border-color: #4caf50;
+    color: #1b5e20;
+    font-weight: 500;
+  }
+}
+
+.potential-option {
+  &.selected {
+    background-color: #ffe0b2;
+    border-color: #ff9800;
+    color: #e65100;
+    font-weight: 500;
+  }
+}
+
+// Alert styles
+.alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  border: 1px solid #ffcdd2;
+  color: #b71c1c;
+}
+
+.alert-info {
+  background-color: #e3f2fd;
+  border: 1px solid #bbdefb;
+  color: #0d47a1;
+}
+
+.alert-warning {
+  background-color: #fff8e1;
+  border: 1px solid #ffecb3;
+  color: #f57f17;
+}

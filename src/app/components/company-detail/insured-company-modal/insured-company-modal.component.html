@@ -1,0 +1,31 @@
+<h2 mat-dialog-title>Add New Employee Assignment</h2>
+<mat-dialog-content>
+  <form [formGroup]="assignmentForm" class="assignment-form">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Assignment Type</mat-label>
+      <mat-select formControlName="assignmentType">
+        <mat-option value="Client Portfolio Manager">Client Portfolio Manager</mat-option>
+        <mat-option value="Risk Department">Risk Department</mat-option>
+        <mat-option value="Account Manager">Account Manager</mat-option>
+        <mat-option value="Support Specialist">Support Specialist</mat-option>
+        <mat-option value="Executive Sponsor">Executive Sponsor</mat-option>
+      </mat-select>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Employee</mat-label>
+      <mat-select formControlName="employee">
+        <mat-option value="David Wilson">David Wilson</mat-option>
+        <mat-option value="Robert Johnson">Robert Johnson</mat-option>
+        <mat-option value="Lisa Chen">Lisa Chen</mat-option>
+        <mat-option value="Michael Brown">Michael Brown</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="assignmentForm.invalid" (click)="saveAssignment()">
+    Save Assignment
+  </button>
+</mat-dialog-actions>

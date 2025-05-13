@@ -90,7 +90,7 @@ export class DashboardComponent implements OnInit {
         next: (leads) => {
           // Sort leads by value (highest first)
           this.leads = leads
-            .sort((a, b) => b.value - a.value)
+            .sort((a, b) => b.salesGapValue - a.salesGapValue)
             .slice(0, 3); // Show only top 3 leads
           
           this.loading = false;

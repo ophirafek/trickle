@@ -55,6 +55,14 @@ import { TranslocoRootModule } from '../transloco/transloco-root.module';
 import { LanguageInterceptor } from './services/language-interceptor.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CompanyListComponent } from './components/company-list/company-list.component';
+import { InsuredTabComponent } from './components/company-detail/insured-tab/insured-tab.component';
+import { ContactsComponent } from './components/company-detail/contacts/contacts.component';
+import { ContactModalComponent } from './components/company-detail/contact-modal/contact-modal.component';
+import { AccountsComponent } from './components/company-detail/accounts/accounts.component';
+import { AccountModalComponent } from './components/company-detail/account-modal/account-modal.component';
+import { CompanyLeadsComponent } from './components/company-detail/company-leads/company-leads.component';
+import { InsuredCompanyComponent } from './components/company-detail/insured-company/insured-company.component';
+import { InsuredCompanyModalComponent } from './components/company-detail/insured-company-modal/insured-company-modal.component';
 
 const MaterialModules = [
   MatButtonModule,
@@ -107,6 +115,15 @@ const MaterialModules = [
     LoadingIndicatorComponent,
     LeadsListComponent,
     CompanyListComponent,
+
+    InsuredTabComponent,
+    ContactsComponent,
+    ContactModalComponent,
+    AccountsComponent,
+    AccountModalComponent,
+    CompanyLeadsComponent,
+    InsuredCompanyComponent,
+    InsuredCompanyModalComponent,
     
   ],
   imports: [

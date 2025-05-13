@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>{{ data.isEditing ? 'Edit Account' : 'Add New Account' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="accountForm" class="account-form">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Account Number</mat-label>
+      <input matInput formControlName="accountNumber">
+      <mat-error *ngIf="accountForm.get('accountNumber')?.hasError('required')">
+        Account number is required
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Account Type</mat-label>
+      <mat-select formControlName="accountType">
+        <mat-option value="Business">Business</mat-option>
+        <mat-option value="Corporate">Corporate</mat-option>
+        <mat-option value="Personal">Personal</mat-option>
+        <mat-option value="Government">Government</mat-option>
+      </mat-select>
+      <mat-error *ngIf="accountForm.get('accountType')?.hasError('required')">
+        Account type is required
+      </mat-error>
+    </mat-form-field>
+    
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="Active">Active</mat-option>
+        <mat-option value="Inactive">Inactive</mat-option>
+        <mat-option value="Pending">Pending</mat-option>
+        <mat-option value="Suspended">Suspended</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="accountForm.invalid" (click)="saveAccount()">
+    {{ data.isEditing ? 'Update' : 'Save' }}
+  </button>
+</mat-dialog-actions>

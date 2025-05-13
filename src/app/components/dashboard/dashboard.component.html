@@ -86,7 +86,7 @@
         <mat-list-item *ngFor="let lead of leads" class="hover:bg-gray-50 cursor-pointer rounded-lg mb-2">
           <div class="flex justify-between w-full">
             <div>
-              <h3 class="font-medium text-gray-800">{{ lead.title }}</h3>
+              <h3 class="font-medium text-gray-800">{{ lead.leadName }}</h3>
               <p class="text-sm text-gray-500">{{ lead.company }}</p>
               <div class="mt-1">
                 <mat-chip [color]="getLeadStatusColor(lead.status)" selected>

@@ -1,0 +1,68 @@
+<!-- accounts.component.html -->
+<div class="p-4">
+    <div class="d-flex justify-content-between mb-4">
+      <h3 class="section-title">Accounts</h3>
+      <button mat-flat-button color="primary" (click)="openAccountModal()">
+        <mat-icon>add</mat-icon>
+        <span class="ms-1">Add Account</span>
+      </button>
+    </div>
+    
+    <div class="table-container">
+      <table mat-table [dataSource]="accounts" class="w-100">
+        
+        <!-- Account Number Column -->
+        <ng-container matColumnDef="accountNumber">
+          <th mat-header-cell *matHeaderCellDef> Account Number </th>
+          <td mat-cell *matCellDef="let account"> {{ account.accountNumber }} </td>
+        </ng-container>
+        
+        <!-- Account Type Column -->
+        <ng-container matColumnDef="accountType">
+          <th mat-header-cell *matHeaderCellDef> Account Type </th>
+          <td mat-cell *matCellDef="let account"> {{ account.accountType }} </td>
+        </ng-container>
+        
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <td mat-cell *matCellDef="let account">
+            <span class="badge" [ngClass]="{
+              'active-badge': account.status === 'Active',
+              'inactive-badge': account.status === 'Inactive',
+              'pending-badge': account.status === 'Pending',
+              'suspended-badge': account.status === 'Suspended'
+            }">
+              {{ account.status }}
+            </span>
+          </td>
+        </ng-container>
+        
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let account">
+            <div class="action-buttons">
+              <button mat-icon-button color="primary" (click)="editAccount(account)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteAccount(account.id)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          </td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="hover-row"></tr>
+      </table>
+      
+      <!-- No Accounts Message -->
+      <div *ngIf="accounts.length === 0" class="text-center py-5">
+        <p class="text-muted">No accounts found for this company.</p>
+        <button mat-button color="primary" (click)="openAccountModal()">
+          Add a new account
+        </button>
+      </div>
+    </div>
+  </div>
