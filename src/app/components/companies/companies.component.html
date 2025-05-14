@@ -23,31 +23,50 @@
           <mat-icon>add</mat-icon>
           <span transloco="COMPANIES.ADD_COMPANY"></span>
         </button>
+        <button 
+          mat-raised-button 
+          color="primary"
+          [routerLink]="['/companies', 'import']"
+        >
+          <mat-icon>upload</mat-icon>
+          <span transloco="COMPANIES.IMPORT_COMPANIES"></span>
+        </button>
       </div>
     </div>
 
-    <mat-card>
-      <!-- Filters -->
-      <div class="p-4 border-b flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <mat-form-field appearance="outline" class="w-64">
-            <mat-icon matPrefix>search</mat-icon>
-            <input matInput [placeholder]="'COMPANIES.SEARCH' | transloco" 
-                   [(ngModel)]="searchTerm"
-                   (input)="filterCompanies()">
-          </mat-form-field>
-          <button mat-stroked-button>
-            <mat-icon>filter_list</mat-icon>
-            <span transloco="COMPANIES.FILTERS"></span>
-          </button>
-        </div>
-        <div class="flex items-center space-x-2">
-          <button mat-button color="primary" transloco="COMPANIES.EXPORT"></button>
-          <button mat-button color="primary" [routerLink]="['/companies', 'import']" transloco="COMPANIES.IMPORT"></button>
-        </div>
-      </div>
+    <mat-card class="bg-white">    <!-- Filters -->
 
-      <!-- Companies Table -->
+
+<!-- Filters -->
+<div class="p-4 border-b flex items-center justify-between">
+  <div class="flex flex-grow items-start space-x-4">
+    <div class="grid grid-cols-2 gap-4 flex-grow">
+      <!-- Company name search field with blue background and white icon -->
+      <mat-form-field appearance="outline" class="w-full custom-search-field">
+        <input matInput [placeholder]="'COMPANIES.SEARCH' | transloco" 
+               [(ngModel)]="searchTerm"
+               (input)="filterCompanies()">
+        <div matSuffix class="custom-search-icon-container">
+          <mat-icon class="custom-search-icon">search</mat-icon>
+        </div>
+      </mat-form-field>
+      
+      <!-- Primary ID search field -->
+      <mat-form-field appearance="outline" class="w-full">
+        <input matInput placeholder="{{ 'COMPANIES.PRIMARY_ID' | transloco }}"
+               [matTooltip]="primaryIdSearchTerm ? '' : 'COMPANIES.PRIMARY_ID_TOOLTIP' | transloco"
+               [(ngModel)]="primaryIdSearchTerm"
+               (input)="filterCompanies()">
+        <mat-hint>{{'COMPANIES.PRIMARY_ID_HINT' | transloco}}</mat-hint>
+      </mat-form-field>
+    </div>
+    
+    <button mat-stroked-button>
+      <mat-icon>filter_list</mat-icon>
+      <span transloco="COMPANIES.FILTERS"></span>
+    </button>
+  </div>
+</div>      <!-- Companies Table -->
       <div class="overflow-auto" style="max-height: 65vh;">
         <table mat-table [dataSource]="dataSource" matSort class="w-full">
 
@@ -155,22 +174,7 @@
           </div>
           <h3 class="text-lg font-medium text-gray-800 mb-1" transloco="COMPANIES.NO_COMPANIES"></h3>
           <p class="text-gray-500 mb-4" transloco="COMPANIES.ADJUST_SEARCH"></p>
-          <div class="flex justify-center space-x-3">
-            <button 
-              mat-raised-button
-              color="primary"
-              [routerLink]="['/companies', 'new']"
-              transloco="COMPANIES.ADD_NEW"
-            >
-            </button>
-            <button 
-              mat-stroked-button
-              color="primary"
-              [routerLink]="['/companies', 'import']"
-              transloco="COMPANIES.IMPORT_COMPANIES"
-            >
-            </button>
-          </div>
+
         </div>
       </div>
 

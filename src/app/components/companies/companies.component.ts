@@ -40,6 +40,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 1;
+  primaryIdSearchTerm: string = '';
 
   constructor(
     private companyService: CompanyService,
@@ -92,16 +93,29 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   }
 
   filterCompanies(): void {
-    if (!this.searchTerm.trim()) {
-      this.filteredCompanies = [...this.companies];
-    } else {
+    // Start with all companies
+    let results = [...this.companies];
+    
+    // Filter by search term if provided
+    if (this.searchTerm.trim()) {
       const search = this.searchTerm.toLowerCase();
-      this.filteredCompanies = this.companies.filter(company => 
+      results = results.filter(company => 
         company.name.toLowerCase().includes(search) || 
         (company.industry && company.industry.toLowerCase().includes(search)) ||
         (company.location && company.location.toLowerCase().includes(search))
       );
     }
+    
+    // Filter by primary ID if provided
+    if (this.primaryIdSearchTerm.trim()) {
+      const idSearch = this.primaryIdSearchTerm.toLowerCase();
+      results = results.filter(company => 
+        (company.registrationNumber && company.registrationNumber.toLowerCase().includes(idSearch)) ||
+        (company.dunsNumber && company.dunsNumber.toLowerCase().includes(idSearch))
+      );
+    }
+    
+    this.filteredCompanies = results;
     
     // Update the data source
     this.dataSource.data = this.filteredCompanies;
@@ -110,11 +124,9 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     if (this.paginator) {
       this.paginator.firstPage();
     }
-    
     this.updatePagination();
     console.log('Filtered companies:', this.filteredCompanies.length);
-  }
-  
+  }   
   updatePagination(): void {
     // Calculate total pages
     this.totalPages = Math.ceil(this.filteredCompanies.length / this.pageSize);
