@@ -224,7 +224,7 @@ export class LeadsComponent implements OnInit {
   // Get company name for a lead when displaying details
   getCompanyName(companyId: number): string {
     const company = this.companies.find(c => c.id === companyId);
-    return company ? company.name : 'Unknown Company';
+    return company ? company.registrationName : 'Unknown Company';
   }
   
   // For lead creation, provide list of companies

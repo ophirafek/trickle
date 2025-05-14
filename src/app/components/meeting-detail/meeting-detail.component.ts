@@ -128,10 +128,10 @@ export class MeetingDetailComponent implements OnInit {
     if (this.editingMeeting.companyId && !this.editingMeeting.company) {
       const company = this.companies.find(c => c.id === this.editingMeeting.companyId);
       if (company) {
-        this.editingMeeting.company = company.name;
+        this.editingMeeting.company = company.registrationName;
       }
     } else if (this.editingMeeting.company && !this.editingMeeting.companyId) {
-      const company = this.companies.find(c => c.name === this.editingMeeting.company);
+      const company = this.companies.find(c => c.registrationName === this.editingMeeting.company);
       if (company) {
         this.editingMeeting.companyId = company.id;
       }

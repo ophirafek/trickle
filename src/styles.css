@@ -195,3 +195,31 @@ html[dir='rtl'] .mat-drawer-side.mat-drawer-opened ~ .mat-sidenav-content {
   margin-left: 0 !important;
   margin-right: 250px !important; /* Match your sidebar width */
 }
+.mat-mdc-raised-button {
+  box-shadow: none !important;
+  border-radius: 6px !important;
+  background-color: #3b82f6 !important; /* Tailwind blue-500 */
+  color: white !important;
+  &:hover, &:active, &:focus {
+    box-shadow: none !important;
+    background-color: #2563eb !important; /* Tailwind blue-600 */
+  }
+}
+.mat-mdc-unelevated-button {
+  box-shadow: none !important;
+  border-radius: 6px !important;
+  background-color: #3b82f6 !important; /* Tailwind blue-500 */
+  color: white !important;
+  &:hover, &:active, &:focus {
+    box-shadow: none !important;
+    background-color: #2563eb !important; /* Tailwind blue-600 */
+  }
+}
+
+.mat-mdc-unelevated-button[disabled]
+{
+  background-color: white !important; /* Tailwind gray-300 */
+  border: solid 2px #3b82f6 !important; /* Tailwind gray-300 */
+  color: #9ca3af !important; /* Tailwind gray-400 */
+  cursor: not-allowed !important;
+}

@@ -1,0 +1,51 @@
+// src/theme.scss
+
+@use '@angular/material' as mat;
+
+// Define your custom typography (optional)
+$custom-typography: mat.define-typography-config(
+  $font-family: '"Inter", sans-serif',
+);
+
+// Define your custom theme
+$primary-palette: mat.define-palette(mat.$blue-palette, 600);
+$accent-palette: mat.define-palette(mat.$amber-palette, A200, A100, A400);
+$warn-palette: mat.define-palette(mat.$red-palette);
+
+// Create the theme
+$theme: mat.define-light-theme((
+  color: (
+    primary: $primary-palette,
+    accent: $accent-palette,
+    warn: $warn-palette,
+  ),
+  typography: $custom-typography,
+  density: 0,
+));
+
+// Include theme styles
+@include mat.all-component-themes($theme);
+
+// Override specific component styles
+@include mat.button-theme($theme);
+
+// Custom button shape overrides
+$custom-button-shape: (
+  small: 4px,
+  medium: 4px,
+  large: 4px
+);
+
+// Apply shape customizations
+@include mat.button-density(0);
+@include mat.fab-density(0);
+@include mat.icon-button-density(0);
+
+// Apply flat style to all raised buttons
+.mat-mdc-raised-button {
+  box-shadow: none !important;
+  
+  &:hover, &:active, &:focus {
+    box-shadow: none !important;
+  }
+}

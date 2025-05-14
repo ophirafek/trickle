@@ -80,7 +80,7 @@ export class CompanyService {
         // Return a formatted error response
         return of({
           status: 3,
-          companyName: company.name,
+          companyName: company.registrationName,
           errorMessage: 'Network or server error occurred'
         });
       })

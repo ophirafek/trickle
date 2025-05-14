@@ -37,7 +37,7 @@
     "PRIMARY_ID_HINT": "Registration/DUNS/VAT Number",
     "PRIMARY_ID": "Primary ID",
     "PRIMARY_ID_PLACEHOLDER": "Enter registration number",
-    "FILTERS": "Filters",
+    "FILTERS": "Apply Filters",
     "EXPORT": "Export",
     "IMPORT": "Import",
     "NO_COMPANIES": "No companies found",
@@ -47,7 +47,13 @@
     "LOAD_ERROR": "Failed to load companies. Please try again later.",
     "DELETE_SUCCESS": "Company deleted successfully",
     "DELETE_ERROR": "Failed to delete company. Please try again later.",
-    "DELETE_FAILED": "Failed to delete company"
+    "DELETE_FAILED": "Failed to delete company",
+    "COUNTRY_FILTER": "Filter by country",
+    "COUNTRY_FILTER_PLACEHOLDER": "Select country",
+    "ADVANCED_FILTERS": "Advanced Filters",
+    "SHOW_ADVANCED_FILTERS": "Show Advanced Filters",
+    "HIDE_ADVANCED_FILTERS": "Hide Advanced Filters",
+    "CLEAR_FILTERS": "Clear Filters"
   },
   "BUTTONS": {
     "SAVE": "Save",
@@ -76,6 +82,8 @@
     "LOCATION": "View Location"
   },
   "COMPANY_DETAIL": {
+  "REGISTRATION_INFO": "Registration ID",
+   "BUSINESS_TYPE": "Business Field",
   "NEW_COMPANY": "New Company",
   "SAVE_COMPANY": "Save Company",
   "TABS": {

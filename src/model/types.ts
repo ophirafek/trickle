@@ -8,7 +8,7 @@ export interface MenuItem {
 export interface Company {
   id: number;
   idTypeCode?: number;          // New field: Defines the type of registration number
-  name: string;
+  registrationName: string;
   industry?: string;
   size?: string;
   location?: string;
@@ -28,6 +28,7 @@ export interface Company {
   description?: string;
   registrationNumber?: string;  // Added field
   dunsNumber?: string;         // Added field
+  businessFieldCode?: number;
   createdAt?: Date;
   updatedAt?: Date;
   contacts?: Contact[];

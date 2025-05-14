@@ -147,7 +147,7 @@ export class CompanyDetailComponent implements OnInit {
     return {
       id: 0,
       idTypeCode: 0,
-      name: '',
+      registrationName: '',
       industry: '',
       size: '100-500 employees',
       location: '',
@@ -211,7 +211,7 @@ export class CompanyDetailComponent implements OnInit {
   }
 
   save(): void {
-    if (!this.editingCompany.name || !this.editingCompany.name.trim()) {
+    if (!this.editingCompany.registrationName || !this.editingCompany.registrationName.trim()) {
       this.snackBar.open(
         this.translocoService.translate('COMPANY_DETAIL.NAME_REQUIRED'), 
         this.translocoService.translate('BUTTONS.CLOSE'), 
@@ -493,7 +493,7 @@ export class CompanyDetailComponent implements OnInit {
     this.router.navigate(['/leads/new'], {
       queryParams: {
         companyId: this.editingCompany.id,
-        companyName: this.editingCompany.name
+        companyName: this.editingCompany.registrationName
       }
     });
   }

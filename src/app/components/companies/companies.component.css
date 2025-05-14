@@ -210,3 +210,82 @@
 .custom-search-field ::ng-deep .mat-mdc-form-field-suffix {
   display: contents !important;
 }
+
+/* Advanced filters transition */
+.animated-slide-in {
+  animation: slide-down 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+}
+
+/* Button transition for the expand/collapse icon */
+.mat-icon-button .mat-icon {
+  transition: transform 0.3s ease;
+}
+/* Advanced filters transition */
+.animated-slide-in {
+  animation: slide-down 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+    transform: translateY(0);
+  }
+}
+
+/* Link styling */
+.advanced-filters-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-size: 0.875rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.advanced-filters-link:hover {
+  text-decoration: underline;
+  color: #1565c0;
+}
+
+/* Icon transition for expanding/collapsing */
+.advanced-filters-link .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s ease;
+}
+
+/* Rotate the icon when expanded */
+.transform.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Center the toggle link */
+.center-toggle {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+

@@ -17,7 +17,7 @@
         <mat-icon>arrow_back</mat-icon>
       </button>
       <h1 class="text-xl font-bold text-gray-800">
-        {{ isNewCompany ? ('COMPANY_DETAIL.NEW_COMPANY' | transloco) : editingCompany.name }}
+        {{ isNewCompany ? ('COMPANY_DETAIL.NEW_COMPANY' | transloco) : editingCompany.registrationName }}
       </h1>
     </div>
     <button 
@@ -116,7 +116,7 @@
               <div>
                 <mat-form-field appearance="outline" class="w-full">
                   <mat-label>{{ 'COMPANY_DETAIL.COMPANY_NAME' | transloco }}</mat-label>
-                  <input matInput [(ngModel)]="editingCompany.name" [placeholder]="'COMPANY_DETAIL.COMPANY_NAME_PLACEHOLDER' | transloco">
+                  <input matInput [(ngModel)]="editingCompany.registrationName" [placeholder]="'COMPANY_DETAIL.COMPANY_NAME_PLACEHOLDER' | transloco">
                 </mat-form-field>
               </div>
 
