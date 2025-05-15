@@ -14,6 +14,7 @@ export interface Company {
   location?: string;
   website?: string;
   status?: string;
+  companyStatusCode?: number;   // New field: Company status code from general codes
   streetAddress?: string;
   suite?: string;
   city?: string;

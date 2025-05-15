@@ -223,3 +223,18 @@ html[dir='rtl'] .mat-drawer-side.mat-drawer-opened ~ .mat-sidenav-content {
   color: #9ca3af !important; /* Tailwind gray-400 */
   cursor: not-allowed !important;
 }
+.mat-mdc-chip.mat-primary {
+  background-color: rgb(220 252 231) !important; /* Tailwind blue-500 */
+  /* color: white !important; */
+}
+
+.mat-mdc-chip.mat-accent {
+  background-color: rgb(254 226 226/var(--tw-bg-opacity)) !important; /* Tailwind blue-500 */
+  /* color: rgb(255, 255, 255) !important; */
+}
+.mat-mdc-table {
+  background-color: white !important;
+}
+.mat-mdc-paginator {
+  background-color: inherit !important;
+}

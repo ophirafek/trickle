@@ -54,6 +54,10 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   businessTypes: GeneralCode[] = [];
   selectedBusinessTypeCode: number | null = null;
   
+  // Status Codes - new field
+  statusCodes: GeneralCode[] = [];
+  selectedStatusCode: number | null = null;
+  
   // Advanced filters toggle
   showAdvancedFilters: boolean = false;
 
@@ -70,6 +74,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     this.loadCountries();
     this.loadIdTypes();
     this.loadBusinessTypes();
+    this.loadStatusCodes(); // Load status codes
   }
   
   ngAfterViewInit() {
@@ -84,7 +89,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
         case 'registrationInfo': return company.registrationNumber || '';
         case 'businessType': return this.getBusinessTypeName(company.businessFieldCode) || '';
         case 'industry': return company.industry || '';
-        case 'status': return company.status || 'Active';
+        case 'status': return this.getStatusName(company.companyStatusCode) || '';
         default: return (company as any)[property];
       }
     };
@@ -125,23 +130,42 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
         }
       });
   }
+  
   loadBusinessTypes() {
     const currentLang = this.translocoService.getActiveLang();
     // Map the language code to a numeric code for the API
     const languageCode = currentLang === 'he' ? 2 : 1; // Assuming 1 for English, 2 for Hebrew
     
-    this.generalCodeService.getCodesByType(20, languageCode) // Assuming 10 is the ID Type code
+    this.generalCodeService.getCodesByType(20, languageCode) // Code type 20 for business types
       .subscribe({
         next: (businessTypes) => {
           this.businessTypes = businessTypes.filter(businessType => businessType.isActive);
           console.log('Business Types loaded:', this.businessTypes.length);
         },
         error: (err) => {
-          console.error('Error loading ID types:', err);
+          console.error('Error loading business types:', err);
         }
       });
-
   }
+  
+  // New method to load status codes
+  loadStatusCodes() {
+    const currentLang = this.translocoService.getActiveLang();
+    // Map the language code to a numeric code for the API
+    const languageCode = currentLang === 'he' ? 2 : 1;
+    
+    this.generalCodeService.getCodesByType(15, languageCode) // Code type 15 for company status codes
+      .subscribe({
+        next: (statusCodes) => {
+          this.statusCodes = statusCodes.filter(statusCode => statusCode.isActive);
+          console.log('Status Codes loaded:', this.statusCodes.length);
+        },
+        error: (err) => {
+          console.error('Error loading status codes:', err);
+        }
+      });
+  }
+  
   // Get ID Type name by code
   getIdTypeName(idTypeCode?: number): string {
     if (!idTypeCode) return '';
@@ -207,6 +231,13 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
       );
     }
     
+    // Filter by selected status code if provided
+    if (this.selectedStatusCode !== null) {
+      results = results.filter(company => 
+        company.companyStatusCode === this.selectedStatusCode
+      );
+    }
+    
     this.filteredCompanies = results;
     
     // Update the data source
@@ -219,6 +250,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     this.updatePagination();
     console.log('Filtered companies:', this.filteredCompanies.length);
   }   
+  
   updatePagination(): void {
     // Calculate total pages
     this.totalPages = Math.ceil(this.filteredCompanies.length / this.pageSize);
@@ -287,6 +319,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
       location: '',
       website: '',
       status: 'Active',
+      companyStatusCode: 1, // Default status code for Active
       registrationNumber: '',
       dunsNumber: '',
       contacts: [],
@@ -295,15 +328,25 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   }
   
   // Get color for status chip
-  getStatusColor(status: string | undefined): ThemePalette {
-    if (!status) return 'primary';
+  getStatusColor(statusCode?: number): ThemePalette {
+    if (!statusCode) return 'primary';
     
-    switch(status.toLowerCase()) {
-      case 'active': return 'primary';
-      case 'prospect': return 'accent';
-      case 'inactive': return undefined; // grey
+    // Map status codes to appropriate colors
+    // This can be customized based on your specific status codes
+    switch(statusCode) {
+      case 1: return 'primary'; // Assuming 1 is Active
+      case 2: return 'accent';  // Assuming 2 is Prospect
+      case 3: return 'warn'; // Assuming 3 is Inactive (grey)
       default: return 'primary';
     }
+  }
+  
+  // New method to get status name by code
+  getStatusName(statusCode?: number): string {
+    if (!statusCode) return '';
+    
+    const status = this.statusCodes.find(status => status.codeNumber === statusCode);
+    return status ? status.codeShortDescription : '';
   }
   
   // Ensure website URLs have http prefix
@@ -326,18 +369,20 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     this.primaryIdSearchTerm = '';
     this.selectedCountry = '';
     this.selectedBusinessTypeCode = null;
+    this.selectedStatusCode = null;
     this.filterCompanies();
   }
   
   // Check if any filters are applied
   hasActiveFilters(): boolean {
-    return !!(this.searchTerm.trim() || this.primaryIdSearchTerm.trim() || this.selectedCountry || this.selectedBusinessTypeCode);
+    return !!(this.searchTerm.trim() || this.primaryIdSearchTerm.trim() || this.selectedCountry || this.selectedBusinessTypeCode || this.selectedStatusCode);
   }
-  // Get Business Type name by code
-getBusinessTypeName(businessTypeCode?: number): string {
-  if (!businessTypeCode) return '';
   
-  const businessType = this.businessTypes.find(type => type.codeNumber === businessTypeCode);
-  return businessType ? businessType.codeShortDescription : '';
-}
+  // Get Business Type name by code
+  getBusinessTypeName(businessTypeCode?: number): string {
+    if (!businessTypeCode) return '';
+    
+    const businessType = this.businessTypes.find(type => type.codeNumber === businessTypeCode);
+    return businessType ? businessType.codeShortDescription : '';
+  }
 }

@@ -57,7 +57,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 const MaterialModules = [
   MatButtonModule,
-  
+  FormsModule,
   MatProgressSpinnerModule,
   MatButtonToggleModule,
   MatIconModule,

@@ -3,7 +3,8 @@ import { Meeting, Company } from '../../../model/types';
 import { MeetingService } from '../../services/meeting.service';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import {CommonModule} from '@angular/common';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 @Component({
   selector: 'app-meetings',
   templateUrl: './meetings.component.html',

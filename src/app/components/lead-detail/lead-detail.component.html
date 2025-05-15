@@ -35,8 +35,8 @@
             <mat-label>Company</mat-label>
             <mat-select [(ngModel)]="editingLead.company">
               <mat-option value="">-- Select Company --</mat-option>
-              <mat-option *ngFor="let company of companies" [value]="company.name">
-                {{ company.name }}
+              <mat-option *ngFor="let company of companies" [value]="company.registrationName">
+                {{ company.registrationName }}
               </mat-option>
             </mat-select>
           </mat-form-field>
