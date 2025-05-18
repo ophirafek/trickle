@@ -34,6 +34,13 @@ export interface Company {
   updatedAt?: Date;
   contacts?: Contact[];
   notes?: Note[];
+  isInsured?: boolean;
+  isDebtor?: boolean;
+  isPotentialClient?: boolean;
+  isAgent?: boolean;
+  entityTypeCodes?: number[];  // Array of entity type codes that apply to this companys
+  exposure?: number;        // New field: Financial exposure amount
+  currencyCode?: number;    // New field: Currency code reference from general codes
 }
 
 export interface Contact {

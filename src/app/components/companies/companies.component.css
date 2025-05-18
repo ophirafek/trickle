@@ -288,4 +288,66 @@
   justify-content: center;
   margin: 0.5rem 0;
 }
+/* Entity Type cell styling */
+.entity-type-cell {
+  max-width: 300px;
+}
 
+.entity-type-cell .mat-mdc-chip {
+  margin: 2px;
+  min-height: 24px !important;
+  font-size: 12px !important;
+  min-width: 60px !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Make the icons in chips smaller */
+.entity-type-cell .mat-mdc-chip mat-icon {
+  font-size: 14px !important;
+  height: 14px !important;
+  width: 14px !important;
+  margin-right: 4px !important;
+}
+
+/* Style the code in the chip */
+.entity-type-cell .mat-mdc-chip .text-xs {
+  font-size: 10px !important;
+  opacity: 0.7;
+}
+
+/* Custom colors for the entity type chips */
+.entity-type-cell .mat-mdc-chip.mat-primary {
+  background-color: rgb(209, 233, 252) !important; /* Light blue for Insured */
+  color: rgb(16, 93, 182) !important;
+}
+
+.entity-type-cell .mat-mdc-chip.mat-warn {
+  background-color: rgb(255, 231, 217) !important; /* Light orange/red for Debtor */
+  color: rgb(183, 29, 24) !important;
+}
+
+.entity-type-cell .mat-mdc-chip.mat-accent {
+  background-color: rgb(208, 242, 255) !important; /* Light teal for Potential Client */
+  color: rgb(12, 83, 183) !important;
+}
+
+.entity-type-cell .agent-chip {
+  background-color: rgb(230, 224, 236) !important; /* Light purple for Agent */
+  color: rgb(90, 25, 169) !important;
+}
+
+/* Style the dropdown options to show the codes */
+::ng-deep .mat-mdc-option .text-xs {
+  font-size: 11px !important;
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Make sure the selected chips in the filter show the icon properly */
+.mat-mdc-select-value .mat-icon {
+  font-size: 14px !important;
+  height: 14px !important;
+  width: 14px !important;
+  vertical-align: middle !important;
+}

@@ -69,6 +69,7 @@
     "CLOSE": "Close"
   },
   "COMMON": {
+    "ALL": "All",
     "LOADING": "Loading...",
     "NO_DATA": "No data available",
     "ERROR": "An error occurred",
@@ -82,6 +83,17 @@
     "LOCATION": "View Location"
   },
   "COMPANY_DETAIL": {
+    "ENTITY_TYPE": "Entity Type",
+    "ENTITY_TYPES": {
+      "INSURED": "Insured",
+      "DEBTOR": "Debtor",
+      "POTENTIAL_CLIENT": "Potential Client",
+      "AGENT": "Agent"
+    },
+    "EXPOSURE": "Exposure",
+    "MIN_EXPOSURE": "Min Exposure",
+    "MAX_EXPOSURE": "Max Exposure",
+    "CURRENCY": "Currency",
   "REGISTRATION_INFO": "Registration ID",
    "BUSINESS_TYPE": "Business Field",
   "NEW_COMPANY": "New Company",

@@ -8,8 +8,21 @@ import { Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ViewEncapsulation } from '@angular/core';
-import { TranslocoService } from '@ngneat/transloco';
+import { translate, TranslocoService } from '@ngneat/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
+
+interface EntityTypeCode {
+  code: number;
+  value: string;
+  label: string;
+  icon: string;
+  color: string; // For styling
+}
+
+// Add these constants to your class
+
+
+
 
 @Component({
   selector: 'app-companies',
@@ -25,8 +38,15 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<Company>([]);
   
   // Define displayed columns
-  displayedColumns: string[] = ['name', 'registrationInfo', 'businessType', 'industry', 'status', 'actions'];
-  
+  displayedColumns: string[] = [
+    'name', 
+    'registrationInfo', 
+    'businessType', 
+    'status', 
+    'entityType',
+    'exposure', // New column
+    'actions'
+  ];
   Math = Math;
   companies: Company[] = [];
   filteredCompanies: Company[] = [];
@@ -57,9 +77,43 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   // Status Codes - new field
   statusCodes: GeneralCode[] = [];
   selectedStatusCode: number | null = null;
-  
-  // Advanced filters toggle
+  readonly ENTITY_TYPES: EntityTypeCode[] = [
+    { 
+      code: 1, 
+      value: 'isInsured', 
+      label: 'COMPANY_DETAIL.ENTITY_TYPES.INSURED', 
+      icon: 'security',
+      color: 'primary' // blue
+    },
+    { 
+      code: 2, 
+      value: 'isDebtor', 
+      label: 'COMPANY_DETAIL.ENTITY_TYPES.DEBTOR', 
+      icon: 'account_balance',
+      color: 'warn' // red
+    },
+    { 
+      code: 3, 
+      value: 'isPotentialClient', 
+      label: 'COMPANY_DETAIL.ENTITY_TYPES.POTENTIAL_CLIENT', 
+      icon: 'person_add',
+      color: 'accent' // teal
+    },
+    { 
+      code: 4, 
+      value: 'isAgent', 
+      label: 'COMPANY_DETAIL.ENTITY_TYPES.AGENT', 
+      icon: 'support_agent',
+      color: 'agent-chip' // purple (custom)
+    }
+  ];
+  selectedEntityTypeCodes: number[] = [];  // Advanced filters toggle
   showAdvancedFilters: boolean = false;
+// Add these properties for the exposure filter
+  minExposure: number | null = null;
+  maxExposure: number | null = null;
+  selectedCurrencyCode: number | null = null;
+  currencies: GeneralCode[] = [];
 
   constructor(
     private companyService: CompanyService,
@@ -75,6 +129,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     this.loadIdTypes();
     this.loadBusinessTypes();
     this.loadStatusCodes(); // Load status codes
+    this.loadCurrencies(); // Add this line
   }
   
   ngAfterViewInit() {
@@ -88,7 +143,6 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
         case 'name': return company.registrationName || '';
         case 'registrationInfo': return company.registrationNumber || '';
         case 'businessType': return this.getBusinessTypeName(company.businessFieldCode) || '';
-        case 'industry': return company.industry || '';
         case 'status': return this.getStatusName(company.companyStatusCode) || '';
         default: return (company as any)[property];
       }
@@ -181,7 +235,38 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     this.companyService.getCompanies()
       .subscribe({
         next: (companies) => {
-          this.companies = companies;
+          this.companies = companies.map(company => {
+                      // Create a random set of entity types
+            const isInsured = Math.random() > 0.7;
+            const isDebtor = Math.random() > 0.8;
+            const isPotentialClient = Math.random() > 0.6;
+            const isAgent = Math.random() > 0.9;
+            
+            // Calculate entity types array based on the boolean flags
+            const entityTypeCodes: number[] = [];
+            if (isInsured) entityTypeCodes.push(1);  // Code for isInsured
+            if (isDebtor) entityTypeCodes.push(2);   // Code for isDebtor
+            if (isPotentialClient) entityTypeCodes.push(3); // Code for isPotentialClient
+            if (isAgent) entityTypeCodes.push(4);    // Code for isAgent
+                  // Add random exposure data for demonstration
+          // Generate a random amount between 10,000 and 10,000,000
+          const exposure = Math.random() > 0.1 ? Math.floor(Math.random() * 9990000) + 10000 : 0;
+          
+          // Randomly assign a currency code between 1-5 (assuming your general codes)
+          // This would be replaced with actual currency codes from your API
+          const currencyCode = exposure ? Math.floor(Math.random() * 5) + 1 : 0;
+            // Return the company with entity flags and codes
+            return {
+              ...company,
+              isInsured,
+              isDebtor,
+              isPotentialClient,
+              isAgent,
+              entityTypeCodes,
+              exposure,
+              currencyCode  // Add this array of codes for future use
+            };
+          });
           this.filterCompanies();
           this.loading = false;
           console.log('Companies loaded:', this.companies.length);
@@ -202,9 +287,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     if (this.searchTerm.trim()) {
       const search = this.searchTerm.toLowerCase();
       results = results.filter(company => 
-        company.registrationName.toLowerCase().includes(search) || 
-        (company.industry && company.industry.toLowerCase().includes(search)) ||
-        (company.location && company.location.toLowerCase().includes(search))
+        company.registrationName.toLowerCase().includes(search) 
       );
     }
     
@@ -237,7 +320,36 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
         company.companyStatusCode === this.selectedStatusCode
       );
     }
-    
+    // NEW: Filter by selected entity types if any are selected
+    if (this.selectedEntityTypeCodes.length > 0) {
+      results = results.filter(company => {
+        // A company should be included if it matches ANY of the selected entity types
+        return this.selectedEntityTypeCodes.some(code => {
+          const entityType = this.getEntityTypeByCode(code);
+          return entityType && company[entityType.value as keyof Company] === true;
+        });
+      });
+    }
+     // Filter by min exposure if provided
+  if (this.minExposure !== null) {
+    results = results.filter(company => 
+      company.exposure !== null && company.exposure !== undefined && company.exposure >= this.minExposure!
+    );
+  }
+  
+  // Filter by max exposure if provided
+  if (this.maxExposure !== null) {
+    results = results.filter(company => 
+      company.exposure !== null && company.exposure !== undefined && company.exposure <= this.maxExposure!
+    );
+  }
+  
+  // Filter by currency code if provided
+  if (this.selectedCurrencyCode !== null) {
+    results = results.filter(company => 
+      company.currencyCode === this.selectedCurrencyCode
+    );
+  }
     this.filteredCompanies = results;
     
     // Update the data source
@@ -370,12 +482,26 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     this.selectedCountry = '';
     this.selectedBusinessTypeCode = null;
     this.selectedStatusCode = null;
+    this.selectedEntityTypeCodes = [];
+    this.minExposure = null;
+    this.maxExposure = null;
+    this.selectedCurrencyCode = null;
     this.filterCompanies();
   }
   
   // Check if any filters are applied
   hasActiveFilters(): boolean {
-    return !!(this.searchTerm.trim() || this.primaryIdSearchTerm.trim() || this.selectedCountry || this.selectedBusinessTypeCode || this.selectedStatusCode);
+    return !!(
+      this.searchTerm.trim() || 
+      this.primaryIdSearchTerm.trim() || 
+      this.selectedCountry || 
+      this.selectedBusinessTypeCode || 
+      this.selectedStatusCode || 
+      this.selectedEntityTypeCodes.length > 0 ||
+      this.minExposure !== null ||
+      this.maxExposure !== null ||
+      this.selectedCurrencyCode !== null
+    );
   }
   
   // Get Business Type name by code
@@ -385,4 +511,43 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     const businessType = this.businessTypes.find(type => type.codeNumber === businessTypeCode);
     return businessType ? businessType.codeShortDescription : '';
   }
+  // Add helper method to get entity type by code
+getEntityTypeByCode(code: number): EntityTypeCode | undefined {
+  return this.ENTITY_TYPES.find(entityType => entityType.code === code);
+}
+  // Add helper method to get entity type by value
+getEntityTypeByValue(value: string): EntityTypeCode | undefined {
+  return this.ENTITY_TYPES.find(entityType => entityType.value === value);
+}
+
+// Helper method to get entity color by value
+getEntityTypeColor(value: string): string {
+  const entityType = this.getEntityTypeByValue(value);
+  return entityType ? entityType.color : 'primary';
+}
+loadCurrencies() {
+  const currentLang = this.translocoService.getActiveLang();
+  // Map the language code to a numeric code for the API
+  const languageCode = currentLang === 'he' ? 2 : 1; // Assuming 1 for English, 2 for Hebrew
+  
+  this.generalCodeService.getCodesByType(26, languageCode) // Code type 25 for currencies
+    .subscribe({
+      next: (currencies) => {
+        this.currencies = currencies.filter(currency => currency.isActive);
+        console.log('Currencies loaded:', this.currencies.length);
+      },
+      error: (err) => {
+        console.error('Error loading currencies:', err);
+      }
+    });
+}
+
+// Add method to get currency symbol
+getCurrencySymbol(currencyCode?: number): string {
+  if (!currencyCode) return '';
+  
+  const currency = this.currencies.find(curr => curr.codeNumber === currencyCode);
+  return currency ? currency.codeShortDescription : '';
+}
+
 }

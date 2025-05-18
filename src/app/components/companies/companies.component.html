@@ -79,7 +79,7 @@
   <!-- Advanced filters section (collapsible) -->
  <!-- Advanced filters section (collapsible) -->
  <div *ngIf="showAdvancedFilters" class="mt-2 pt-4 border-t border-gray-200 animated-slide-in mb-4">
-  <div class="grid grid-cols-2 gap-4">
+  <div class="grid grid-cols-3 gap-4">
     <!-- Country dropdown field -->
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>{{ 'COMPANY_DETAIL.COUNTRY' | transloco }}</mat-label>
@@ -115,8 +115,69 @@
       </mat-select>
       <mat-icon matSuffix>info</mat-icon>
     </mat-form-field>
-    
-    <!-- Additional advanced filter fields can be added here -->
+<!-- Entity Type Filter -->
+<mat-form-field appearance="outline" class="w-full">
+  <mat-label>{{ 'COMPANY_DETAIL.ENTITY_TYPE' | transloco }}</mat-label>
+  <mat-select [(ngModel)]="selectedEntityTypeCodes" multiple (selectionChange)="filterCompanies()">
+    <mat-option *ngFor="let entityType of ENTITY_TYPES" [value]="entityType.code">
+      <div class="flex items-center">
+        <mat-icon class="mr-2" [ngClass]="{'text-blue-600': entityType.color === 'primary', 
+                                           'text-red-600': entityType.color === 'warn',
+                                           'text-teal-600': entityType.color === 'accent',
+                                           'text-purple-600': entityType.color === 'agent-chip'}">
+        </mat-icon>
+        <span class="flex-1">{{ entityType.label | transloco }}</span>
+      </div>
+    </mat-option>
+  </mat-select>
+  <mat-icon matSuffix>category</mat-icon>
+</mat-form-field>    <!-- Additional advanced filter fields can be added here -->
+<div class="col-span-3">
+  <div class="flex items-center mb-2">
+    <h3 class="text-sm font-medium text-gray-700">{{ 'COMPANY_DETAIL.EXPOSURE' | transloco }}</h3>
+  </div>
+  <div class="grid grid-cols-3 gap-4">
+    <!-- Min Exposure -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>{{ 'COMPANY_DETAIL.MIN_EXPOSURE' | transloco }}</mat-label>
+      <input
+        matInput
+        type="number"
+        min="0"
+        [(ngModel)]="minExposure"
+        (input)="filterCompanies()"
+        [placeholder]="'0'"
+      >
+      <mat-icon matPrefix class="mr-2 text-gray-500">remove</mat-icon>
+    </mat-form-field>
+
+    <!-- Max Exposure -->
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>{{ 'COMPANY_DETAIL.MAX_EXPOSURE' | transloco }}</mat-label>
+      <input
+        matInput
+        type="number"
+        min="0"
+        [(ngModel)]="maxExposure"
+        (input)="filterCompanies()"
+        [placeholder]="'∞'"
+      >
+      <mat-icon matPrefix class="mr-2 text-gray-500">add</mat-icon>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>{{ 'COMPANY_DETAIL.CURRENCY' | transloco }}</mat-label>
+      <mat-select [(ngModel)]="selectedCurrencyCode" (selectionChange)="filterCompanies()">
+        <mat-option [value]="null">{{ 'COMMON.ALL' | transloco }}</mat-option>
+        <mat-option *ngFor="let currency of currencies" [value]="currency.codeNumber">
+          {{ currency.codeShortDescription }}
+        </mat-option>
+      </mat-select>
+      <mat-icon matSuffix>monetization_on</mat-icon>
+    </mat-form-field>
+    </div>
+
+  <!-- Currency Filter -->
+</div>
   </div>
 </div>
   
@@ -169,12 +230,6 @@
             </td>
           </ng-container>
           
-          <!-- Industry Column -->
-          <ng-container matColumnDef="industry">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.INDUSTRY' | transloco }} </th>
-            <td mat-cell *matCellDef="let company"> {{ company.industry || 'N/A' }} </td>
-          </ng-container>
-          
           <!-- Status Column -->
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.STATUS' | transloco }} </th>
@@ -184,7 +239,41 @@
               </mat-chip>
             </td>
           </ng-container>
-          
+          <!-- Entity Type Column (New) -->
+<!-- Entity Type Column -->
+<ng-container matColumnDef="entityType">
+  <th mat-header-cell *matHeaderCellDef> {{ 'COMPANY_DETAIL.ENTITY_TYPE' | transloco }} </th>
+  <td mat-cell *matCellDef="let company" class="entity-type-cell"> 
+    <div class="flex flex-wrap gap-1">
+      <ng-container *ngFor="let entityType of ENTITY_TYPES">
+        <mat-chip *ngIf="company[entityType.value]" [color]="entityType.color" selected>
+          <span class="flex items-center">
+            <mat-icon class="mr-1 text-xs">{{ entityType.icon }}</mat-icon>
+            {{ entityType.label | transloco }}
+          </span>
+        </mat-chip>
+      </ng-container>
+      <span *ngIf="!company.isInsured && !company.isDebtor && !company.isPotentialClient && !company.isAgent" class="text-gray-500">
+        N/A
+      </span>
+    </div>
+  </td>
+</ng-container>
+<!-- Exposure Column -->
+<ng-container matColumnDef="exposure">
+  <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.EXPOSURE' | transloco }} </th>
+  <td mat-cell *matCellDef="let company"> 
+    <div class="flex items-center">
+      <span *ngIf="company.exposure !== undefined && company.exposure !== null" class="font-medium">
+        {{ company.exposure | number:'1.0-0' }}
+        <span class="ml-1 text-gray-600">{{ getCurrencySymbol(company.currencyCode) }}</span>
+      </span>
+      <span *ngIf="company.exposure === undefined || company.exposure === null" class="text-gray-500">
+        N/A
+      </span>
+    </div>
+  </td>
+</ng-container>
           <!-- Actions Column -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'COMMON.ACTIONS' | transloco }} </th>
