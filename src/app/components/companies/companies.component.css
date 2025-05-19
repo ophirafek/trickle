@@ -7,6 +7,7 @@
   overflow: hidden;
 }
 
+
 /* Table styling improvements */
 ::ng-deep .mat-mdc-table {
   width: 100%;
