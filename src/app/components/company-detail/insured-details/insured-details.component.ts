@@ -106,10 +106,10 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
   setInitialValues(): void {
     if (this.company) {
       // Set financial size
-      this.selectedFinancialSize = this.company.financialSizeCode ?? 0;
+      this.selectedFinancialSize = this.company.insuredDetails?.sizeCode ?? 0;
       
       // Set company status
-      this.selectedStatus = this.company.insuredStatusCode ?? 0;
+      this.selectedStatus = this.company.insuredDetails?.statusCode ?? 0;
     }
   }
   
@@ -140,8 +140,11 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
    */
   onFinancialSizeChange(): void {
     if (this.company && this.selectedFinancialSize) {
-      this.company.financialSizeCode = this.selectedFinancialSize;
-      // You would typically call a service to save this change
+      if (this.company.insuredDetails)
+      {
+          this.company.insuredDetails.sizeCode = this.selectedFinancialSize;
+
+      }
     }
   }
   
@@ -150,7 +153,9 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
    */
   onStatusChange(): void {
     if (this.company && this.selectedStatus) {
-      this.company.insuredStatusCode = this.selectedStatus;
+      if (this.company.insuredDetails) {
+        this.company.insuredDetails.statusCode = this.selectedStatus;
+      }
       // You would typically call a service to save this change
     }
   }
