@@ -41,6 +41,8 @@ export interface Company {
   entityTypeCodes?: number[];  // Array of entity type codes that apply to this companys
   exposure?: number;        // New field: Financial exposure amount
   currencyCode?: number;    // New field: Currency code reference from general codes
+  financialSizeCode?: number;
+  insuredStatusCode?: number;
 }
 
 export interface Contact {

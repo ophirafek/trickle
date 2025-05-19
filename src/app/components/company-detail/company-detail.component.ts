@@ -1,3 +1,5 @@
+// Update to company-detail.component.ts - Add the insured tab to the activeTab type
+
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Company, Contact, Note, Lead } from '../../../model/types';
@@ -7,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@ngneat/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
+
 @Component({
   selector: 'app-company-detail',
   templateUrl: './company-detail.component.html',
@@ -35,8 +38,8 @@ export class CompanyDetailComponent implements OnInit {
   leadLoading: boolean = false;
   leadError: string | null = null;
   
-  // Active tab
-  activeTab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' = 'general';
+  // Active tab - Added 'insured' to the types
+  activeTab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' | 'insured' = 'general';
   
   // Expanded section (for collapsible sections)
   expandedSection: string = 'companyInfo';
@@ -129,7 +132,6 @@ export class CompanyDetailComponent implements OnInit {
       .subscribe({
         next: (codes) => {
           this.idTypeCodes = codes.filter(code => code.isActive);
-          console.log('Loaded ID Type Codes:', this.idTypeCodes);
         },
         error: (err) => {
           console.error('Error loading ID type codes:', err);
@@ -153,10 +155,14 @@ export class CompanyDetailComponent implements OnInit {
       location: '',
       website: '',
       status: 'Active',
-      registrationNumber: '',  // Added field
-      dunsNumber: '',         // Added field
+      registrationNumber: '',
+      dunsNumber: '',
       contacts: [],
-      notes: []
+      notes: [],
+      isInsured: false,
+      isDebtor: false,
+      isPotentialClient: false,
+      isAgent: false
     };
   }
   
@@ -190,7 +196,7 @@ export class CompanyDetailComponent implements OnInit {
     }
   }
   
-  navigateToTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads'): void {
+  navigateToTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' | 'insured'): void {
     this.activeTab = tab;
     
     // Update the URL without reloading the component
@@ -456,7 +462,6 @@ export class CompanyDetailComponent implements OnInit {
         next: (leads) => {
           this.companyLeads = leads;
           this.leadLoading = false;
-          console.log('Loaded leads:', leads.length);
         },
         error: (err) => {
           this.leadError = this.translocoService.translate('COMPANY_DETAIL.LEAD_LOAD_ERROR');

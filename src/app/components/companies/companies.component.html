@@ -132,11 +132,11 @@
   </mat-select>
   <mat-icon matSuffix>category</mat-icon>
 </mat-form-field>    <!-- Additional advanced filter fields can be added here -->
-<div class="col-span-3">
-  <div class="flex items-center mb-2">
+<div class="col-span-2">
+  <!--<div class="flex items-center mb-2">
     <h3 class="text-sm font-medium text-gray-700">{{ 'COMPANY_DETAIL.EXPOSURE' | transloco }}</h3>
-  </div>
-  <div class="grid grid-cols-3 gap-4">
+  </div>-->
+  <div class="grid grid-cols-4 gap-4">
     <!-- Min Exposure -->
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>{{ 'COMPANY_DETAIL.MIN_EXPOSURE' | transloco }}</mat-label>
@@ -164,6 +164,7 @@
       >
       <mat-icon matPrefix class="mr-2 text-gray-500">add</mat-icon>
     </mat-form-field>
+    
     <mat-form-field appearance="outline" class="w-full">
       <mat-label>{{ 'COMPANY_DETAIL.CURRENCY' | transloco }}</mat-label>
       <mat-select [(ngModel)]="selectedCurrencyCode" (selectionChange)="filterCompanies()">

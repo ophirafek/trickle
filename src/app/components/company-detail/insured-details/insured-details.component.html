@@ -1,0 +1,168 @@
+<!-- company-additional-info.component.html -->
+<div class="additional-info-container" *ngIf="company">
+    <!-- Loading indicator -->
+    <div *ngIf="loading" class="loading-overlay">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  
+    <!-- Financial Size Section -->
+    <mat-card class="mat-elevation-z1 mb-4">
+      <mat-card-content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="mat-subtitle-1 mb-1">{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.TITLE' | transloco }}</h4>
+            <p class="mat-body-1 text-secondary">{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.DESCRIPTION' | transloco }}</p>
+          </div>
+          <div class="d-flex align-items-center">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.TITLE' | transloco }}</mat-label>
+              <mat-select 
+                [(ngModel)]="selectedFinancialSize" 
+                name="financialSize"
+                (selectionChange)="onFinancialSizeChange()">
+                <mat-option *ngFor="let size of financialSizes" [value]="size.codeNumber">
+                  {{ size.codeShortDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+  
+        <!-- Status Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4 border-top pt-4">
+          <div>
+            <h4 class="mat-subtitle-1 mb-1">{{ 'COMPANY_DETAIL.INSURED_INFO.STATUS.TITLE' | transloco }}</h4>
+            <p class="mat-body-1 text-secondary">{{ 'COMPANY_DETAIL.INSURED_INFO.STATUS.DESCRIPTION' | transloco }}</p>
+          </div>
+          <div class="d-flex align-items-center">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.STATUS.TITLE' | transloco }}</mat-label>
+              <mat-select 
+                [(ngModel)]="selectedStatus" 
+                name="insuredStatus"
+                (selectionChange)="onStatusChange()">
+                <mat-option *ngFor="let status of companyStatuses" [value]="status.codeNumber">
+                  {{ status.codeShortDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+  
+        <div class="info-box mat-elevation-z0 bg-light p-3 rounded">
+          <h4 class="mat-subtitle-2 text-primary mb-2">{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.INFO_TITLE' | transloco }}</h4>
+          <p class="mat-body-2">
+            {{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.INFO_TEXT' | transloco }}
+          </p>
+          <ul class="mt-2 financial-size-info">
+            <!-- Dynamic financial size descriptions from general codes -->
+            <ng-container *ngFor="let size of financialSizes">
+              <li class="d-flex align-items-center">
+                <span class="size-indicator" [ngClass]="size.codeShortDescription.toLowerCase()"></span>
+                <span><strong>{{ size.codeLongDescription }}</strong>: {{ size.codeShortDescription }}</span>
+              </li>
+            </ng-container>
+          </ul>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <!-- Employee Assignment Section -->
+    <mat-card class="mat-elevation-z1">
+      <mat-card-content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="mat-subtitle-1">{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.TITLE' | transloco }}</h4>
+          <button mat-flat-button color="primary" (click)="openAssignmentDialog()">
+            <mat-icon>add</mat-icon>
+            {{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.ADD_BUTTON' | transloco }}
+          </button>
+        </div>
+        
+        <!-- Employee Assignments List -->
+        <div class="assignments-list">
+          <div *ngIf="companyAssignments.length === 0" class="no-assignments-message">
+            <p class="text-center text-muted">{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.NO_ASSIGNMENTS' | transloco }}</p>
+          </div>
+          
+          <div *ngFor="let assignment of companyAssignments" 
+               class="assignment-item d-flex justify-content-between align-items-center py-3 border-bottom"
+               [class.inactive]="assignment.activeFlag === 0">
+            <div>
+              <h5 class="mat-body-2 mb-1">{{ assignment.assignmentTypeName }}</h5>
+              <p class="mat-caption text-secondary">{{ assignment.departmentName }}</p>
+              
+              <!-- Inactive indicator -->
+              <div *ngIf="assignment.activeFlag === 0" class="inactive-badge">
+                {{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.INACTIVE' | transloco }}
+              </div>
+            </div>
+            <div class="d-flex align-items-center">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.EMPLOYEE' | transloco }}</mat-label>
+                <mat-select 
+                  [disabled]="assignment.activeFlag === 0"
+                  [value]="assignment.employeeID"
+                  (selectionChange)="updateAssignment(assignment, $event.value)">
+                  <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                    {{ employee.name }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              
+              <!-- Deactivate button (only for active assignments) -->
+              <button 
+                *ngIf="assignment.activeFlag === 1"
+                mat-icon-button 
+                color="warn" 
+                matTooltip="{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DEACTIVATE' | transloco }}"
+                (click)="deactivateAssignment(assignment.id)">
+                <mat-icon>block</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
+  <!-- Assignment Dialog Template -->
+  <ng-template #assignmentDialog>
+    <h2 mat-dialog-title>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.TITLE' | transloco }}</h2>
+    
+    <mat-dialog-content>
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.ASSIGNMENT_TYPE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="newAssignment.assignmentTypeCode">
+              <mat-option *ngFor="let type of assignmentTypes" [value]="type.codeNumber">
+                {{ type.codeShortDescription }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.EMPLOYEE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="newAssignment.employeeID">
+              <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-dialog-content>
+    
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.CANCEL' | transloco }}</button>
+      <button 
+        mat-flat-button 
+        color="primary" 
+        [mat-dialog-close]="newAssignment"
+        [disabled]="!newAssignment.assignmentTypeCode || !newAssignment.employeeID">
+        {{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.SAVE' | transloco }}
+      </button>
+    </mat-dialog-actions>
+  </ng-template>

@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatNativeDateModule, MatOptionModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -54,6 +54,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoRootModule } from '../transloco/transloco-root.module';
 import { LanguageInterceptor } from './services/language-interceptor.service';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { InsuredDetailsComponent } from './components/company-detail/insured-details/insured-details.component';
 
 const MaterialModules = [
   MatButtonModule,
@@ -87,7 +88,8 @@ const MaterialModules = [
   MatExpansionModule,
   MatStepperModule,
   MatSlideToggleModule,
-  MatProgressBarModule
+  MatProgressBarModule,
+  MatOptionModule
 ];
 
 @NgModule({
@@ -105,6 +107,7 @@ const MaterialModules = [
     LeadDetailComponent,
     LoadingIndicatorComponent,
     LeadsListComponent,
+    InsuredDetailsComponent,
     
   ],
   imports: [

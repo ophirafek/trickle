@@ -1,3 +1,4 @@
+<!-- Updated company-detail.component.html with Insured tab -->
 <div class="h-screen flex flex-col bg-gray-50">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
@@ -95,6 +96,18 @@
           >
             {{ 'COMPANY_DETAIL.TABS.LEADS' | transloco }}
           </button>
+          
+          <!-- New Insured Tab -->
+          <button 
+            *ngIf="!isNewCompany && editingCompany.isInsured"
+            (click)="navigateToTab('insured')"
+            class="py-4 px-6 font-medium transition-colors"
+            [ngClass]="activeTab === 'insured' 
+              ? 'border-b-2 border-blue-600 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'"
+          >
+            {{ 'COMPANY_DETAIL.TABS.INSURED' | transloco }}
+          </button>
         </nav>
       </div>
 
@@ -173,6 +186,37 @@
                   <mat-label>{{ 'COMPANY_DETAIL.DUNS_NUMBER' | transloco }}</mat-label>
                   <input matInput [(ngModel)]="editingCompany.dunsNumber" [placeholder]="'COMPANY_DETAIL.DUNS_NUMBER_PLACEHOLDER' | transloco">
                 </mat-form-field>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Entity Type Section -->
+          <div class="border border-gray-200 rounded-md overflow-hidden">
+            <div 
+              class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+              (click)="toggleSection('entityType')"
+            >
+              <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.ENTITY_TYPE' | transloco }}</h3>
+              <mat-icon>{{ expandedSection === 'entityType' ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </div>
+            
+            <div *ngIf="expandedSection === 'entityType'" class="p-4">
+              <div class="flex flex-wrap gap-3">
+                <mat-checkbox [(ngModel)]="editingCompany.isInsured" color="primary">
+                  {{ 'COMPANY_DETAIL.ENTITY_TYPES.INSURED' | transloco }}
+                </mat-checkbox>
+                
+                <mat-checkbox [(ngModel)]="editingCompany.isDebtor" color="primary">
+                  {{ 'COMPANY_DETAIL.ENTITY_TYPES.DEBTOR' | transloco }}
+                </mat-checkbox>
+                
+                <mat-checkbox [(ngModel)]="editingCompany.isPotentialClient" color="primary">
+                  {{ 'COMPANY_DETAIL.ENTITY_TYPES.POTENTIAL_CLIENT' | transloco }}
+                </mat-checkbox>
+                
+                <mat-checkbox [(ngModel)]="editingCompany.isAgent" color="primary">
+                  {{ 'COMPANY_DETAIL.ENTITY_TYPES.AGENT' | transloco }}
+                </mat-checkbox>
               </div>
             </div>
           </div>
@@ -532,6 +576,12 @@
               <span>{{ 'COMPANY_DETAIL.ADD_LEAD' | transloco }}</span>
             </button>
           </app-leads-list>
+        </div>
+        
+        <!-- Insured Details Tab Content -->
+        <div *ngIf="activeTab === 'insured'">
+          <!-- Use the insured-details component and pass the company as input -->
+          <app-insured-details [company]="editingCompany"></app-insured-details>
         </div>
       </div>
     </div>

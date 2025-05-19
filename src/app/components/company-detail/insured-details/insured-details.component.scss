@@ -1,0 +1,190 @@
+/* company-additional-info.component.scss */
+
+// Financial size indicators
+.financial-size-info {
+  list-style-type: none;
+  padding-left: 0;
+  
+  li {
+    margin-bottom: 8px;
+  }
+  
+  .size-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    
+    &.small {
+      background-color: #3f51b5; // primary blue
+    }
+    
+    &.medium {
+      background-color: #ffc107; // amber/yellow
+    }
+    
+    &.large {
+      background-color: #4caf50; // green
+    }
+  }
+}
+
+// Card styles
+.additional-info-container {
+  margin-bottom: 16px;
+  position: relative;
+  
+  mat-card {
+    margin-bottom: 16px;
+  }
+}
+
+// Loading overlay
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.assignments-list {
+  .assignment-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    &.inactive {
+      opacity: 0.7;
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+  }
+  
+  .no-assignments-message {
+    padding: 20px;
+    font-style: italic;
+  }
+  
+  .inactive-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    background-color: #f44336;
+    color: white;
+    font-size: 10px;
+    border-radius: 10px;
+    margin-top: 4px;
+  }
+}
+
+// Spacing utilities
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.pt-4 {
+  padding-top: 1.5rem;
+}
+
+.py-3 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.p-3 {
+  padding: 1rem;
+}
+
+// Layout utilities
+.d-flex {
+  display: flex;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+// Text colors
+.text-secondary {
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.text-primary {
+  color: #3f51b5;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: rgba(0, 0, 0, 0.38);
+}
+
+// Background colors
+.bg-light {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+// Border styles
+.border-top {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.border-bottom {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.rounded {
+  border-radius: 4px;
+}
+
+// Width utilities
+.w-100 {
+  width: 100%;
+}
+
+// Row and column utilities (simplified Bootstrap grid)
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.col-md-6 {
+  position: relative;
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  flex: 0 0 50%;
+  max-width: 50%;
+}
+
+// Info box
+.info-box {
+  margin-top: 16px;
+}

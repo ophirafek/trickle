@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { TranslocoService } from '@ngneat/transloco';
 
 export interface GeneralCode {
   id: number;
@@ -20,10 +21,13 @@ export interface GeneralCode {
 export class GeneralCodeService {
   private apiUrl = `${environment.settingsApiUrl}/api/GeneralCodes`;
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private translocoService: TranslocoService
+  ) { }
 
   // Get general codes by type and language
-  getCodesByType(type: number, languageCode: number): Observable<GeneralCode[]> {
+  getCodesByType(type: number, languageCode = this.translocoService.getActiveLang() == 'he' ? 2:1): Observable<GeneralCode[]> {
     return this.http.get<GeneralCode[]>(`${this.apiUrl}/type/${type}/language/${languageCode}`)
       .pipe(
         catchError(this.handleError<GeneralCode[]>(`getCodesByType type=${type} lang=${languageCode}`, []))
