@@ -8,15 +8,12 @@
     <!-- Financial Size Section -->
     <mat-card class="mat-elevation-z1 mb-4">
       <mat-card-content>
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <div>
-            <h4 class="mat-subtitle-1 mb-1">{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.TITLE' | transloco }}</h4>
-            <p class="mat-body-1 text-secondary">{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.DESCRIPTION' | transloco }}</p>
-          </div>
+        <div class="grid grid-cols-2 gap-4">
+        <div class="d-flex align-items-center mb-4">
           <div class="d-flex align-items-center">
             <mat-form-field appearance="outline">
-              <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.TITLE' | transloco }}</mat-label>
-              <mat-select 
+                <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.TITLE' | transloco }}</mat-label>
+                <mat-select 
                 [(ngModel)]="selectedFinancialSize" 
                 name="financialSize"
                 (selectionChange)="onFinancialSizeChange()">
@@ -30,10 +27,6 @@
   
         <!-- Status Section -->
         <div class="d-flex justify-content-between align-items-center mb-4 border-top pt-4">
-          <div>
-            <h4 class="mat-subtitle-1 mb-1">{{ 'COMPANY_DETAIL.INSURED_INFO.STATUS.TITLE' | transloco }}</h4>
-            <p class="mat-body-1 text-secondary">{{ 'COMPANY_DETAIL.INSURED_INFO.STATUS.DESCRIPTION' | transloco }}</p>
-          </div>
           <div class="d-flex align-items-center">
             <mat-form-field appearance="outline">
               <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.STATUS.TITLE' | transloco }}</mat-label>
@@ -48,7 +41,7 @@
             </mat-form-field>
           </div>
         </div>
-  
+    </div>
         <div class="info-box mat-elevation-z0 bg-light p-3 rounded">
           <h4 class="mat-subtitle-2 text-primary mb-2">{{ 'COMPANY_DETAIL.INSURED_INFO.FINANCIAL_SIZE.INFO_TITLE' | transloco }}</h4>
           <p class="mat-body-2">
@@ -97,7 +90,7 @@
               </div>
             </div>
             <div class="d-flex align-items-center">
-              <mat-form-field appearance="outline">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-100">
                 <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.EMPLOYEE' | transloco }}</mat-label>
                 <mat-select 
                   [disabled]="assignment.activeFlag === 0"

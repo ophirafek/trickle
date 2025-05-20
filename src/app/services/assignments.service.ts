@@ -7,12 +7,13 @@ import { Assignment } from '../../model/assignment.model';
 import { GeneralCodeService } from './general-codes.service';
 import { EmployeeService } from './employee.service';
 import { TranslocoService } from '@ngneat/transloco';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AssignmentsService {
-  private apiUrl = 'api/assignments';
+  private apiUrl = `${environment.apiUrl}/api/assignments`;
 
   constructor(
     private http: HttpClient,
