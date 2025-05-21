@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { Company, Note } from '../../../../model/types';
 import { GeneralCodeService, GeneralCode } from '../../../services/general-codes.service';
 import { CompanyService } from '../../../services/company.service';
@@ -13,11 +13,17 @@ styleUrls: ['./general-info.component.scss']
 })
 export class GeneralInfoComponent implements OnInit, OnChanges {
 @Input() company!: Company;
+@Output() validationError = new EventEmitter<string>();
+@Output() formValid = new EventEmitter<boolean>();
 
 // For notes
 newNote: Note = this.getEmptyNote();
 isAddingNote: boolean = false;
 noteError: string | null = null;
+
+// Validation
+validationErrors: string[] = [];
+sectionsWithErrors: string[] = [];
 
 // General codes
 idTypeCodes: GeneralCode[] = [];
@@ -53,12 +59,26 @@ ngOnInit(): void {
   
   // Load general codes
   this.loadGeneralCodes();
+  
+  // Validate required fields on init and emit form validity
+  const isValid = this.validateRequiredFields();
+  this.formValid.emit(isValid);
 }
 
 ngOnChanges(changes: SimpleChanges): void {
   if (changes['company'] && !changes['company'].firstChange) {
-    // Any special handling if company changes
+    // Validate required fields when company changes and emit form validity
+    const isValid = this.validateRequiredFields();
+    this.formValid.emit(isValid);
   }
+}
+
+/**
+ * Updates validation state when a required field changes
+ * This helps provide immediate feedback to the user
+ */
+onRequiredFieldChange(): void {
+  this.validateRequiredFields();
 }
 
 loadGeneralCodes(): void {
@@ -159,6 +179,55 @@ getBusinessFieldDescription(businessFieldCode: number | undefined): string {
   
   const businessField = this.businessFieldCodes.find(code => code.codeNumber === businessFieldCode);
   return businessField ? businessField.codeShortDescription : 'N/A';
+}
+
+/**
+ * Validates that all required fields are filled
+ * @returns boolean indicating if all required fields are valid
+ */
+validateRequiredFields(): boolean {
+  this.validationErrors = [];
+  this.sectionsWithErrors = [];
+  
+  // Check registration number
+  if (!this.company.registrationNumber) {
+    this.validationErrors.push(this.translocoService.translate('COMPANY_DETAIL.REGISTRATION_NUMBER') + ' ' + 
+      this.translocoService.translate('VALIDATION.IS_REQUIRED'));
+    // Add the section to the list of sections with errors
+    if (!this.sectionsWithErrors.includes('registrationNumbers')) {
+      this.sectionsWithErrors.push('registrationNumbers');
+    }
+  }
+  
+  // Check company name
+  if (!this.company.registrationName) {
+    this.validationErrors.push(this.translocoService.translate('COMPANY_DETAIL.COMPANY_NAME') + ' ' + 
+      this.translocoService.translate('VALIDATION.IS_REQUIRED'));
+    // Add the section to the list of sections with errors
+    if (!this.sectionsWithErrors.includes('companyNames')) {
+      this.sectionsWithErrors.push('companyNames');
+    }
+  }
+  
+  // Determine form validity
+  const isValid = this.validationErrors.length === 0;
+  
+  // Emit validation errors if any
+  if (!isValid) {
+    this.validationError.emit(this.validationErrors.join(', '));
+    
+    // Automatically expand the first section with errors if no section is currently expanded
+    // or if the currently expanded section doesn't have errors
+    if (this.sectionsWithErrors.length > 0 && 
+        (this.expandedSection === '' || !this.sectionsWithErrors.includes(this.expandedSection))) {
+      this.expandedSection = this.sectionsWithErrors[0];
+    }
+  }
+  
+  // Emit form validity state
+  this.formValid.emit(isValid);
+  
+  return isValid;
 }
 
 // Note methods

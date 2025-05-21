@@ -25,6 +25,7 @@
       mat-raised-button
       color="primary"
       (click)="save()"
+      [disabled]="!formIsValid"
       class="flex items-center"
     >
       <mat-icon class="mr-1">save</mat-icon>
@@ -95,7 +96,11 @@
       <div class="p-6">
         <!-- General Information Tab Content -->
         <div *ngIf="activeTab === 'general'">
-          <app-general-info [company]="editingCompany"></app-general-info>
+          <app-general-info 
+            [company]="editingCompany"
+            (formValid)="onFormValidityChange($event)"
+            (validationError)="onFormValidityChange(false)">
+          </app-general-info>
         </div>
 
         <!-- Contact Persons Tab Content -->

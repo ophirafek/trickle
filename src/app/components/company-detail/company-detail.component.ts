@@ -25,6 +25,9 @@ export class CompanyDetailComponent implements OnInit {
   leadLoading: boolean = false;
   leadError: string | null = null;
   
+  // Form validation
+  formIsValid: boolean = true;
+  
   // Active tab - Updated to remove 'address' and 'notes'
   activeTab: 'general' | 'contacts' | 'leads' | 'insured' = 'general';
   
@@ -165,6 +168,13 @@ export class CompanyDetailComponent implements OnInit {
 
   navigateToCompanies(): void {
     this.router.navigate(['/companies']);
+  }
+  
+  /**
+   * Handle form validation state changes from child components
+   */
+  onFormValidityChange(isValid: boolean): void {
+    this.formIsValid = isValid;
   }
 
   save(): void {

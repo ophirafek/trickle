@@ -10,11 +10,15 @@
       <!-- Registration Numbers Section -->
       <div class="border border-gray-200 rounded-md overflow-hidden">
         <div 
-          class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+          class="flex justify-between items-center p-4 cursor-pointer"
+          [ngClass]="{'bg-gray-50': !sectionsWithErrors.includes('registrationNumbers'), 'bg-red-50': sectionsWithErrors.includes('registrationNumbers')}"
           (click)="toggleSection('registrationNumbers')"
         >
-          <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.REGISTRATION_NUMBERS' | transloco }}</h3>
-          <mat-icon>{{ expandedSection === 'registrationNumbers' ? 'expand_less' : 'expand_more' }}</mat-icon>
+          <h3 class="font-medium" [ngClass]="{'text-gray-700': !sectionsWithErrors.includes('registrationNumbers'), 'text-red-600': sectionsWithErrors.includes('registrationNumbers')}">
+            {{ 'COMPANY_DETAIL.REGISTRATION_NUMBERS' | transloco }}
+            <span *ngIf="sectionsWithErrors.includes('registrationNumbers')" class="text-red-500 ml-1">*</span>
+          </h3>
+          <mat-icon [ngClass]="{'text-red-600': sectionsWithErrors.includes('registrationNumbers')}">{{ expandedSection === 'registrationNumbers' ? 'expand_less' : 'expand_more' }}</mat-icon>
         </div>
         
         <div *ngIf="expandedSection === 'registrationNumbers'" class="p-4 grid grid-cols-2 gap-4">
@@ -31,8 +35,9 @@
           
           <div>
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.REGISTRATION_NUMBER' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.registrationNumber" [placeholder]="'COMPANY_DETAIL.REGISTRATION_NUMBER_PLACEHOLDER' | transloco">
+              <mat-label>{{ 'COMPANY_DETAIL.REGISTRATION_NUMBER' | transloco }} <span class="text-red-500">*</span></mat-label>
+              <input matInput [(ngModel)]="company.registrationNumber" (ngModelChange)="onRequiredFieldChange()" [placeholder]="'COMPANY_DETAIL.REGISTRATION_NUMBER_PLACEHOLDER' | transloco" required>
+              <mat-error *ngIf="!company.registrationNumber">{{ 'VALIDATION.REQUIRED_FIELD' | transloco }}</mat-error>
             </mat-form-field>
           </div>
           
@@ -66,18 +71,23 @@
       <!-- Company Names Section -->
       <div class="border border-gray-200 rounded-md overflow-hidden">
         <div 
-          class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+          class="flex justify-between items-center p-4 cursor-pointer"
+          [ngClass]="{'bg-gray-50': !sectionsWithErrors.includes('companyNames'), 'bg-red-50': sectionsWithErrors.includes('companyNames')}"
           (click)="toggleSection('companyNames')"
         >
-          <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.COMPANY_NAMES' | transloco }}</h3>
-          <mat-icon>{{ expandedSection === 'companyNames' ? 'expand_less' : 'expand_more' }}</mat-icon>
+          <h3 class="font-medium" [ngClass]="{'text-gray-700': !sectionsWithErrors.includes('companyNames'), 'text-red-600': sectionsWithErrors.includes('companyNames')}">
+            {{ 'COMPANY_DETAIL.COMPANY_NAMES' | transloco }}
+            <span *ngIf="sectionsWithErrors.includes('companyNames')" class="text-red-500 ml-1">*</span>
+          </h3>
+          <mat-icon [ngClass]="{'text-red-600': sectionsWithErrors.includes('companyNames')}">{{ expandedSection === 'companyNames' ? 'expand_less' : 'expand_more' }}</mat-icon>
         </div>
         
         <div *ngIf="expandedSection === 'companyNames'" class="p-4 grid grid-cols-2 gap-4">
           <div>
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.COMPANY_NAME' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.registrationName" [placeholder]="'COMPANY_DETAIL.COMPANY_NAME_PLACEHOLDER' | transloco">
+              <mat-label>{{ 'COMPANY_DETAIL.COMPANY_NAME' | transloco }} <span class="text-red-500">*</span></mat-label>
+              <input matInput [(ngModel)]="company.registrationName" (ngModelChange)="onRequiredFieldChange()" [placeholder]="'COMPANY_DETAIL.COMPANY_NAME_PLACEHOLDER' | transloco" required>
+              <mat-error *ngIf="!company.registrationName">{{ 'VALIDATION.REQUIRED_FIELD' | transloco }}</mat-error>
             </mat-form-field>
           </div>
           
