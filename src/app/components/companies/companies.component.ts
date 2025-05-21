@@ -65,7 +65,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   
   // Country filter
   countries: GeneralCode[] = [];
-  selectedCountry: string = '';
+  selectedCountry: number = 0;
   
   // ID Types for registration numbers
   idTypes: GeneralCode[] = [];
@@ -303,7 +303,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     // Filter by selected country if provided
     if (this.selectedCountry) {
       results = results.filter(company => 
-        company.country === this.selectedCountry
+        company.countryCode === this.selectedCountry
       );
     }
     
@@ -426,16 +426,20 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
     return {
       id: 0,
       registrationName: '',
-      industry: '',
-      size: '100-500 employees',
-      location: '',
       website: '',
-      status: 'Active',
       companyStatusCode: 1, // Default status code for Active
       registrationNumber: '',
       dunsNumber: '',
       contacts: [],
-      notes: []
+      notes: [],
+      isInsured: false,
+      isAgent: false,
+      isDebtor: false,
+      isPotentialClient: false,
+      vatNumber: '',
+      idTypeCode: 0,
+      emailAddress: ''
+
     };
   }
   
@@ -479,7 +483,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   clearFilters(): void {
     this.searchTerm = '';
     this.primaryIdSearchTerm = '';
-    this.selectedCountry = '';
+    this.selectedCountry = 0;
     this.selectedBusinessTypeCode = null;
     this.selectedStatusCode = null;
     this.selectedEntityTypeCodes = [];

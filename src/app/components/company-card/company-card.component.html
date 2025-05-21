@@ -8,12 +8,7 @@
           </div>
           <div>
             <h3 class="font-medium text-gray-800">{{ company.registrationName }}</h3>
-            <p class="text-sm text-gray-500">{{ company.industry || 'No industry' }} • {{ company.size || 'Unknown size' }}</p>
           </div>
-        </div>
-        <div *ngIf="extended || company.location" class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-          <span *ngIf="company.location">{{ company.location }}</span>
-          <span *ngIf="company.website">{{ company.website }}</span>
         </div>
       </div>
       <div class="flex items-center space-x-2">

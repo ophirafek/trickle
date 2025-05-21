@@ -57,6 +57,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { InsuredDetailsComponent } from './components/company-detail/insured-details/insured-details.component';
 import { AssignmentsListComponent } from './components/company-detail/insured-details/assignments-list/assignments-list.component';
 import { ContactListComponent } from './components/company-detail/contact-list/contact-list.component';
+import { GeneralInfoComponent } from './components/company-detail/general-info/general-info.component';
 
 const MaterialModules = [
   MatButtonModule,
@@ -112,6 +113,7 @@ const MaterialModules = [
     InsuredDetailsComponent,
     AssignmentsListComponent,
     ContactListComponent,
+    GeneralInfoComponent,
     
   ],
   imports: [

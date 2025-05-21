@@ -1,15 +1,14 @@
-// Update to company-detail.component.ts - Add the insured tab to the activeTab type
+// Updated company-detail.component.ts
 
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Company, Contact, Note, Lead } from '../../../model/types';
+import { Company, Lead } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { LeadService } from '../../services/lead.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@ngneat/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
-import { ContactListComponent } from './contact-list/contact-list.component';
 
 @Component({
   selector: 'app-company-detail',
@@ -18,29 +17,16 @@ import { ContactListComponent } from './contact-list/contact-list.component';
   encapsulation: ViewEncapsulation.None
 })
 export class CompanyDetailComponent implements OnInit {
-  // For contact table
-  displayedContactColumns: string[] = ['name', 'jobTitle', 'email', 'phone', 'actions'];
-  
   editingCompany: Company = this.getEmptyCompany();
   isNewCompany: boolean = true;
-  
-
-  
-  // For note management
-  newNote: Note = this.getEmptyNote();
-  isAddingNote: boolean = false;
-  noteError: string | null = null;
   
   // For lead management
   companyLeads: Lead[] = [];
   leadLoading: boolean = false;
   leadError: string | null = null;
   
-  // Active tab - Added 'insured' to the types
-  activeTab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' | 'insured' = 'general';
-  
-  // Expanded section (for collapsible sections)
-  expandedSection: string = 'companyInfo';
+  // Active tab - Updated to remove 'address' and 'notes'
+  activeTab: 'general' | 'contacts' | 'leads' | 'insured' = 'general';
   
   // Loading state
   loading: boolean = false;
@@ -143,16 +129,13 @@ export class CompanyDetailComponent implements OnInit {
     const idType = this.idTypeCodes.find(code => code.codeNumber === idTypeCode);
     return idType ? idType.codeShortDescription : 'N/A';
   }
+  
   getEmptyCompany(): Company {
     return {
       id: 0,
       idTypeCode: 0,
       registrationName: '',
-      industry: '',
-      size: '100-500 employees',
-      location: '',
       website: '',
-      status: 'Active',
       registrationNumber: '',
       dunsNumber: '',
       contacts: [],
@@ -164,29 +147,7 @@ export class CompanyDetailComponent implements OnInit {
     };
   }
   
-
-
-  
-  getEmptyNote(): Note {
-    return {
-      id: 0,
-      title: '',
-      content: '',
-      companyId: this.editingCompany?.id || 0,
-      createdAt: new Date()
-    };
-  }
-
-  // Toggle section expansion
-  toggleSection(section: string): void {
-    if (this.expandedSection === section) {
-      this.expandedSection = '';
-    } else {
-      this.expandedSection = section;
-    }
-  }
-  
-  navigateToTab(tab: 'general' | 'address' | 'contacts' | 'notes' | 'leads' | 'insured'): void {
+  navigateToTab(tab: 'general' | 'contacts' | 'leads' | 'insured'): void {
     this.activeTab = tab;
     
     // Update the URL without reloading the component
@@ -277,88 +238,6 @@ export class CompanyDetailComponent implements OnInit {
           console.error('Error updating company:', err);
         }
       });
-    }
-  }
-  
-
-  
-  // Note methods
-  startAddingNote(): void {
-    this.isAddingNote = true;
-    this.newNote = this.getEmptyNote();
-    this.newNote.companyId = this.editingCompany.id;
-  }
-  
-  cancelAddNote(): void {
-    this.isAddingNote = false;
-    this.newNote = this.getEmptyNote();
-    this.noteError = null;
-  }
-  
-  addNote(): void {
-    if (!this.newNote.title || !this.newNote.content) {
-      this.noteError = this.translocoService.translate('COMPANY_DETAIL.NOTE_FIELDS_REQUIRED');
-      return;
-    }
-    
-    this.loading = true;
-    this.noteError = null;
-    
-    this.companyService.addNote(this.editingCompany.id, this.newNote)
-      .subscribe({
-        next: (note) => {
-          // Add the new note to the local array
-          if (!this.editingCompany.notes) {
-            this.editingCompany.notes = [];
-          }
-          this.editingCompany.notes.push(note);
-          
-          // Reset the form
-          this.isAddingNote = false;
-          this.newNote = this.getEmptyNote();
-          this.loading = false;
-          
-          // Show success message
-          this.snackBar.open(
-            this.translocoService.translate('COMPANY_DETAIL.NOTE_ADD_SUCCESS'), 
-            this.translocoService.translate('BUTTONS.CLOSE'), 
-            { duration: 3000 }
-          );
-        },
-        error: (err) => {
-          this.noteError = this.translocoService.translate('COMPANY_DETAIL.NOTE_ADD_ERROR');
-          this.loading = false;
-          console.error('Error adding note:', err);
-        }
-      });
-  }
-  
-  deleteNote(noteId: number): void {
-    if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
-      this.loading = true;
-      
-      this.companyService.deleteNote(noteId)
-        .subscribe({
-          next: () => {
-            // Remove the note from the local array
-            if (this.editingCompany.notes) {
-              this.editingCompany.notes = this.editingCompany.notes.filter(n => n.id !== noteId);
-            }
-            this.loading = false;
-            
-            // Show success message
-            this.snackBar.open(
-              this.translocoService.translate('COMPANY_DETAIL.NOTE_DELETE_SUCCESS'), 
-              this.translocoService.translate('BUTTONS.CLOSE'), 
-              { duration: 3000 }
-            );
-          },
-          error: (err) => {
-            this.noteError = this.translocoService.translate('COMPANY_DETAIL.NOTE_DELETE_ERROR');
-            this.loading = false;
-            console.error('Error deleting note:', err);
-          }
-        });
     }
   }
   

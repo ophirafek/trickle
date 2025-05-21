@@ -85,7 +85,7 @@
       <mat-label>{{ 'COMPANY_DETAIL.COUNTRY' | transloco }}</mat-label>
       <mat-select [(ngModel)]="selectedCountry" (selectionChange)="filterCompanies()">
         <mat-option [value]="">{{ 'COMMON.ALL' | transloco }}</mat-option>
-        <mat-option *ngFor="let country of countries" [value]="country.codeShortDescription">
+        <mat-option *ngFor="let country of countries" [value]="country.codeNumber">
           {{ country.codeShortDescription }}
         </mat-option>
       </mat-select>

@@ -6,47 +6,46 @@ export interface MenuItem {
 
 // Update the Company interface in src/model/types.ts
 export interface Company {
+  // existing fields
   id: number;
-  idTypeCode?: number;          // New field: Defines the type of registration number
+  idTypeCode: number;
   registrationName: string;
-  industry?: string;
-  size?: string;
-  location?: string;
-  website?: string;
-  status?: string;
-  companyStatusCode?: number;   // New field: Company status code from general codes
+  // new fields
+  tradeName?: string;
+  englishName?: string;
+  businessFieldCode?: number;
+  entityTypeCode?: number;
+  companyStatusCode?: number;  // renamed from statusCode
+  vatNumber?: string;
+  emailAddress?: string;      // renamed from email
+  phoneNumber?: string;
+  faxNumber?: string;
+  yearsActive?: number;
+  countryCode?: number;       // added country code
+  // existing fields
+  website: string;
+  registrationNumber: string;
+  dunsNumber: string;
+  contacts: Contact[];
+  notes: Note[];
+  isInsured: boolean;
+  isDebtor: boolean;
+  isPotentialClient: boolean;
+  isAgent: boolean;
+  // other fields
   streetAddress?: string;
   suite?: string;
   city?: string;
   stateProvince?: string;
   postalCode?: string;
-  country?: string;
-  billingStreet?: string;
-  billingCity?: string;
-  billingPostalCode?: string;
-  linkedInProfile?: string;
   foundingYear?: number;
-  description?: string;
-  registrationNumber?: string;  // Added field
-  dunsNumber?: string;         // Added field
-  businessFieldCode?: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-  contacts?: Contact[];
-  notes?: Note[];
-  isInsured?: boolean;
-  isDebtor?: boolean;
-  isPotentialClient?: boolean;
-  isAgent?: boolean;
-  entityTypeCodes?: number[];  // Array of entity type codes that apply to this companys
-  exposure?: number;        // New field: Financial exposure amount
-  currencyCode?: number;
-  insuredDetails? :{
+  insuredDetails?: {
     sizeCode?: number;
     statusCode?: number;
-  }    // New field: Currency code reference from general codes
+  };
+  exposure?: number;
+  currencyCode?: number;
 }
-
 // Updated Contact interface in src/model/types.ts
 export interface Contact {
   id: number;

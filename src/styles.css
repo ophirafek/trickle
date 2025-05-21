@@ -246,4 +246,5 @@ html[dir='rtl'] .mat-drawer-side.mat-drawer-opened ~ .mat-sidenav-content {
   --mat-select-trigger-text-size: 14px;
   --mdc-outlined-text-field-label-text-size: 14px;
   --mat-option-label-text-size: 14px;
+  --mdc-outlined-text-field-label-text-color: gray;
 }

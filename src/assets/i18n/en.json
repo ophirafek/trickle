@@ -189,11 +189,6 @@
     "CREATE_ERROR": "Failed to create company",
     "UPDATE_SUCCESS": "Company updated successfully",
     "UPDATE_ERROR": "Failed to update company",
-    "CONTACT_NAME_REQUIRED": "Contact name is required",
-    "CONTACT_ADD_SUCCESS": "Contact added successfully",
-    "CONTACT_ADD_ERROR": "Failed to add contact. Please try again.",
-    "CONTACT_DELETE_SUCCESS": "Contact deleted successfully",
-    "CONTACT_DELETE_ERROR": "Failed to delete contact. Please try again.",
     "NOTE_FIELDS_REQUIRED": "Note title and content are required",
     "NOTE_ADD_SUCCESS": "Note added successfully",
     "NOTE_ADD_ERROR": "Failed to add note. Please try again.",
@@ -241,7 +236,32 @@
           "SAVE": "Save Assignment"
         }
       }
-    }
+    },
+    "REGISTRATION_NUMBERS": "Registration Numbers",
+    "COMPANY_NAMES": "Company Names",
+    "COMMUNICATION": "Communication",
+    "TIMELINE": "Timeline",
+    
+    "VAT_NUMBER": "VAT Number",
+    "VAT_NUMBER_PLACEHOLDER": "Enter VAT number",
+    "COUNTRY_CODE": "Country Code",
+    "COUNTRY_CODE_PLACEHOLDER": "Select country code",
+    
+    "TRADE_NAME": "Trade Name",
+    "TRADE_NAME_PLACEHOLDER": "Enter trade name",
+    "ENGLISH_NAME": "English Name",
+    "ENGLISH_NAME_PLACEHOLDER": "Enter English name",
+    "BUSINESS_FIELD": "Business Field",
+    
+    "EMAIL": "Email Address",
+    "EMAIL_PLACEHOLDER": "Enter email address",
+    "PHONE_NUMBER": "Phone Number",
+    "PHONE_NUMBER_PLACEHOLDER": "Enter phone number",
+    "FAX_NUMBER": "Fax Number",
+    "FAX_NUMBER_PLACEHOLDER": "Enter fax number",
+    
+    "YEARS_ACTIVE": "Years Active",
+    "YEARS_ACTIVE_PLACEHOLDER": "Enter years active"
   },
   "IMPORT": {
     "TITLE": "Import Companies",
