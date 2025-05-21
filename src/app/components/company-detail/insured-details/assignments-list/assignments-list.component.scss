@@ -1,0 +1,159 @@
+.assignment-info {
+  max-width: 35%;
+  padding-right: 10px;
+}/* assignments-list.component.scss */
+
+.assignments-container {
+position: relative;
+}
+
+// Loading overlay
+.loading-overlay {
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: rgba(255, 255, 255, 0.7);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 10;
+}
+
+.assignments-list {
+.assignment-item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &.inactive {
+    opacity: 0.7;
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+}
+
+.assignment-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  max-width: 65%;
+}
+
+.employee-select {
+  width: 200px;
+  margin-right: 8px;
+  
+  // Fix for form field display to ensure it's compact
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    height: 0;
+    display: none !important;
+  }
+  
+  ::ng-deep .mat-mdc-form-field-infix {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    min-height: 36px !important;
+  }
+  
+  ::ng-deep .mat-mdc-text-field-wrapper {
+    padding-left: 10px !important;
+  }
+  
+  ::ng-deep .mat-mdc-form-field-flex {
+    min-height: 36px !important;
+  }
+}
+
+.action-button {
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.no-assignments-message {
+  padding: 20px;
+  font-style: italic;
+}
+
+.inactive-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  background-color: #f44336;
+  color: white;
+  font-size: 10px;
+  border-radius: 10px;
+  margin-top: 4px;
+}
+}
+
+// Spacing utilities
+.mb-1 {
+margin-bottom: 0.25rem;
+}
+
+.mb-4 {
+margin-bottom: 1.5rem;
+}
+
+.py-3 {
+padding-top: 1rem;
+padding-bottom: 1rem;
+}
+
+// Layout utilities
+.d-flex {
+display: flex;
+}
+
+.justify-content-between {
+justify-content: space-between;
+}
+
+.align-items-center {
+align-items: center;
+}
+
+// Text colors
+.text-secondary {
+color: rgba(0, 0, 0, 0.54);
+}
+
+.text-center {
+text-align: center;
+}
+
+.text-muted {
+color: rgba(0, 0, 0, 0.38);
+}
+
+// Border styles
+.border-bottom {
+border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+// Width utilities
+.w-100 {
+width: 100%;
+}
+
+// Row and column utilities (simplified Bootstrap grid)
+.row {
+display: flex;
+flex-wrap: wrap;
+margin-right: -15px;
+margin-left: -15px;
+}
+
+.col-md-6 {
+position: relative;
+width: 100%;
+padding-right: 15px;
+padding-left: 15px;
+flex: 0 0 50%;
+max-width: 50%;
+}

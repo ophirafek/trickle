@@ -117,7 +117,12 @@ export class CompanyService {
         catchError(this.handleError<any>(`deleteContact id=${id}`))
       );
   }
-
+  getCompanyContacts(companyId: number): Observable<Contact[]> {
+    return this.http.get<Contact[]>(`${this.apiUrl}/${companyId}/contacts`)
+      .pipe(
+        catchError(this.handleError<Contact[]>(`getCompanyContacts companyId=${companyId}`, []))
+      );
+  }
   // Update note
   updateNote(id: number, note: Note): Observable<any> {
     return this.http.put<void>(`${environment.apiUrl}/api/notes/${id}`, note)

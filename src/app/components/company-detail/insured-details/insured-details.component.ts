@@ -1,20 +1,10 @@
-// company-additional-info.component.ts
-import { Component, OnInit, ViewChild, TemplateRef, Input, OnChanges, SimpleChanges, model } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { Company } from '../../../../model/types'
-import { Assignment } from '../../../../model/assignment.model';
-import { Employee } from '../../../../model/md-types';
-import { AssignmentsService } from '../../../services/assignments.service';
+// Updated InsuredDetailsComponent without assignments logic
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Company } from '../../../../model/types';
 import { GeneralCode, GeneralCodeService } from '../../../services/general-codes.service';
-import { EmployeeService } from '../../../services/employee.service';
 import { TranslocoService } from '@ngneat/transloco';
-import { forkJoin, Observable } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-
-interface NewAssignment {
-  assignmentTypeCode: number;
-  employeeID: number;
-}
 
 @Component({
   selector: 'app-insured-details',
@@ -27,11 +17,6 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
   // General codes
   financialSizes: GeneralCode[] = [];
   companyStatuses: GeneralCode[] = [];
-  assignmentTypes: GeneralCode[] = [];
-  
-  // Employees and assignments
-  employees: Employee[] = [];
-  companyAssignments: Assignment[] = [];
   
   // Form state
   selectedFinancialSize: number = 0;
@@ -39,20 +24,9 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
   
   // UI control
   loading = false;
-  
-  // New assignment dialog
-  newAssignment: NewAssignment = {
-    assignmentTypeCode: 0,
-    employeeID: 0
-  };
-  
-  @ViewChild('assignmentDialog') assignmentDialog!: TemplateRef<any>;
 
   constructor(
-    private assignmentsService: AssignmentsService,
     private generalCodesService: GeneralCodeService,
-    private employeesService: EmployeeService,
-    private dialog: MatDialog,
     private translocoService: TranslocoService
   ) { }
 
@@ -62,8 +36,8 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
   
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['company'] && !changes['company'].firstChange) {
-      // Load assignments when company changes
-      this.loadCompanyAssignments();
+      // Reset initial values when company changes
+      this.setInitialValues();
     }
   }
   
@@ -77,24 +51,17 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
     forkJoin({
       financialSizes: this.generalCodesService.getCodesByType(60),
       companyStatuses: this.generalCodesService.getCodesByType(15),
-      assignmentTypes: this.generalCodesService.getCodesByType(90),
-      employees: this.employeesService.getEmployees()
     })
     .pipe(
       finalize(() => this.loading = false)
     )
     .subscribe(
-      ({ financialSizes, companyStatuses, assignmentTypes, employees }) => {
+      ({ financialSizes, companyStatuses }) => {
         this.financialSizes = financialSizes;
         this.companyStatuses = companyStatuses;
-        this.assignmentTypes = assignmentTypes;
-        this.employees = employees;
         
         // Set initial values from company
         this.setInitialValues();
-        
-        // Load assignments
-        this.loadCompanyAssignments();
       },
       error => console.error('Error loading initial data:', error)
     );
@@ -114,36 +81,14 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
   }
   
   /**
-   * Load assignments for the current company
-   */
-  loadCompanyAssignments(): void {
-    if (!this.company || !this.company.id) {
-      this.companyAssignments = [];
-      return;
-    }
-    
-    this.loading = true;
-    this.assignmentsService.getCompanyAssignments(this.company.id)
-      .pipe(
-        finalize(() => this.loading = false)
-      )
-      .subscribe(
-        assignments => {
-          this.companyAssignments = assignments;
-        },
-        error => console.error('Error loading assignments:', error)
-      );
-  }
-  
-  /**
    * Handle financial size change
    */
   onFinancialSizeChange(): void {
     if (this.company && this.selectedFinancialSize) {
-      if (this.company.insuredDetails)
-      {
-          this.company.insuredDetails.sizeCode = this.selectedFinancialSize;
-
+      if (!this.company.insuredDetails) {
+        this.company.insuredDetails = { sizeCode: this.selectedFinancialSize };
+      } else {
+        this.company.insuredDetails.sizeCode = this.selectedFinancialSize;
       }
     }
   }
@@ -153,7 +98,9 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
    */
   onStatusChange(): void {
     if (this.company && this.selectedStatus) {
-      if (this.company.insuredDetails) {
+      if (!this.company.insuredDetails) {
+        this.company.insuredDetails = { statusCode: this.selectedStatus };
+      } else {
         this.company.insuredDetails.statusCode = this.selectedStatus;
       }
       // You would typically call a service to save this change
@@ -174,104 +121,5 @@ export class InsuredDetailsComponent implements OnInit, OnChanges {
   getStatusDisplay(codeID: number): string {
     const code = this.companyStatuses.find(s => s.codeNumber === codeID);
     return code?.codeShortDescription || '';
-  }
-  
-  /**
-   * Open dialog to add a new assignment
-   */
-  openAssignmentDialog(): void {
-    // Reset the new assignment
-    this.newAssignment = {
-      assignmentTypeCode: 0,
-      employeeID: 0
-    };
-    
-    const dialogRef = this.dialog.open(this.assignmentDialog, {
-      width: '600px'
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.saveNewAssignment(result);
-      }
-    });
-  }
-  
-  /**
-   * Save a new assignment
-   */
-  saveNewAssignment(assignmentData: NewAssignment): void {
-    if (!this.company || !this.company.id) {
-      return;
-    }
-    
-    const newAssignment: Assignment = {
-      id: 0, // Will be set by the server
-      companyID: this.company.id,
-      assignmentTypeCode: assignmentData.assignmentTypeCode,
-      employeeID: assignmentData.employeeID,
-      openingEffecDate: new Date(),
-      openingRegDate: new Date(),
-      activeFlag: 1
-    };
-    
-    this.loading = true;
-    this.assignmentsService.createAssignment(newAssignment)
-      .pipe(
-        finalize(() => this.loading = false)
-      )
-      .subscribe(
-        createdAssignment => {
-          this.companyAssignments.push(createdAssignment);
-        },
-        error => console.error('Error creating assignment:', error)
-      );
-  }
-  
-  /**
-   * Deactivate an assignment
-   */
-  deactivateAssignment(id: number): void {
-    this.loading = true;
-    this.assignmentsService.deactivateAssignment(id)
-      .pipe(
-        finalize(() => this.loading = false)
-      )
-      .subscribe(
-        updatedAssignment => {
-          // Update the assignment in the list
-          const index = this.companyAssignments.findIndex(a => a.id === id);
-          if (index !== -1) {
-            this.companyAssignments[index] = updatedAssignment;
-          }
-        },
-        error => console.error('Error deactivating assignment:', error)
-      );
-  }
-  
-  /**
-   * Update an employee assignment
-   */
-  updateAssignment(assignment: Assignment, newEmployeeId: number): void {
-    const updatedAssignment: Assignment = {
-      ...assignment,
-      employeeID: newEmployeeId
-    };
-    
-    this.loading = true;
-    this.assignmentsService.updateAssignment(updatedAssignment)
-      .pipe(
-        finalize(() => this.loading = false)
-      )
-      .subscribe(
-        result => {
-          // Update the assignment in the list
-          const index = this.companyAssignments.findIndex(a => a.id === assignment.id);
-          if (index !== -1) {
-            this.companyAssignments[index] = result;
-          }
-        },
-        error => console.error('Error updating assignment:', error)
-      );
   }
 }

@@ -47,13 +47,31 @@ export interface Company {
   }    // New field: Currency code reference from general codes
 }
 
+// Updated Contact interface in src/model/types.ts
 export interface Contact {
   id: number;
-  name: string;
-  jobTitle?: string;
+  companyID: number;
+  contactCode?: number;
+  personalID?: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string;
+  cellNumber?: string;
+  faxNumber?: string;
   email?: string;
-  phone?: string;
-  companyId: number;
+  position?: string;
+  department?: string;
+  notes?: string;
+  openingEffecDate?: Date;
+  closingEffecDate?: Date;
+  openingRegDate?: Date;
+  closingRegDate?: Date;
+  openingRef?: number;
+  closingRef?: number;
+  activeFlag: boolean;
+  
+  // Computed property for full name display
+  fullName?: string;
 }
 
 export interface Note {

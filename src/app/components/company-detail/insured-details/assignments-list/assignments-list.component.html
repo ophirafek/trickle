@@ -1,0 +1,156 @@
+<!-- assignments-list.component.html -->
+<div class="assignments-container">
+    <!-- Loading overlay -->
+    <div *ngIf="loading" class="loading-overlay">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+  
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="mat-subtitle-1">{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.TITLE' | transloco }}</h4>
+      <button mat-flat-button color="primary" (click)="openAssignmentDialog()">
+        <mat-icon>add</mat-icon>
+        {{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.ADD_BUTTON' | transloco }}
+      </button>
+    </div>
+    
+    <!-- Employee Assignments List -->
+    <div class="assignments-list">
+      <div *ngIf="companyAssignments.length === 0" class="no-assignments-message">
+        <p class="text-center text-muted">{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.NO_ASSIGNMENTS' | transloco }}</p>
+      </div>
+      
+      <div *ngFor="let assignment of companyAssignments" 
+            class="assignment-item py-3 border-bottom"
+            [class.inactive]="assignment.activeFlag === 0">
+        <div class="assignment-info">
+          <h5 class="mat-body-2 mb-1">{{ assignment.assignmentTypeName || getAssignmentTypeName(assignment.assignmentTypeCode) }}</h5>
+          <p class="mat-caption text-secondary">{{ assignment.departmentName || getEmployeeDepartment(assignment.employeeID) }}</p>
+          
+          <!-- Inactive indicator -->
+          <div *ngIf="assignment.activeFlag === 0" class="inactive-badge">
+            {{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.INACTIVE' | transloco }}
+          </div>
+        </div>
+        
+        <div class="assignment-controls">
+          <mat-form-field appearance="outline" class="employee-select" floatLabel="always" subscriptSizing="dynamic">
+            <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.EMPLOYEE' | transloco }}</mat-label>
+            <mat-select 
+              [disabled]="assignment.activeFlag === 0"
+              [value]="assignment.employeeID"
+              (selectionChange)="changeEmployeeAssignment(assignment, $event.value)">
+              <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          
+          <!-- Edit button -->
+          <button 
+            *ngIf="assignment.activeFlag === 1"
+            mat-icon-button 
+            color="primary" 
+            matTooltip="{{ 'BUTTONS.EDIT' | transloco }}"
+            (click)="openEditDialog(assignment)"
+            class="action-button">
+            <mat-icon>edit</mat-icon>
+          </button>
+          
+          <!-- Deactivate button (only for active assignments) -->
+          <button 
+            *ngIf="assignment.activeFlag === 1"
+            mat-icon-button 
+            color="warn" 
+            matTooltip="{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DEACTIVATE' | transloco }}"
+            (click)="deactivateAssignment(assignment.id)"
+            class="action-button">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add Assignment Dialog Template -->
+  <ng-template #assignmentDialog>
+    <h2 mat-dialog-title>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.TITLE' | transloco }}</h2>
+    <div class="h-8"></div>
+    <mat-dialog-content>
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.ASSIGNMENT_TYPE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="newAssignment.assignmentTypeCode">
+              <mat-option *ngFor="let type of assignmentTypes" [value]="type.codeNumber">
+                {{ type.codeShortDescription }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.EMPLOYEE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="newAssignment.employeeID">
+              <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-dialog-content>
+    
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.CANCEL' | transloco }}</button>
+      <button 
+        mat-flat-button 
+        color="primary" 
+        [mat-dialog-close]="newAssignment"
+        [disabled]="!newAssignment.assignmentTypeCode || !newAssignment.employeeID">
+        {{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.SAVE' | transloco }}
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+  
+  <!-- Edit Assignment Dialog Template -->
+  <ng-template #editAssignmentDialog>
+    <h2 mat-dialog-title>{{ 'BUTTONS.EDIT' | transloco }} {{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.TITLE' | transloco }}</h2>
+    <div></div>
+    <mat-dialog-content *ngIf="editingAssignment">
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.ASSIGNMENT_TYPE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="editingAssignment.assignmentTypeCode">
+              <mat-option *ngFor="let type of assignmentTypes" [value]="type.codeNumber">
+                {{ type.codeShortDescription }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.EMPLOYEE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="editingAssignment.employeeID">
+              <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                {{ employee.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </mat-dialog-content>
+    
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>{{ 'COMPANY_DETAIL.INSURED_INFO.ASSIGNMENTS.DIALOG.CANCEL' | transloco }}</button>
+      <button 
+        mat-flat-button 
+        color="primary" 
+        [mat-dialog-close]="editingAssignment"
+        [disabled]="!editingAssignment?.assignmentTypeCode || !editingAssignment?.employeeID">
+        {{ 'BUTTONS.SAVE' | transloco }}
+      </button>
+    </mat-dialog-actions>
+  </ng-template>

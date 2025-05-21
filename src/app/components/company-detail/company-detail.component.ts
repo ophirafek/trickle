@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@ngneat/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
+import { ContactListComponent } from './contact-list/contact-list.component';
 
 @Component({
   selector: 'app-company-detail',
@@ -23,10 +24,7 @@ export class CompanyDetailComponent implements OnInit {
   editingCompany: Company = this.getEmptyCompany();
   isNewCompany: boolean = true;
   
-  // For contact management
-  newContact: Contact = this.getEmptyContact();
-  isAddingContact: boolean = false;
-  contactError: string | null = null;
+
   
   // For note management
   newNote: Note = this.getEmptyNote();
@@ -166,16 +164,8 @@ export class CompanyDetailComponent implements OnInit {
     };
   }
   
-  getEmptyContact(): Contact {
-    return {
-      id: 0,
-      name: '',
-      jobTitle: '',
-      email: '',
-      phone: '',
-      companyId: this.editingCompany?.id || 0
-    };
-  }
+
+
   
   getEmptyNote(): Note {
     return {
@@ -290,85 +280,7 @@ export class CompanyDetailComponent implements OnInit {
     }
   }
   
-  // Contact methods
-  startAddingContact(): void {
-    this.isAddingContact = true;
-    this.newContact = this.getEmptyContact();
-    this.newContact.companyId = this.editingCompany.id;
-  }
-  
-  cancelAddContact(): void {
-    this.isAddingContact = false;
-    this.newContact = this.getEmptyContact();
-    this.contactError = null;
-  }
-  
-  addContact(): void {
-    if (!this.newContact.name) {
-      this.contactError = this.translocoService.translate('COMPANY_DETAIL.CONTACT_NAME_REQUIRED');
-      return;
-    }
-    
-    this.loading = true;
-    this.contactError = null;
-    
-    this.companyService.addContact(this.editingCompany.id, this.newContact)
-      .subscribe({
-        next: (contact) => {
-          // Add the new contact to the local array
-          if (!this.editingCompany.contacts) {
-            this.editingCompany.contacts = [];
-          }
-          this.editingCompany.contacts.push(contact);
-          
-          // Reset the form
-          this.isAddingContact = false;
-          this.newContact = this.getEmptyContact();
-          this.loading = false;
-          
-          // Show success message
-          this.snackBar.open(
-            this.translocoService.translate('COMPANY_DETAIL.CONTACT_ADD_SUCCESS'), 
-            this.translocoService.translate('BUTTONS.CLOSE'), 
-            { duration: 3000 }
-          );
-        },
-        error: (err) => {
-          this.contactError = this.translocoService.translate('COMPANY_DETAIL.CONTACT_ADD_ERROR');
-          this.loading = false;
-          console.error('Error adding contact:', err);
-        }
-      });
-  }
-  
-  deleteContact(contactId: number): void {
-    if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
-      this.loading = true;
-      
-      this.companyService.deleteContact(contactId)
-        .subscribe({
-          next: () => {
-            // Remove the contact from the local array
-            if (this.editingCompany.contacts) {
-              this.editingCompany.contacts = this.editingCompany.contacts.filter(c => c.id !== contactId);
-            }
-            this.loading = false;
-            
-            // Show success message
-            this.snackBar.open(
-              this.translocoService.translate('COMPANY_DETAIL.CONTACT_DELETE_SUCCESS'), 
-              this.translocoService.translate('BUTTONS.CLOSE'), 
-              { duration: 3000 }
-            );
-          },
-          error: (err) => {
-            this.contactError = this.translocoService.translate('COMPANY_DETAIL.CONTACT_DELETE_ERROR');
-            this.loading = false;
-            console.error('Error deleting contact:', err);
-          }
-        });
-    }
-  }
+
   
   // Note methods
   startAddingNote(): void {
