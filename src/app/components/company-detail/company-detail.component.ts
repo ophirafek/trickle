@@ -1,4 +1,4 @@
-// Updated company-detail.component.ts
+// Updated company-detail.component.ts with async contact loading
 
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@ngneat/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-company-detail',
@@ -23,7 +24,18 @@ export class CompanyDetailComponent implements OnInit {
   // For lead management
   companyLeads: Lead[] = [];
   leadLoading: boolean = false;
+  leadLoaded: boolean = false;
   leadError: string | null = null;
+  
+  // For contact management
+  contactsLoading: boolean = false;
+  contactsLoaded: boolean = false;
+  contactError: string | null = null;
+  
+  // For insured data management
+  insuredLoading: boolean = false;
+  insuredLoaded: boolean = false;
+  insuredError: string | null = null;
   
   // Form validation
   formIsValid: boolean = true;
@@ -77,12 +89,45 @@ export class CompanyDetailComponent implements OnInit {
       if (tab) {
         this.activeTab = tab as any;
         
-        // If leads tab is selected and we have a company ID, load leads
-        if (tab === 'leads' && !this.isNewCompany && this.editingCompany.id) {
-          this.loadCompanyLeads();
-        }
+        // Load data for the active tab if needed
+        this.loadTabData(this.activeTab);
       }
     });
+  }
+
+  /**
+   * Load data specific to the active tab
+   * This allows for lazy loading of tab content
+   */
+  loadTabData(tab: 'general' | 'contacts' | 'leads' | 'insured'): void {
+    // Only load data if we have a company with an ID (not a new company)
+    if (this.isNewCompany || !this.editingCompany.id) {
+      return;
+    }
+    
+    switch (tab) {
+      case 'contacts':
+        // Contacts are already being loaded automatically when the company loads
+        // We only need to ensure the loading has started
+        if (!this.contactsLoaded && !this.contactsLoading) {
+          this.loadContacts();
+        }
+        break;
+      case 'leads':
+        // Leads are already being loaded automatically when the company loads
+        // We only need to ensure the loading has started
+        if (!this.leadLoaded && !this.leadLoading) {
+          this.loadCompanyLeads();
+        }
+        break;
+      case 'insured':
+        // Insured data is already being loaded automatically when the company loads
+        // We only need to ensure the loading has started
+        if (!this.insuredLoaded && !this.insuredLoading && this.editingCompany.isInsured) {
+          this.loadInsuredData();
+        }
+        break;
+    }
   }
 
   loadCompany(id: number): void {
@@ -91,16 +136,17 @@ export class CompanyDetailComponent implements OnInit {
       next: (company) => {
         this.editingCompany = company;
         
-        // Ensure collections are initialized
+        // Initialize collections
         if (!this.editingCompany.contacts) this.editingCompany.contacts = [];
         if (!this.editingCompany.notes) this.editingCompany.notes = [];
         
         this.loading = false;
         
-        // If on the leads tab, load the leads data
-        if (this.activeTab === 'leads') {
-          this.loadCompanyLeads();
-        }
+        // Start loading all tab data immediately in the background
+        this.loadAllTabData();
+        
+        // Load data for the current active tab if needed (for immediate display)
+        this.loadTabData(this.activeTab);
       },
       error: (err) => {
         this.snackBar.open('Error loading company details', 'Close', { 
@@ -112,6 +158,62 @@ export class CompanyDetailComponent implements OnInit {
         this.router.navigate(['/companies']);
       }
     });
+  }
+
+  /**
+   * Load all tab data in the background
+   * This ensures all data is ready when users switch tabs
+   */
+  loadAllTabData(): void {
+    if (this.isNewCompany || !this.editingCompany.id) {
+      return;
+    }
+    
+    // Start loading contacts
+    this.loadContacts();
+    
+    // Start loading leads
+    this.loadCompanyLeads();
+    
+    // Start loading insured data if applicable
+    if (this.editingCompany.isInsured) {
+      this.loadInsuredData();
+    }
+  }
+
+  /**
+   * Load company contacts asynchronously
+   */
+  loadContacts(): void {
+    if (!this.editingCompany || !this.editingCompany.id) {
+      return;
+    }
+    
+    this.contactsLoading = true;
+    this.contactError = null;
+    
+    this.companyService.getCompanyContacts(this.editingCompany.id)
+      .pipe(
+        finalize(() => {
+          this.contactsLoading = false;
+          this.contactsLoaded = true;
+        })
+      )
+      .subscribe({
+        next: (contacts) => {
+          this.editingCompany.contacts = contacts;
+        },
+        error: (err) => {
+          this.contactError = this.translocoService.translate('COMPANY_DETAIL.CONTACT_LOAD_ERROR');
+          console.error('Error loading contacts:', err);
+          
+          this.snackBar.open(
+            this.translocoService.translate('COMPANY_DETAIL.CONTACT_LOAD_ERROR'),
+            this.translocoService.translate('BUTTONS.CLOSE'),
+            { duration: 3000, panelClass: ['error-snackbar'] }
+          );
+        }
+      });
   }
 
   loadIdTypeCodes(): void {
@@ -160,10 +262,27 @@ export class CompanyDetailComponent implements OnInit {
       queryParamsHandling: 'merge'
     });
     
-    // If navigating to leads tab and we have a company with an ID, load the leads
-    if (tab === 'leads' && !this.isNewCompany && this.editingCompany.id) {
-      this.loadCompanyLeads();
+    // Check if data is already loading or loaded to avoid duplicate requests
+    switch (tab) {
+      case 'contacts':
+        if (this.contactsLoading || this.contactsLoaded) {
+          return;
+        }
+        break;
+      case 'leads':
+        if (this.leadLoading || this.leadLoaded) {
+          return;
+        }
+        break;
+      case 'insured':
+        if (this.insuredLoading || this.insuredLoaded) {
+          return;
+        }
+        break;
     }
+    
+    // Load data for the selected tab if needed
+    this.loadTabData(tab);
   }
 
   navigateToCompanies(): void {
@@ -259,14 +378,18 @@ export class CompanyDetailComponent implements OnInit {
     this.leadError = null;
     
     this.leadService.getLeadsByCompany(this.editingCompany.id)
+      .pipe(
+        finalize(() => {
+          this.leadLoading = false;
+          this.leadLoaded = true;
+        })
+      )
       .subscribe({
         next: (leads) => {
           this.companyLeads = leads;
-          this.leadLoading = false;
         },
         error: (err) => {
           this.leadError = this.translocoService.translate('COMPANY_DETAIL.LEAD_LOAD_ERROR');
-          this.leadLoading = false;
           console.error('Error loading company leads:', err);
           
           this.snackBar.open(
@@ -279,6 +402,46 @@ export class CompanyDetailComponent implements OnInit {
           );
         }
       });
+  }
+
+  /**
+   * Load insured-specific data
+   * This would typically include assignments, financial data, etc.
+   */
+  loadInsuredData(): void {
+    if (!this.editingCompany || !this.editingCompany.id || !this.editingCompany.isInsured) {
+      return;
+    }
+    
+    this.insuredLoading = true;
+    this.insuredError = null;
+    
+    // Here you would typically load insured-specific data
+    // For now, we'll simulate the loading and complete immediately
+    // In a real app, this might load assignments, financial data, etc.
+    
+    setTimeout(() => {
+      // Simulate async loading completion
+      this.insuredLoading = false;
+      this.insuredLoaded = true;
+      
+      // If you had actual insured data to load, you would do it here:
+      // this.insuredService.getInsuredData(this.editingCompany.id)
+      //   .pipe(finalize(() => { this.insuredLoading = false; this.insuredLoaded = true; }))
+      //   .subscribe({
+      //     next: (data) => { /* handle insured data */ },
+      //     error: (err) => { 
+      //       this.insuredError = this.translocoService.translate('COMPANY_DETAIL.INSURED_LOAD_ERROR');
+      //       console.error('Error loading insured data:', err);
+      //       
+      //       this.snackBar.open(
+      //         this.translocoService.translate('COMPANY_DETAIL.INSURED_LOAD_ERROR'), 
+      //         this.translocoService.translate('BUTTONS.CLOSE'), 
+      //         { duration: 3000, panelClass: ['error-snackbar'] }
+      //       );
+      //     }
+      //   });
+    }, 100);
   }
 
   getLeadStatusColor(status: string): ThemePalette {

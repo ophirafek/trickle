@@ -338,5 +338,16 @@
       "EMPLOYEE_LOAD_ERROR": "Failed to load employees list",
       "FORMAT_EXCEL": "Excel files (.xlsx, .xls)"
     }
+  },
+  "VALIDATION": {
+    "REQUIRED_FIELD": "This field is required",
+    "INVALID_FORMAT": "Invalid format",
+    "EMAIL_FORMAT": "Please enter a valid email address",
+    "NUMBER_FORMAT": "Please enter a valid number",
+    "MIN_LENGTH": "Please enter at least {{value}} characters",
+    "MAX_LENGTH": "Please enter no more than {{value}} characters",
+    "MIN_VALUE": "Please enter a value greater than or equal to {{value}}",
+    "MAX_VALUE": "Please enter a value less than or equal to {{value}}",
+    "PLEASE_CORRECT_ERRORS": "Please correct the following errors:"
   }
 }

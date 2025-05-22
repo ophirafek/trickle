@@ -1,4 +1,4 @@
-// contact-list.component.ts
+// Updated contact-list.component.ts to work with async loading
 import { Component, OnInit, Input, ViewChild, TemplateRef, OnChanges, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -14,7 +14,7 @@ import { GeneralCode, GeneralCodeService } from '../../../services/general-codes
   templateUrl: './contact-list.component.html',
   styleUrls: ['./contact-list.component.scss']
 })
-export class ContactListComponent implements OnInit {
+export class ContactListComponent implements OnInit, OnChanges {
   @Input() company!: Company;
   
   // Table columns
@@ -45,7 +45,9 @@ export class ContactListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadContactCodes();
-    this.loadContacts();
+    
+    // Note: We're no longer loading contacts here since they're loaded by the parent component
+    this.initializeContacts();
   }
   
   ngOnChanges(changes: SimpleChanges): void {
@@ -54,8 +56,26 @@ export class ContactListComponent implements OnInit {
       // Reset current form state
       this.cancelForm();
       
-      // Reload contacts with the new company
-      this.loadContacts();
+      // Initialize contacts from the company object
+      this.initializeContacts();
+    }
+  }
+  
+  /**
+   * Initialize the contacts array from the company object
+   * This handles the transition from async loading
+   */
+  initializeContacts(): void {
+    if (this.company && this.company.contacts) {
+      this.contacts = this.company.contacts.map(contact => {
+        // Add fullName as a computed property
+        return {
+          ...contact,
+          fullName: `${contact.firstName || ''} ${contact.lastName || ''}`.trim()
+        };
+      });
+    } else {
+      this.contacts = [];
     }
   }
   
@@ -76,62 +96,6 @@ export class ContactListComponent implements OnInit {
           console.error('Error loading contact codes:', err);
         }
       });
-  }
-  
-  /**
-   * Load contacts for the current company
-   */
-  loadContacts(): void {
-    if (!this.company || !this.company.id) {
-      this.contacts = [];
-      return;
-    }
-    
-    this.loading = true;
-    
-    // If service has a dedicated method to get company contacts, use that
-    if (this.companyService.getCompanyContacts) {
-      this.companyService.getCompanyContacts(this.company.id)
-        .pipe(finalize(() => this.loading = false))
-        .subscribe({
-          next: (contacts) => {
-            this.contacts = contacts.map(contact => ({
-              ...contact,
-              fullName: `${contact.firstName || ''} ${contact.lastName || ''}`.trim()
-            }));
-            
-            // Update company.contacts reference if it exists
-            if (this.company) {
-              this.company.contacts = [...contacts];
-            }
-          },
-          error: (err) => {
-            console.error('Error loading contacts:', err);
-            this.contacts = [];
-            
-            this.snackBar.open(
-              this.translocoService.translate('COMPANY_DETAIL.CONTACT_LOAD_ERROR'),
-              this.translocoService.translate('BUTTONS.CLOSE'),
-              { duration: 3000, panelClass: ['error-snackbar'] }
-            );
-          }
-        });
-    } 
-    // Otherwise, use the contacts from the company object
-    else if (this.company.contacts) {
-      this.contacts = this.company.contacts.map(contact => {
-        // Add fullName as a computed property
-        return {
-          ...contact,
-          fullName: `${contact.firstName || ''} ${contact.lastName || ''}`.trim()
-        };
-      });
-      this.loading = false;
-    } else {
-      // No contacts available
-      this.contacts = [];
-      this.loading = false;
-    }
   }
   
   /**

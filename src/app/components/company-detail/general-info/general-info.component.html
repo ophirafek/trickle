@@ -1,339 +1,361 @@
-<!-- general-info.component.html -->
+<!-- Updated general-info.component.html with improved validation -->
 <div class="general-info-container">
-    <!-- Loading indicator -->
-    <div *ngIf="loading" class="loading-overlay">
-      <mat-spinner [diameter]="48"></mat-spinner>
-      <p class="ml-4 text-gray-700" transloco="COMMON.LOADING"></p>
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="loading-overlay">
+    <mat-spinner [diameter]="48"></mat-spinner>
+    <p class="ml-4 text-gray-700" transloco="COMMON.LOADING"></p>
+  </div>
+
+  <div class="space-y-4">
+    <!-- Registration Numbers Section -->
+    <div class="border border-gray-200 rounded-md overflow-hidden">
+      <div 
+        class="flex justify-between items-center p-4 cursor-pointer"
+        [ngClass]="{'bg-gray-50': !sectionsWithErrors.includes('registrationNumbers'), 'bg-red-50': sectionsWithErrors.includes('registrationNumbers')}"
+        (click)="toggleSection('registrationNumbers')"
+      >
+        <h3 class="font-medium" [ngClass]="{'text-gray-700': !sectionsWithErrors.includes('registrationNumbers'), 'text-red-600': sectionsWithErrors.includes('registrationNumbers')}">
+          {{ 'COMPANY_DETAIL.REGISTRATION_NUMBERS' | transloco }}
+          <span *ngIf="sectionsWithErrors.includes('registrationNumbers')" class="text-red-500 ml-1">*</span>
+        </h3>
+        <mat-icon [ngClass]="{'text-red-600': sectionsWithErrors.includes('registrationNumbers')}">{{ expandedSection === 'registrationNumbers' ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </div>
+      
+      <div *ngIf="expandedSection === 'registrationNumbers'" class="p-4 grid grid-cols-2 gap-4">
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.ID_TYPE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="company.idTypeCode">
+              <mat-option *ngFor="let option of idTypeCodes" [value]="option.codeNumber">
+                {{ option.codeShortDescription }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full" 
+              [ngClass]="{'error-field': validationErrors['registrationNumber']}">
+            <mat-label>{{ 'COMPANY_DETAIL.REGISTRATION_NUMBER' | transloco }} <span class="text-red-500">*</span></mat-label>
+            <input matInput 
+                  [(ngModel)]="company.registrationNumber" 
+                  (ngModelChange)="onRequiredFieldChange('registrationNumber')" 
+                  (blur)="markFieldAsTouched('registrationNumber')"
+                  [placeholder]="'COMPANY_DETAIL.REGISTRATION_NUMBER_PLACEHOLDER' | transloco" 
+                  required>
+            <mat-error *ngIf="validationErrors['registrationNumber']">
+              {{ validationErrors['registrationNumber'] }}
+            </mat-error>
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.DUNS_NUMBER' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.dunsNumber" [placeholder]="'COMPANY_DETAIL.DUNS_NUMBER_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.VAT_NUMBER' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.vatNumber" [placeholder]="'COMPANY_DETAIL.VAT_NUMBER_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.COUNTRY_CODE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="company.countryCode">
+              <mat-option *ngFor="let option of countryCodes" [value]="option.codeNumber">
+                {{ option.codeShortDescription }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
     </div>
-  
-    <div class="space-y-4">
-      <!-- Registration Numbers Section -->
-      <div class="border border-gray-200 rounded-md overflow-hidden">
-        <div 
-          class="flex justify-between items-center p-4 cursor-pointer"
-          [ngClass]="{'bg-gray-50': !sectionsWithErrors.includes('registrationNumbers'), 'bg-red-50': sectionsWithErrors.includes('registrationNumbers')}"
-          (click)="toggleSection('registrationNumbers')"
-        >
-          <h3 class="font-medium" [ngClass]="{'text-gray-700': !sectionsWithErrors.includes('registrationNumbers'), 'text-red-600': sectionsWithErrors.includes('registrationNumbers')}">
-            {{ 'COMPANY_DETAIL.REGISTRATION_NUMBERS' | transloco }}
-            <span *ngIf="sectionsWithErrors.includes('registrationNumbers')" class="text-red-500 ml-1">*</span>
-          </h3>
-          <mat-icon [ngClass]="{'text-red-600': sectionsWithErrors.includes('registrationNumbers')}">{{ expandedSection === 'registrationNumbers' ? 'expand_less' : 'expand_more' }}</mat-icon>
+    
+    <!-- Company Names Section -->
+    <div class="border border-gray-200 rounded-md overflow-hidden">
+      <div 
+        class="flex justify-between items-center p-4 cursor-pointer"
+        [ngClass]="{'bg-gray-50': !sectionsWithErrors.includes('companyNames'), 'bg-red-50': sectionsWithErrors.includes('companyNames')}"
+        (click)="toggleSection('companyNames')"
+      >
+        <h3 class="font-medium" [ngClass]="{'text-gray-700': !sectionsWithErrors.includes('companyNames'), 'text-red-600': sectionsWithErrors.includes('companyNames')}">
+          {{ 'COMPANY_DETAIL.COMPANY_NAMES' | transloco }}
+          <span *ngIf="sectionsWithErrors.includes('companyNames')" class="text-red-500 ml-1">*</span>
+        </h3>
+        <mat-icon [ngClass]="{'text-red-600': sectionsWithErrors.includes('companyNames')}">{{ expandedSection === 'companyNames' ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </div>
+      
+      <div *ngIf="expandedSection === 'companyNames'" class="p-4 grid grid-cols-2 gap-4">
+        <div>
+          <mat-form-field appearance="outline" class="w-full" 
+              [ngClass]="{'error-field': validationErrors['registrationName']}">
+            <mat-label>{{ 'COMPANY_DETAIL.COMPANY_NAME' | transloco }} <span class="text-red-500">*</span></mat-label>
+            <input matInput 
+                  [(ngModel)]="company.registrationName" 
+                  (ngModelChange)="onRequiredFieldChange('registrationName')" 
+                  (blur)="markFieldAsTouched('registrationName')"
+                  [placeholder]="'COMPANY_DETAIL.COMPANY_NAME_PLACEHOLDER' | transloco" 
+                  required>
+            <mat-error *ngIf="validationErrors['registrationName']">
+              {{ validationErrors['registrationName'] }}
+            </mat-error>
+          </mat-form-field>
         </div>
         
-        <div *ngIf="expandedSection === 'registrationNumbers'" class="p-4 grid grid-cols-2 gap-4">
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.ID_TYPE' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="company.idTypeCode">
-                <mat-option *ngFor="let option of idTypeCodes" [value]="option.codeNumber">
-                  {{ option.codeShortDescription }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.REGISTRATION_NUMBER' | transloco }} <span class="text-red-500">*</span></mat-label>
-              <input matInput [(ngModel)]="company.registrationNumber" (ngModelChange)="onRequiredFieldChange()" [placeholder]="'COMPANY_DETAIL.REGISTRATION_NUMBER_PLACEHOLDER' | transloco" required>
-              <mat-error *ngIf="!company.registrationNumber">{{ 'VALIDATION.REQUIRED_FIELD' | transloco }}</mat-error>
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.DUNS_NUMBER' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.dunsNumber" [placeholder]="'COMPANY_DETAIL.DUNS_NUMBER_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.VAT_NUMBER' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.vatNumber" [placeholder]="'COMPANY_DETAIL.VAT_NUMBER_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.COUNTRY_CODE' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="company.countryCode">
-                <mat-option *ngFor="let option of countryCodes" [value]="option.codeNumber">
-                  {{ option.codeShortDescription }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.TRADE_NAME' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.tradeName" [placeholder]="'COMPANY_DETAIL.TRADE_NAME_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.ENGLISH_NAME' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.englishName" [placeholder]="'COMPANY_DETAIL.ENGLISH_NAME_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.BUSINESS_FIELD' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="company.businessFieldCode">
+              <mat-option *ngFor="let option of businessFieldCodes" [value]="option.codeNumber">
+                {{ option.codeShortDescription }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.ENTITY_TYPE' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="company.entityTypeCode">
+              <mat-option *ngFor="let option of entityTypeCodes" [value]="option.codeNumber">
+                {{ option.codeShortDescription }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.STATUS' | transloco }}</mat-label>
+            <mat-select [(ngModel)]="company.companyStatusCode">
+              <mat-option *ngFor="let option of statusCodes" [value]="option.codeNumber">
+                {{ option.codeShortDescription }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Address Section -->
+    <div class="border border-gray-200 rounded-md overflow-hidden">
+      <div 
+        class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+        (click)="toggleSection('address')"
+      >
+        <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.ADDRESS_INFORMATION' | transloco }}</h3>
+        <mat-icon>{{ expandedSection === 'address' ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </div>
+      
+      <div *ngIf="expandedSection === 'address'" class="p-4 grid grid-cols-2 gap-4">
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.STREET_ADDRESS' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.streetAddress" [placeholder]="'COMPANY_DETAIL.STREET_ADDRESS_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.SUITE' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.suite" [placeholder]="'COMPANY_DETAIL.SUITE_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.CITY' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.city" [placeholder]="'COMPANY_DETAIL.CITY_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.STATE_PROVINCE' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.stateProvince" [placeholder]="'COMPANY_DETAIL.STATE_PROVINCE_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.POSTAL_CODE' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.postalCode" [placeholder]="'COMPANY_DETAIL.POSTAL_CODE_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Communication Section -->
+    <div class="border border-gray-200 rounded-md overflow-hidden">
+      <div 
+        class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+        (click)="toggleSection('communication')"
+      >
+        <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.COMMUNICATION' | transloco }}</h3>
+        <mat-icon>{{ expandedSection === 'communication' ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </div>
+      
+      <div *ngIf="expandedSection === 'communication'" class="p-4 grid grid-cols-2 gap-4">
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.WEBSITE' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.website" [placeholder]="'COMPANY_DETAIL.WEBSITE_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.EMAIL' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.emailAddress" type="email" [placeholder]="'COMPANY_DETAIL.EMAIL_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.PHONE_NUMBER' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.phoneNumber" [placeholder]="'COMPANY_DETAIL.PHONE_NUMBER_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.FAX_NUMBER' | transloco }}</mat-label>
+            <input matInput [(ngModel)]="company.faxNumber" [placeholder]="'COMPANY_DETAIL.FAX_NUMBER_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Timeline Section -->
+    <div class="border border-gray-200 rounded-md overflow-hidden">
+      <div 
+        class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+        (click)="toggleSection('timeline')"
+      >
+        <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.TIMELINE' | transloco }}</h3>
+        <mat-icon>{{ expandedSection === 'timeline' ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </div>
+      
+      <div *ngIf="expandedSection === 'timeline'" class="p-4 grid grid-cols-2 gap-4">
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.FOUNDING_YEAR' | transloco }}</mat-label>
+            <input matInput type="number" [(ngModel)]="company.foundingYear" [placeholder]="'COMPANY_DETAIL.FOUNDING_YEAR_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+        
+        <div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>{{ 'COMPANY_DETAIL.YEARS_ACTIVE' | transloco }}</mat-label>
+            <input matInput type="number" [(ngModel)]="company.yearsActive" [placeholder]="'COMPANY_DETAIL.YEARS_ACTIVE_PLACEHOLDER' | transloco">
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Notes Section -->
+    <div class="border border-gray-200 rounded-md overflow-hidden">
+      <div 
+        class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+        (click)="toggleSection('notes')"
+      >
+        <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.NOTES_TITLE' | transloco }}</h3>
+        <div class="flex items-center">
+          <button 
+            mat-icon-button
+            color="primary"
+            (click)="startAddingNote(); $event.stopPropagation()"
+            *ngIf="!isAddingNote && expandedSection === 'notes'"
+            class="mr-2"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+          <mat-icon>{{ expandedSection === 'notes' ? 'expand_less' : 'expand_more' }}</mat-icon>
         </div>
       </div>
       
-      <!-- Company Names Section -->
-      <div class="border border-gray-200 rounded-md overflow-hidden">
-        <div 
-          class="flex justify-between items-center p-4 cursor-pointer"
-          [ngClass]="{'bg-gray-50': !sectionsWithErrors.includes('companyNames'), 'bg-red-50': sectionsWithErrors.includes('companyNames')}"
-          (click)="toggleSection('companyNames')"
-        >
-          <h3 class="font-medium" [ngClass]="{'text-gray-700': !sectionsWithErrors.includes('companyNames'), 'text-red-600': sectionsWithErrors.includes('companyNames')}">
-            {{ 'COMPANY_DETAIL.COMPANY_NAMES' | transloco }}
-            <span *ngIf="sectionsWithErrors.includes('companyNames')" class="text-red-500 ml-1">*</span>
-          </h3>
-          <mat-icon [ngClass]="{'text-red-600': sectionsWithErrors.includes('companyNames')}">{{ expandedSection === 'companyNames' ? 'expand_less' : 'expand_more' }}</mat-icon>
+      <div *ngIf="expandedSection === 'notes'" class="p-4">
+        <!-- Note error message -->
+        <div *ngIf="noteError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+          {{ noteError }}
         </div>
         
-        <div *ngIf="expandedSection === 'companyNames'" class="p-4 grid grid-cols-2 gap-4">
+        <!-- Add Note Form -->
+        <div *ngIf="isAddingNote" class="border border-gray-200 rounded-md p-4 mb-6 bg-gray-50">
+          <h3 class="text-lg font-medium text-gray-700 mb-4">{{ 'COMPANY_DETAIL.NEW_NOTE' | transloco }}</h3>
           <div>
             <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.COMPANY_NAME' | transloco }} <span class="text-red-500">*</span></mat-label>
-              <input matInput [(ngModel)]="company.registrationName" (ngModelChange)="onRequiredFieldChange()" [placeholder]="'COMPANY_DETAIL.COMPANY_NAME_PLACEHOLDER' | transloco" required>
-              <mat-error *ngIf="!company.registrationName">{{ 'VALIDATION.REQUIRED_FIELD' | transloco }}</mat-error>
+              <mat-label>{{ 'COMPANY_DETAIL.NOTE_TITLE' | transloco }} <span class="text-red-500">*</span></mat-label>
+              <input matInput [(ngModel)]="newNote.title" placeholder="Note title">
             </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.TRADE_NAME' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.tradeName" [placeholder]="'COMPANY_DETAIL.TRADE_NAME_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.ENGLISH_NAME' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.englishName" [placeholder]="'COMPANY_DETAIL.ENGLISH_NAME_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.BUSINESS_FIELD' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="company.businessFieldCode">
-                <mat-option *ngFor="let option of businessFieldCodes" [value]="option.codeNumber">
-                  {{ option.codeShortDescription }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.ENTITY_TYPE' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="company.entityTypeCode">
-                <mat-option *ngFor="let option of entityTypeCodes" [value]="option.codeNumber">
-                  {{ option.codeShortDescription }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.STATUS' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="company.companyStatusCode">
-                <mat-option *ngFor="let option of statusCodes" [value]="option.codeNumber">
-                  {{ option.codeShortDescription }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-          
-       
-        </div>
-      </div>
-      
-      <!-- Address Section -->
-      <div class="border border-gray-200 rounded-md overflow-hidden">
-        <div 
-          class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-          (click)="toggleSection('address')"
-        >
-          <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.ADDRESS_INFORMATION' | transloco }}</h3>
-          <mat-icon>{{ expandedSection === 'address' ? 'expand_less' : 'expand_more' }}</mat-icon>
-        </div>
-        
-        <div *ngIf="expandedSection === 'address'" class="p-4 grid grid-cols-2 gap-4">
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.STREET_ADDRESS' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.streetAddress" [placeholder]="'COMPANY_DETAIL.STREET_ADDRESS_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.SUITE' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.suite" [placeholder]="'COMPANY_DETAIL.SUITE_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.CITY' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.city" [placeholder]="'COMPANY_DETAIL.CITY_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.STATE_PROVINCE' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.stateProvince" [placeholder]="'COMPANY_DETAIL.STATE_PROVINCE_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.POSTAL_CODE' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.postalCode" [placeholder]="'COMPANY_DETAIL.POSTAL_CODE_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
- 
-        </div>
-      </div>
-      
-      <!-- Communication Section -->
-      <div class="border border-gray-200 rounded-md overflow-hidden">
-        <div 
-          class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-          (click)="toggleSection('communication')"
-        >
-          <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.COMMUNICATION' | transloco }}</h3>
-          <mat-icon>{{ expandedSection === 'communication' ? 'expand_less' : 'expand_more' }}</mat-icon>
-        </div>
-        
-        <div *ngIf="expandedSection === 'communication'" class="p-4 grid grid-cols-2 gap-4">
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.WEBSITE' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.website" [placeholder]="'COMPANY_DETAIL.WEBSITE_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.EMAIL' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.emailAddress" type="email" [placeholder]="'COMPANY_DETAIL.EMAIL_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.PHONE_NUMBER' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.phoneNumber" [placeholder]="'COMPANY_DETAIL.PHONE_NUMBER_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.FAX_NUMBER' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="company.faxNumber" [placeholder]="'COMPANY_DETAIL.FAX_NUMBER_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-      </div>
-      </div>
-      <!-- Timeline Section -->
-      <div class="border border-gray-200 rounded-md overflow-hidden">
-        <div 
-          class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-          (click)="toggleSection('timeline')"
-        >
-          <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.TIMELINE' | transloco }}</h3>
-          <mat-icon>{{ expandedSection === 'timeline' ? 'expand_less' : 'expand_more' }}</mat-icon>
-        </div>
-        
-        <div *ngIf="expandedSection === 'timeline'" class="p-4 grid grid-cols-2 gap-4">
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.FOUNDING_YEAR' | transloco }}</mat-label>
-              <input matInput type="number" [(ngModel)]="company.foundingYear" [placeholder]="'COMPANY_DETAIL.FOUNDING_YEAR_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-          
-          <div>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'COMPANY_DETAIL.YEARS_ACTIVE' | transloco }}</mat-label>
-              <input matInput type="number" [(ngModel)]="company.yearsActive" [placeholder]="'COMPANY_DETAIL.YEARS_ACTIVE_PLACEHOLDER' | transloco">
-            </mat-form-field>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Notes Section -->
-      <div class="border border-gray-200 rounded-md overflow-hidden">
-        <div 
-          class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
-          (click)="toggleSection('notes')"
-        >
-          <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.NOTES_TITLE' | transloco }}</h3>
-          <div class="flex items-center">
-            <button 
-              mat-icon-button
-              color="primary"
-              (click)="startAddingNote(); $event.stopPropagation()"
-              *ngIf="!isAddingNote && expandedSection === 'notes'"
-              class="mr-2"
-            >
-              <mat-icon>add</mat-icon>
-            </button>
-            <mat-icon>{{ expandedSection === 'notes' ? 'expand_less' : 'expand_more' }}</mat-icon>
-          </div>
-        </div>
-        
-        <div *ngIf="expandedSection === 'notes'" class="p-4">
-          <!-- Note error message -->
-          <div *ngIf="noteError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-            {{ noteError }}
-          </div>
-          
-          <!-- Add Note Form -->
-          <div *ngIf="isAddingNote" class="border border-gray-200 rounded-md p-4 mb-6 bg-gray-50">
-            <h3 class="text-lg font-medium text-gray-700 mb-4">{{ 'COMPANY_DETAIL.NEW_NOTE' | transloco }}</h3>
-            <div>
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'COMPANY_DETAIL.NOTE_TITLE' | transloco }} <span class="text-red-500">*</span></mat-label>
-                <input matInput [(ngModel)]="newNote.title" placeholder="Note title">
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'COMPANY_DETAIL.NOTE_CONTENT' | transloco }} <span class="text-red-500">*</span></mat-label>
-                <textarea matInput [(ngModel)]="newNote.content" placeholder="Note content..." rows="6"></textarea>
-              </mat-form-field>
-            </div>
-            <div class="flex justify-end space-x-2 mt-4">
-              <button mat-button (click)="cancelAddNote()">{{ 'BUTTONS.CANCEL' | transloco }}</button>
-              <button mat-raised-button color="primary" (click)="addNote()">{{ 'BUTTONS.SAVE' | transloco }}</button>
-            </div>
-          </div>
-          
-          <!-- Empty State -->
-          <div *ngIf="!company.notes || company.notes.length === 0" class="text-center py-8 bg-gray-50 rounded-lg">
-            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <mat-icon class="text-gray-400 text-3xl">notes</mat-icon>
-            </div>
-            <p class="text-gray-700">{{ 'COMPANY_DETAIL.NO_NOTES' | transloco }}</p>
-            <p class="text-sm text-gray-500 mt-1">{{ 'COMPANY_DETAIL.NOTES_HELP' | transloco }}</p>
-          </div>
-          
-          <!-- Notes List -->
-          <div *ngIf="company.notes && company.notes.length > 0" class="space-y-4">
-            <div *ngFor="let note of company.notes" class="border border-gray-200 rounded-md overflow-hidden">
-              <div class="flex justify-between items-center p-4 bg-gray-50">
-                <div>
-                  <h3 class="font-medium text-gray-700">{{ note.title }}</h3>
-                  <p class="text-xs text-gray-500">{{ note.createdAt | date:'medium' }}</p>
-                </div>
-                <button mat-icon-button color="warn" (click)="deleteNote(note.id)" class="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-              <div class="p-4 bg-white">
-                <p class="whitespace-pre-line">{{ note.content }}</p>
-              </div>
             
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>{{ 'COMPANY_DETAIL.NOTE_CONTENT' | transloco }} <span class="text-red-500">*</span></mat-label>
+              <textarea matInput [(ngModel)]="newNote.content" placeholder="Note content..." rows="6"></textarea>
+            </mat-form-field>
+          </div>
+          <div class="flex justify-end space-x-2 mt-4">
+            <button mat-button (click)="cancelAddNote()">{{ 'BUTTONS.CANCEL' | transloco }}</button>
+            <button mat-raised-button color="primary" (click)="addNote()">{{ 'BUTTONS.SAVE' | transloco }}</button>
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div *ngIf="!company.notes || company.notes.length === 0" class="text-center py-8 bg-gray-50 rounded-lg">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <mat-icon class="text-gray-400 text-3xl">notes</mat-icon>
+          </div>
+          <p class="text-gray-700">{{ 'COMPANY_DETAIL.NO_NOTES' | transloco }}</p>
+          <p class="text-sm text-gray-500 mt-1">{{ 'COMPANY_DETAIL.NOTES_HELP' | transloco }}</p>
+        </div>
+        
+        <!-- Notes List -->
+        <div *ngIf="company.notes && company.notes.length > 0" class="space-y-4">
+          <div *ngFor="let note of company.notes" class="border border-gray-200 rounded-md overflow-hidden">
+            <div class="flex justify-between items-center p-4 bg-gray-50">
+              <div>
+                <h3 class="font-medium text-gray-700">{{ note.title }}</h3>
+                <p class="text-xs text-gray-500">{{ note.createdAt | date:'medium' }}</p>
+              </div>
+              <button mat-icon-button color="warn" (click)="deleteNote(note.id)" class="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200 transition-colors">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+            <div class="p-4 bg-white">
+              <p class="whitespace-pre-line">{{ note.content }}</p>
+            </div>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Validation Summary - Optional, but useful to show all errors at once -->
+    <div *ngIf="hasValidationErrors()" class="bg-red-50 border border-red-200 rounded-md p-4 mt-4">
+      <h4 class="text-red-600 font-medium mb-2">{{ 'VALIDATION.PLEASE_CORRECT_ERRORS' | transloco }}</h4>
+      <ul class="list-disc list-inside text-red-600">
+        <li *ngFor="let error of validationErrors | keyvalue">
+          {{ 'COMPANY_DETAIL.' + error.key | uppercase | transloco }}: {{ error.value }}
+        </li>
+      </ul>
     </div>
   </div>
+</div>
