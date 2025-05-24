@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { Lead, Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -8,9 +8,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './lead-detail.component.html',
   styleUrls: ['./lead-detail.component.scss']
 })
-export class LeadDetailComponent implements OnInit {
+export class LeadDetailComponent implements OnInit, OnChanges {
   @Input() lead: Lead | null = null;
   @Input() isOpen: boolean = false;
+  @Input() preSelectedCompanyId: number | null = null;
+  @Input() preSelectedCompanyName: string | null = null;
   @Output() onClose = new EventEmitter<void>();
   @Output() onSave = new EventEmitter<Lead>();
 
@@ -42,6 +44,16 @@ export class LeadDetailComponent implements OnInit {
         next: (companies) => {
           this.companies = companies;
           this.loading = false;
+          
+          // Pre-select company if provided
+          if (this.preSelectedCompanyId && this.isNewLead) {
+            this.editingLead.companyId = this.preSelectedCompanyId;
+            // Find the company name for display
+            const selectedCompany = companies.find(c => c.id === this.preSelectedCompanyId);
+            if (selectedCompany) {
+              this.editingLead.companyName = selectedCompany.registrationName;
+            }
+          }
         },
         error: (err) => {
           this.error = 'Failed to load companies. Please try again later.';
@@ -59,51 +71,11 @@ export class LeadDetailComponent implements OnInit {
     } else {
       this.editingLead = this.getEmptyLead();
       this.isNewLead = true;
+      
+      // Pre-select company if provided
+      if (this.preSelectedCompanyId && this.preSelectedCompanyName) {
+        this.editingLead.companyId = this.preSelectedCompanyId;
+        this.editingLead.companyName = this.preSelectedCompanyName;
+      }
     }
   }
-
-  getEmptyLead(): Lead {
-    return {
-      id: 0,
-      title: '',
-      company: '',
-      status: 'New',
-      value: 0,
-      probability: 0,
-      owner: '',
-      lastUpdate: new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    };
-  }
-
-  close(): void {
-    this.onClose.emit();
-  }
-
-  save(): void {
-    // Validate the form
-    if (!this.editingLead.title) {
-      this.error = 'Lead title is required';
-      return;
-    }
-    
-    if (!this.editingLead.company) {
-      this.error = 'Company is required';
-      return;
-    }
-    
-    // Clear any previous errors
-    this.error = null;
-    
-    // Update last update timestamp
-    this.editingLead.lastUpdate = 'just now';
-    
-    // In a real app, would validate the form here
-    this.onSave.emit(this.editingLead);
-  }
-}

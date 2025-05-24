@@ -3,6 +3,7 @@ import { Lead, Company } from '../../../model/types';
 import { LeadService } from '../../services/lead.service';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-leads',
@@ -26,7 +27,9 @@ export class LeadsComponent implements OnInit {
   // Loading and error states
   loading: boolean = false;
   error: string | null = null;
-
+  // Query parameters for pre-filled data
+  preSelectedCompanyId: number | null = null;
+  preSelectedCompanyName: string | null = null;
   leadStatuses = [
     { id: 'all', label: 'All Leads', count: 0 },
     { id: 'new', label: 'New', count: 0 },
@@ -39,10 +42,26 @@ export class LeadsComponent implements OnInit {
   constructor(
     private leadService: LeadService, 
     private companyService: CompanyService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
+    // Check for query parameters
+    this.route.queryParams.subscribe(params => {
+      this.preSelectedCompanyId = params['companyId'] ? parseInt(params['companyId'], 10) : null;
+      this.preSelectedCompanyName = params['companyName'] || null;
+      
+      // If action is 'new', automatically open the lead creation dialog
+      if (params['action'] === 'new' && this.preSelectedCompanyId) {
+        // Set up a pre-filled lead and open the dialog
+        setTimeout(() => {
+          this.createNewLead();
+        }, 100);
+      }
+    });
+
     if (this.company) {
       this.loadLeads();
     } else {
@@ -50,7 +69,6 @@ export class LeadsComponent implements OnInit {
       this.loadLeads();
     }
   }
-
   loadCompanies() {
     this.loading = true;
     this.companyService.getCompanies()
@@ -114,7 +132,7 @@ export class LeadsComponent implements OnInit {
     
     // Count leads for each status
     this.leads.forEach(lead => {
-      const status = lead.status.toLowerCase();
+      const status = lead.leadStatusName?.toLowerCase();
       const statusObj = this.leadStatuses.find(s => s.id === status);
       if (statusObj) {
         statusObj.count++;
@@ -127,7 +145,7 @@ export class LeadsComponent implements OnInit {
     let results = this.leads;
     if (this.activeStatus !== 'all') {
       results = results.filter(lead => 
-        lead.status.toLowerCase() === this.activeStatus
+        lead.leadStatusName?.toLowerCase() === this.activeStatus
       );
     }
     
@@ -135,9 +153,9 @@ export class LeadsComponent implements OnInit {
     if (this.searchTerm.trim()) {
       const search = this.searchTerm.toLowerCase();
       results = results.filter(lead => 
-        lead.title.toLowerCase().includes(search) || 
-        lead.company.toLowerCase().includes(search) ||
-        lead.owner.toLowerCase().includes(search)
+        lead.leadName.toLowerCase().includes(search) || 
+        lead.companyName?.toLowerCase().includes(search) ||
+        lead.ownerName?.toLowerCase().includes(search)
       );
     }
     
@@ -148,15 +166,12 @@ export class LeadsComponent implements OnInit {
   sortLeads(): void {
     switch (this.sortBy) {
       case 'value':
-        this.filteredLeads.sort((a, b) => b.value - a.value);
+        this.filteredLeads.sort((a, b) => b.salesGapValue ?? 0 - (a.salesGapValue ?? 0));
         break;
       case 'probability':
         this.filteredLeads.sort((a, b) => b.probability - a.probability);
         break;
-      case 'lastUpdate':
-        // Simple sort for demo purposes - in a real app would parse the date
-        this.filteredLeads.sort((a, b) => a.lastUpdate.localeCompare(b.lastUpdate));
-        break;
+   
     }
   }
 
@@ -182,10 +197,10 @@ export class LeadsComponent implements OnInit {
     
     if (this.selectedLead) {
       // Update existing lead
-      this.leadService.updateLead(this.selectedLead.id || 0, lead)
+      this.leadService.updateLead(this.selectedLead.leadId || 0, lead)
         .subscribe({
           next: () => {
-            this.loadLeads();
+            this.loadLeads()
             this.closeLeadDetail();
             this.loading = false;
             

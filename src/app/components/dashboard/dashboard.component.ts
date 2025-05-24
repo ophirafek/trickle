@@ -90,7 +90,7 @@ export class DashboardComponent implements OnInit {
         next: (leads) => {
           // Sort leads by value (highest first)
           this.leads = leads
-            .sort((a, b) => b.value - a.value)
+            .sort((a, b) => b.salesGapValue ?? 0 - (a.salesGapValue ?? 0))
             .slice(0, 3); // Show only top 3 leads
           
           this.loading = false;
@@ -108,13 +108,13 @@ export class DashboardComponent implements OnInit {
     return name.split(' ').map(n => n[0]).join('');
   }
 
-  getLeadStatusColor(status: string): ThemePalette {
-    const colorMap: { [key: string]: ThemePalette } = {
-      'New': 'primary',
-      'Contacted': 'accent',
-      'Qualified': 'primary',
-      'Proposal': 'accent',
-      'Negotiation': 'warn'
+  getLeadStatusColor(status: number): ThemePalette {
+    const colorMap: { [key: number]: ThemePalette } = {
+      1: 'primary',
+      2: 'accent',
+      3: 'primary',
+      4: 'accent',
+      5: 'warn'
     };
     return colorMap[status] || 'primary';
   }

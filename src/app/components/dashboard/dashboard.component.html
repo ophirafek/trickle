@@ -86,16 +86,16 @@
         <mat-list-item *ngFor="let lead of leads" class="hover:bg-gray-50 cursor-pointer rounded-lg mb-2">
           <div class="flex justify-between w-full">
             <div>
-              <h3 class="font-medium text-gray-800">{{ lead.title }}</h3>
-              <p class="text-sm text-gray-500">{{ lead.company }}</p>
+              <h3 class="font-medium text-gray-800">{{ lead.leadName }}</h3>
+              <p class="text-sm text-gray-500">{{ lead.companyName }}</p>
               <div class="mt-1">
-                <mat-chip [color]="getLeadStatusColor(lead.status)" selected>
-                  {{ lead.status }}
+                <mat-chip [color]="getLeadStatusColor(lead.statusCode?? 0)" selected>
+                  {{ lead.leadStatusName }}
                 </mat-chip>
               </div>
             </div>
             <div class="flex flex-col items-end">
-              <div class="text-lg font-semibold text-gray-800">${{ lead.value | number }}</div>
+              <div class="text-lg font-semibold text-gray-800">${{ lead.salesGapValue | number }}</div>
               <div class="text-sm text-gray-500">{{ lead.probability }}% probability</div>
             </div>
           </div>

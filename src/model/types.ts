@@ -104,20 +104,50 @@ export interface Attendee {
   company: string;
 }
 
+// Updated Lead interface to match new database structure
 export interface Lead {
-  id?: number;
-  title: string;
-  company: string;
-  companyId?: number;
-  status: string;
-  value: number;
+  leadId?: number;
+  leadName: string;
+  companyId: number;
+  leadTypeCode?: number;
+  leadSourceCode?: number;
+  contactId?: number;
+  currencyCode?: number;
+  marketCode?: number;
+  agentId?: number;
+  ownerEmployeeId?: number;
   probability: number;
-  owner: string;
-  lastUpdate: string;
-  source?: string;
-  expectedCloseDate?: Date;
-  description?: string;
-  nextSteps?: string;
+  score?: number;
+  employees?: number;
+  actualSalesValue?: number;
+  salesGapValue?: number;
+  activityExpansion?: string;
+  exportMarketValue?: number;
+  localMarketValue?: number;
+  exportRatio?: number;
+  region?: string;
+  currentInsurerNo?: string;
+  externalStartDate?: Date;
+  statusCode?: number;
+  reasonRejectionCode?: number;
+  rejectionDetail?: string;
+  notes?: string;
+  additionalInfo?: string;
+  openingEffectiveDate?: Date;
+  closingEffectiveDate?: Date;
+  openingRegistrationDate?: Date;
+  closingRegistrationDate?: Date;
+  openingReference?: number;
+  closingReference?: number;
+  activeFlag?: boolean;
+
+  // Computed properties for display
+  leadTypeName?: string;
+  leadStatusName?: string;
+  marketName?: string;
+  contactName?: string;
+  ownerName?: string;
+  companyName?: string;
 }
 
 export interface QuickAction {

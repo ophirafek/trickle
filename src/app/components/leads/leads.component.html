@@ -88,11 +88,13 @@
     </mat-card>
   </div>
 
-  <!-- Lead Detail Component -->
-  <app-lead-detail
-    [lead]="selectedLead"
-    [isOpen]="isLeadDetailOpen"
-    (onClose)="closeLeadDetail()"
-    (onSave)="saveLead($event)"
-  ></app-lead-detail>
+<!-- Lead Detail Component -->
+<app-lead-detail
+[lead]="selectedLead"
+[isOpen]="isLeadDetailOpen"
+[preSelectedCompanyId]="preSelectedCompanyId"
+[preSelectedCompanyName]="preSelectedCompanyName"
+(onClose)="closeLeadDetail()"
+(onSave)="saveLead($event)"
+></app-lead-detail>
 </div>

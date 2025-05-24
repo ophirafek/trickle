@@ -469,9 +469,9 @@ export class CompanyDetailComponent implements OnInit {
 
   editLead(lead: Lead): void {
     // Check if lead has an ID (existing lead)
-    if (lead.id) {
+    if (lead.leadId) {
       // Navigate to edit the lead
-      this.router.navigate(['/leads', lead.id]);
+      this.router.navigate(['/leads', lead.leadId]);
     } else {
       // Handle case when lead might not have ID
       console.error('Cannot edit lead without an ID');
@@ -482,6 +482,7 @@ export class CompanyDetailComponent implements OnInit {
     }
   }
 
+ 
   deleteLead(leadId: number): void {
     if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
       this.leadLoading = true;
@@ -508,5 +509,10 @@ export class CompanyDetailComponent implements OnInit {
           }
         });
     }
+  }
+
+  onLeadDeleted(leadId: number): void {
+    // Remove the lead from the local array
+    this.companyLeads = this.companyLeads.filter(lead => lead.leadId !== leadId);
   }
 }

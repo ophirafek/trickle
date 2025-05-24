@@ -130,51 +130,30 @@
         </div>
 
         <!-- Leads Tab Content -->
-        <div *ngIf="activeTab === 'leads'">
-          <!-- Loading indicator for leads -->
-          <div *ngIf="leadLoading" class="flex items-center justify-center p-8">
-            <mat-spinner [diameter]="32"></mat-spinner>
-            <p class="ml-4 text-gray-700">{{ 'COMMON.LOADING' | transloco }}</p>
-          </div>
-          
-          <!-- Lead error message -->
-          <div *ngIf="leadError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-            {{ leadError }}
-          </div>
-          
-          <!-- Lead actions header -->
-          <div class="flex justify-between mb-4" *ngIf="!leadLoading">
-            <h3 class="text-lg font-medium text-gray-700">{{ 'COMPANY_DETAIL.COMPANY_LEADS' | transloco }}</h3>
-            <button 
-              mat-raised-button
-              color="primary"
-              (click)="createNewLead()"
-              class="flex items-center"
-            >
-              <mat-icon class="mr-1">add</mat-icon>
-              <span>{{ 'COMPANY_DETAIL.ADD_LEAD' | transloco }}</span>
-            </button>
-          </div>
-          
-          <!-- Using leads-list component -->
-          <app-leads-list
-            *ngIf="!leadLoading || (companyLeads && companyLeads.length > 0)"
-            [leads]="companyLeads"
-            [loading]="leadLoading"
-            [showCompanyColumn]="false"
-            (leadSelected)="editLead($event)">
-            <button 
-              mat-raised-button
-              color="primary"
-              (click)="createNewLead()"
-              emptyActionButton
-              class="flex items-center"
-            >
-              <mat-icon class="mr-1">add</mat-icon>
-              <span>{{ 'COMPANY_DETAIL.ADD_LEAD' | transloco }}</span>
-            </button>
-          </app-leads-list>
-        </div>
+     <!-- Leads Tab Content -->
+     <div *ngIf="activeTab === 'leads'">
+      <!-- Loading indicator for leads -->
+      <div *ngIf="leadLoading" class="flex items-center justify-center p-8">
+        <mat-spinner [diameter]="32"></mat-spinner>
+        <p class="ml-4 text-gray-700">{{ 'COMMON.LOADING' | transloco }}</p>
+      </div>
+      
+      <!-- Lead error message -->
+      <div *ngIf="leadError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+        {{ leadError }}
+      </div>
+      
+      <!-- Using leads-list component -->
+      <app-leads-list
+        *ngIf="!leadLoading || (companyLeads && companyLeads.length > 0)"
+        [leads]="companyLeads"
+        [loading]="leadLoading"
+        [companyId]="editingCompany.id"
+        (leadSelected)="editLead($event)"
+        (addLeadClicked)="createNewLead()"
+        (leadDeleted)="onLeadDeleted($event)">
+      </app-leads-list>
+    </div>
         
         <!-- Insured Details Tab Content -->
         <div *ngIf="activeTab === 'insured'">
