@@ -128,18 +128,15 @@ export class LeadsListComponent implements OnInit, OnChanges {
     return leadType?.codeShortDescription || '';
   }
 
-  /**
+/**
    * Get lead status name from code
    */
-  getLeadStatusName(statusCode?: string): string {
-    if (!statusCode) return '';
-    // Assuming statusCode is stored as string but maps to codeNumber
-    const numericCode = parseInt(statusCode, 10);
-    if (isNaN(numericCode)) return statusCode; // Return as-is if not numeric
-    
-    const status = this.leadStatuses.find(s => s.codeNumber === numericCode);
-    return status?.codeShortDescription || statusCode;
-  }
+getLeadStatusName(statusCode?: number): string {
+  if (!statusCode) return '';
+  
+  const status = this.leadStatuses.find(s => s.codeNumber === statusCode);
+  return status?.codeShortDescription || statusCode.toString();
+}
 
   /**
    * Get market name from code

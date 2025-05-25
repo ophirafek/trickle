@@ -455,32 +455,35 @@ export class CompanyDetailComponent implements OnInit {
     return colorMap[status] || 'primary';
   }
 
-  createNewLead(): void {
-    if (!this.editingCompany) return;
-    
-    // Navigate to the leads page with company information
-    this.router.navigate(['/leads/new'], {
-      queryParams: {
-        companyId: this.editingCompany.id,
-        companyName: this.editingCompany.registrationName
-      }
+// Update the createNewLead method in company-detail.component.ts
+
+createNewLead(): void {
+  if (!this.editingCompany) return;
+  
+  // Navigate to the leads creation page with company information pre-filled
+  this.router.navigate(['/leads/new'], {
+    queryParams: {
+      companyId: this.editingCompany.id,
+      companyName: this.editingCompany.registrationName
+    }
+  });
+}
+
+// Update the editLead method in company-detail.component.ts
+editLead(lead: Lead): void {
+  // Check if lead has an ID (existing lead)
+  if (lead.leadId) {
+    // Navigate to edit the lead
+    this.router.navigate(['/leads', lead.leadId]);
+  } else {
+    // Handle case when lead might not have ID
+    console.error('Cannot edit lead without an ID');
+    this.snackBar.open('Cannot edit this lead', 'Close', {
+      duration: 3000,
+      panelClass: ['error-snackbar']
     });
   }
-
-  editLead(lead: Lead): void {
-    // Check if lead has an ID (existing lead)
-    if (lead.leadId) {
-      // Navigate to edit the lead
-      this.router.navigate(['/leads', lead.leadId]);
-    } else {
-      // Handle case when lead might not have ID
-      console.error('Cannot edit lead without an ID');
-      this.snackBar.open('Cannot edit this lead', 'Close', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-    }
-  }
+}
 
  
   deleteLead(leadId: number): void {

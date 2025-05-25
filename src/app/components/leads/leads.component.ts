@@ -2,13 +2,16 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Lead, Company } from '../../../model/types';
 import { LeadService } from '../../services/lead.service';
 import { CompanyService } from '../../services/company.service';
+import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-leads',
   templateUrl: './leads.component.html',
-  styleUrls: ['./leads.component.scss']
+  styleUrls: ['./leads.component.css']
 })
 export class LeadsComponent implements OnInit {
   @Input() company: any; // Accept the company object as input
@@ -20,55 +23,85 @@ export class LeadsComponent implements OnInit {
   searchTerm: string = '';
   sortBy: string = 'value';
 
-  // Lead detail
-  selectedLead: Lead | null = null;
-  isLeadDetailOpen: boolean = false;
-
   // Loading and error states
   loading: boolean = false;
   error: string | null = null;
+
   // Query parameters for pre-filled data
   preSelectedCompanyId: number | null = null;
   preSelectedCompanyName: string | null = null;
-  leadStatuses = [
-    { id: 'all', label: 'All Leads', count: 0 },
-    { id: 'new', label: 'New', count: 0 },
-    { id: 'contacted', label: 'Contacted', count: 0 },
-    { id: 'qualified', label: 'Qualified', count: 0 },
-    { id: 'proposal', label: 'Proposal', count: 0 },
-    { id: 'negotiation', label: 'Negotiation', count: 0 }
-  ];
+
+  // Lead statuses loaded from general codes
+  leadStatuses: { id: string; label: string; count: number; codeNumber?: number }[] = [];
+  leadStatusCodes: GeneralCode[] = [];
 
   constructor(
     private leadService: LeadService, 
     private companyService: CompanyService,
+    private generalCodeService: GeneralCodeService,
     private snackBar: MatSnackBar,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Check for query parameters
+    // Check for query parameters (but don't auto-create lead)
     this.route.queryParams.subscribe(params => {
       this.preSelectedCompanyId = params['companyId'] ? parseInt(params['companyId'], 10) : null;
       this.preSelectedCompanyName = params['companyName'] || null;
-      
-      // If action is 'new', automatically open the lead creation dialog
-      if (params['action'] === 'new' && this.preSelectedCompanyId) {
-        // Set up a pre-filled lead and open the dialog
-        setTimeout(() => {
-          this.createNewLead();
-        }, 100);
-      }
     });
 
-    if (this.company) {
-      this.loadLeads();
-    } else {
-      this.loadCompanies();
-      this.loadLeads();
-    }
+    // Load lead statuses first, then load other data
+    this.loadLeadStatuses().then(() => {
+      if (this.company) {
+        this.loadLeads();
+      } else {
+        this.loadCompanies();
+        this.loadLeads();
+      }
+    });
   }
+
+  loadLeadStatuses(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.generalCodeService.getCodesByType(70).subscribe({
+        next: (statusCodes) => {
+          this.leadStatusCodes = statusCodes;
+          
+          // Create the leadStatuses array with "All" option first
+          this.leadStatuses = [
+            { id: 'all', label: 'All Leads', count: 0 }
+          ];
+          
+          // Add status codes to the array
+          statusCodes.forEach(status => {
+            this.leadStatuses.push({
+              id: status.codeNumber.toString(),
+              label: status.codeShortDescription,
+              count: 0,
+              codeNumber: status.codeNumber
+            });
+          });
+          
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error loading lead statuses:', err);
+          // Fallback to hardcoded statuses if loading fails
+          this.leadStatuses = [
+            { id: 'all', label: 'All Leads', count: 0 },
+            { id: '1', label: 'New', count: 0, codeNumber: 1 },
+            { id: '2', label: 'Contacted', count: 0, codeNumber: 2 },
+            { id: '3', label: 'Qualified', count: 0, codeNumber: 3 },
+            { id: '4', label: 'Proposal', count: 0, codeNumber: 4 },
+            { id: '5', label: 'Negotiation', count: 0, codeNumber: 5 }
+          ];
+          resolve();
+        }
+      });
+    });
+  }
+
   loadCompanies() {
     this.loading = true;
     this.companyService.getCompanies()
@@ -88,11 +121,11 @@ export class LeadsComponent implements OnInit {
   loadLeads() {
     if (this.company) {
       this.loading = true;
-      this.leadService.getLeadsByCompanyId(this.company.id)
+      this.leadService.getLeadsByCompany(this.company.id)
         .subscribe({
           next: (leads) => {
             this.leads = leads;
-            this.filteredLeads = leads; // Ensure leads are displayed
+            this.filteredLeads = leads;
             this.loading = false;
           },
           error: (err) => {
@@ -123,17 +156,18 @@ export class LeadsComponent implements OnInit {
   }
 
   updateStatusCounts(): void {
-    this.leadStatuses[0].count = this.leads.length;
+    // Reset all counts to 0
+    this.leadStatuses.forEach(status => status.count = 0);
     
-    // Reset counts
-    for (let i = 1; i < this.leadStatuses.length; i++) {
-      this.leadStatuses[i].count = 0;
-    }
+    // Set total count for "All Leads"
+    this.leadStatuses[0].count = this.leads.length;
     
     // Count leads for each status
     this.leads.forEach(lead => {
-      const status = lead.leadStatusName?.toLowerCase();
-      const statusObj = this.leadStatuses.find(s => s.id === status);
+      // Find the matching status by codeNumber
+      const statusObj = this.leadStatuses.find(s => 
+        s.codeNumber && s.codeNumber === lead.statusCode
+      );
       if (statusObj) {
         statusObj.count++;
       }
@@ -144,8 +178,10 @@ export class LeadsComponent implements OnInit {
     // First filter by status
     let results = this.leads;
     if (this.activeStatus !== 'all') {
+      // Convert activeStatus to number and filter by statusCode
+      const statusCodeNumber = parseInt(this.activeStatus, 10);
       results = results.filter(lead => 
-        lead.leadStatusName?.toLowerCase() === this.activeStatus
+        lead.statusCode === statusCodeNumber
       );
     }
     
@@ -166,74 +202,38 @@ export class LeadsComponent implements OnInit {
   sortLeads(): void {
     switch (this.sortBy) {
       case 'value':
-        this.filteredLeads.sort((a, b) => b.salesGapValue ?? 0 - (a.salesGapValue ?? 0));
+        this.filteredLeads.sort((a, b) => (b.salesGapValue ?? 0) - (a.salesGapValue ?? 0));
         break;
       case 'probability':
         this.filteredLeads.sort((a, b) => b.probability - a.probability);
         break;
-   
+      // Add more sorting options as needed
     }
   }
 
-  // Lead detail methods
+  // Navigate to lead detail for editing
   openLeadDetail(lead: Lead): void {
-    this.selectedLead = lead;
-    this.isLeadDetailOpen = true;
-  }
-  
-  createNewLead(): void {
-    this.selectedLead = null; // Null indicates a new lead
-    this.isLeadDetailOpen = true;
-  }
-  
-  closeLeadDetail(): void {
-    this.isLeadDetailOpen = false;
-    this.selectedLead = null;
-  }
-  
-  saveLead(lead: Lead): void {
-    this.loading = true;
-    this.error = null;
-    
-    if (this.selectedLead) {
-      // Update existing lead
-      this.leadService.updateLead(this.selectedLead.leadId || 0, lead)
-        .subscribe({
-          next: () => {
-            this.loadLeads()
-            this.closeLeadDetail();
-            this.loading = false;
-            
-            this.snackBar.open('Lead updated successfully', 'Close', {
-              duration: 3000
-            });
-          },
-          error: (err) => {
-            this.error = 'Failed to update lead. Please try again.';
-            this.loading = false;
-            console.error('Error updating lead:', err);
-          }
-        });
+    if (lead.leadId) {
+      this.router.navigate(['/leads', lead.leadId]);
     } else {
-      // Create new lead
-      this.leadService.createLead(lead)
-        .subscribe({
-          next: () => {
-            this.loadLeads();
-            this.closeLeadDetail();
-            this.loading = false;
-            
-            this.snackBar.open('Lead created successfully', 'Close', {
-              duration: 3000
-            });
-          },
-          error: (err) => {
-            this.error = 'Failed to create lead. Please try again.';
-            this.loading = false;
-            console.error('Error creating lead:', err);
-          }
-        });
+      console.error('Cannot open lead detail without lead ID');
     }
+  }
+  
+  // Navigate to new lead creation
+  createNewLead(): void {
+    // Navigate to new lead creation page
+    const queryParams: any = {};
+    
+    // If we have pre-selected company info, pass it along
+    if (this.preSelectedCompanyId) {
+      queryParams.companyId = this.preSelectedCompanyId;
+      queryParams.companyName = this.preSelectedCompanyName;
+    }
+    
+    this.router.navigate(['/leads/new'], {
+      queryParams: Object.keys(queryParams).length > 0 ? queryParams : undefined
+    });
   }
   
   // Get company name for a lead when displaying details

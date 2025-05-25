@@ -70,31 +70,14 @@
           </div>
         </div>
 
-        <!-- Use the new leads-list component -->
+        <!-- Use the leads-list component -->
         <app-leads-list 
           [leads]="filteredLeads" 
           [loading]="loading"
-          (leadSelected)="openLeadDetail($event)">
-          <button 
-            mat-raised-button
-            color="primary"
-            (click)="createNewLead()"
-            emptyActionButton
-          >
-            Add New Lead
-          </button>
+          (leadSelected)="openLeadDetail($event)"
+          (addLeadClicked)="createNewLead()">
         </app-leads-list>
       </mat-card-content>
     </mat-card>
   </div>
-
-<!-- Lead Detail Component -->
-<app-lead-detail
-[lead]="selectedLead"
-[isOpen]="isLeadDetailOpen"
-[preSelectedCompanyId]="preSelectedCompanyId"
-[preSelectedCompanyName]="preSelectedCompanyName"
-(onClose)="closeLeadDetail()"
-(onSave)="saveLead($event)"
-></app-lead-detail>
 </div>

@@ -81,6 +81,7 @@
     "CALL": "Call",
     "EMAIL": "Email",
     "LOCATION": "View Location",
+    "SAVING": "Saving...",
     "NOT_SPECIFIED": "Not specified"
   },
   "COMPANY_DETAIL": {
@@ -338,6 +339,38 @@
       "EMPLOYEE_LOAD_ERROR": "Failed to load employees list",
       "FORMAT_EXCEL": "Excel files (.xlsx, .xls)"
     }
+  },
+  "LEADS": {
+    "NEW_LEAD": "New Lead",
+    "EDIT_LEAD": "Edit Lead",
+    "CREATE_LEAD": "Create Lead",
+    "LEAD_NAME": "Lead Name",
+    "COMPANY": "Company",
+    "LEAD_TYPE": "Lead Type",
+    "STATUS": "Status", 
+    "CONTACT": "Contact",
+    "OWNER": "Owner",
+    "SALES_GAP_VALUE": "Sales Gap Value",
+    "PROBABILITY": "Probability",
+    "MARKET": "Market",
+    "CURRENCY": "Currency",
+    "REGION": "Region",
+    "NOTES": "Notes",
+    "EXPORT_MARKET_VALUE": "Export Market Value",
+    "LOCAL_MARKET_VALUE": "Local Market Value",
+    "ACTIVITY_EXPANSION": "Activity Expansion",
+    "EXPORT_MARKET_VALUE_HINT": "Potential value from export/international markets",
+    "LOCAL_MARKET_VALUE_HINT": "Potential value from local/domestic market",
+    "ACTIVITY_EXPANSION_HINT": "Describe planned business activities and expansion opportunities",
+    "ACTIVITY_EXPANSION_PLACEHOLDER": "Describe the planned activities, market expansion, new products, or services...",
+    "BASIC_INFORMATION": "Basic Information",
+    "CONTACT_AND_OWNER": "Contact & Owner",
+    "FINANCIAL_INFORMATION": "Financial Information",
+    "ADDITIONAL_INFORMATION": "Additional Information",
+    "CREATE_SUCCESS": "Lead created successfully",
+    "CREATE_ERROR": "Failed to create lead",
+    "UPDATE_SUCCESS": "Lead updated successfully",
+    "UPDATE_ERROR": "Failed to update lead"
   },
   "VALIDATION": {
     "REQUIRED_FIELD": "This field is required",

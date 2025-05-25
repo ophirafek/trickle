@@ -6,6 +6,7 @@ import { CompanyImportComponent } from './components/company-import/company-impo
 import { LeadsComponent } from './components/leads/leads.component';
 import { MeetingsComponent } from './components/meetings/meetings.component';
 import { CompanyDetailComponent } from './components/company-detail/company-detail.component';
+import { LeadDetailComponent } from './components/lead-detail/lead-detail.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
@@ -13,6 +14,8 @@ const routes: Routes = [
   { path: 'companies/import', component: CompanyImportComponent },
   { path: 'companies/:id', component: CompanyDetailComponent },
   { path: 'leads', component: LeadsComponent },
+  { path: 'leads/new', component: LeadDetailComponent }, // New lead creation
+  { path: 'leads/:id', component: LeadDetailComponent }, // Edit existing lead
   { path: 'meetings', component: MeetingsComponent },
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
 ];
