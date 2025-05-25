@@ -11,9 +11,10 @@ import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-leads-list',
-  templateUrl: './leads-list.component.html',
-  styleUrls: ['./leads-list.component.css']
+    selector: 'app-leads-list',
+    templateUrl: './leads-list.component.html',
+    styleUrls: ['./leads-list.component.css'],
+    standalone: false
 })
 export class LeadsListComponent implements OnInit, OnChanges {
   @Input() leads: Lead[] = [];

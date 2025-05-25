@@ -6,9 +6,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-meetings',
-  templateUrl: './meetings.component.html',
-  styleUrls: ['./meetings.component.scss']
+    selector: 'app-meetings',
+    templateUrl: './meetings.component.html',
+    styleUrls: ['./meetings.component.scss'],
+    standalone: false
 })
 export class MeetingsComponent implements OnInit {
   meetings: Meeting[] = [];

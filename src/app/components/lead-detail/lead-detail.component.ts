@@ -12,9 +12,10 @@ import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-lead-detail',
-  templateUrl: './lead-detail.component.html',
-  styleUrls: ['./lead-detail.component.css']
+    selector: 'app-lead-detail',
+    templateUrl: './lead-detail.component.html',
+    styleUrls: ['./lead-detail.component.css'],
+    standalone: false
 })
 export class LeadDetailComponent implements OnInit {
   editingLead: Lead = this.getEmptyLead();

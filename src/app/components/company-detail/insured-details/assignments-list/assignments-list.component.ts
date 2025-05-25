@@ -17,9 +17,10 @@ interface NewAssignment {
 }
 
 @Component({
-  selector: 'app-assignments-list',
-  templateUrl: './assignments-list.component.html',
-  styleUrls: ['./assignments-list.component.scss']
+    selector: 'app-assignments-list',
+    templateUrl: './assignments-list.component.html',
+    styleUrls: ['./assignments-list.component.scss'],
+    standalone: false
 })
 export class AssignmentsListComponent implements OnInit, OnChanges {
   @Input() company!: Company;

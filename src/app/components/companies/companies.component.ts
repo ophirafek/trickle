@@ -25,10 +25,11 @@ interface EntityTypeCode {
 
 
 @Component({
-  selector: 'app-companies',
-  templateUrl: './companies.component.html',
-  styleUrls: ['./companies.component.css'],
-  encapsulation: ViewEncapsulation.None
+    selector: 'app-companies',
+    templateUrl: './companies.component.html',
+    styleUrls: ['./companies.component.css'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class CompaniesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

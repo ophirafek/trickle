@@ -10,9 +10,10 @@ import { CompanyService } from '../../../services/company.service';
 import { GeneralCode, GeneralCodeService } from '../../../services/general-codes.service';
 
 @Component({
-  selector: 'app-contact-list',
-  templateUrl: './contact-list.component.html',
-  styleUrls: ['./contact-list.component.scss']
+    selector: 'app-contact-list',
+    templateUrl: './contact-list.component.html',
+    styleUrls: ['./contact-list.component.scss'],
+    standalone: false
 })
 export class ContactListComponent implements OnInit, OnChanges {
   @Input() company!: Company;

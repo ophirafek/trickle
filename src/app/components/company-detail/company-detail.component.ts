@@ -12,10 +12,11 @@ import { GeneralCodeService, GeneralCode } from '../../services/general-codes.se
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-company-detail',
-  templateUrl: './company-detail.component.html',
-  styleUrls: ['./company-detail.component.css'],
-  encapsulation: ViewEncapsulation.None
+    selector: 'app-company-detail',
+    templateUrl: './company-detail.component.html',
+    styleUrls: ['./company-detail.component.css'],
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class CompanyDetailComponent implements OnInit {
   editingCompany: Company = this.getEmptyCompany();

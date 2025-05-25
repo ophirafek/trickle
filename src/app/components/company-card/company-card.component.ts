@@ -3,9 +3,10 @@ import { Company } from '../../../model/types';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-company-card',
-  templateUrl: './company-card.component.html',
-  styleUrls: ['./company-card.component.css']
+    selector: 'app-company-card',
+    templateUrl: './company-card.component.html',
+    styleUrls: ['./company-card.component.css'],
+    standalone: false
 })
 export class CompanyCardComponent {
   @Input() company!: Company;

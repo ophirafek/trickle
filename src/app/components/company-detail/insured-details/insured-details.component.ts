@@ -7,9 +7,10 @@ import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-insured-details',
-  templateUrl: './insured-details.component.html',
-  styleUrls: ['./insured-details.component.scss']
+    selector: 'app-insured-details',
+    templateUrl: './insured-details.component.html',
+    styleUrls: ['./insured-details.component.scss'],
+    standalone: false
 })
 export class InsuredDetailsComponent implements OnInit, OnChanges {
   @Input() company!: Company;

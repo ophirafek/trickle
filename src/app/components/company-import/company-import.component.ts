@@ -16,9 +16,10 @@ import { MatTableDataSource } from '@angular/material/table';
 
 import { TranslocoService } from '@ngneat/transloco';
 @Component({
-  selector: 'app-company-import',
-  templateUrl: './company-import.component.html',
-  styleUrls: ['./company-import.component.scss']
+    selector: 'app-company-import',
+    templateUrl: './company-import.component.html',
+    styleUrls: ['./company-import.component.scss'],
+    standalone: false
 })
 export class CompanyImportComponent implements OnInit {
   @ViewChild('stepper') stepper!: MatStepper;

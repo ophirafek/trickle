@@ -3,9 +3,10 @@ import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { TranslocoService } from '@ngneat/transloco';
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+    selector: 'app-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    standalone: false
 })
 export class HeaderComponent implements OnInit {
   @Input() showMenuToggle: boolean = false;

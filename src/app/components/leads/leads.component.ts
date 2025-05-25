@@ -9,9 +9,10 @@ import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-leads',
-  templateUrl: './leads.component.html',
-  styleUrls: ['./leads.component.css']
+    selector: 'app-leads',
+    templateUrl: './leads.component.html',
+    styleUrls: ['./leads.component.css'],
+    standalone: false
 })
 export class LeadsComponent implements OnInit {
   @Input() company: any; // Accept the company object as input

@@ -9,9 +9,10 @@ import { TranslocoService } from '@ngneat/transloco';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'app-general-info',
-  templateUrl: './general-info.component.html',
-  styleUrls: ['./general-info.component.scss']
+    selector: 'app-general-info',
+    templateUrl: './general-info.component.html',
+    styleUrls: ['./general-info.component.scss'],
+    standalone: false
 })
 export class GeneralInfoComponent implements OnInit, OnChanges {
   @Input() company!: Company;

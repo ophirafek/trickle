@@ -5,9 +5,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
-  selector: 'app-meeting-detail',
-  templateUrl: './meeting-detail.component.html',
-  styleUrls: ['./meeting-detail.component.scss']
+    selector: 'app-meeting-detail',
+    templateUrl: './meeting-detail.component.html',
+    styleUrls: ['./meeting-detail.component.scss'],
+    standalone: false
 })
 export class MeetingDetailComponent implements OnInit {
   @Input() meeting: Meeting | null = null;
