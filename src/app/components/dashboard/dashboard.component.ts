@@ -5,7 +5,7 @@ import { CompanyService } from '../../services/company.service';
 import { MeetingService } from '../../services/meeting.service';
 import { LeadService } from '../../services/lead.service';
 import { ThemePalette } from '@angular/material/core';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
     selector: 'app-dashboard',

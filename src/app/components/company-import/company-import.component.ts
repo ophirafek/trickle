@@ -14,11 +14,11 @@ import { ThemePalette } from '@angular/material/core';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { MatTableDataSource } from '@angular/material/table';
 
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 @Component({
     selector: 'app-company-import',
     templateUrl: './company-import.component.html',
-    styleUrls: ['./company-import.component.scss'],
+    styleUrls: ['./company-import.component.css'],
     standalone: false
 })
 export class CompanyImportComponent implements OnInit {

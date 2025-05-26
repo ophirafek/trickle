@@ -6,7 +6,7 @@ import { EmployeeService } from '../../services/employee.service';
 import { CompanyService } from '../../services/company.service';
 import { LeadService } from '../../services/lead.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 

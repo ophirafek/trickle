@@ -8,7 +8,7 @@ import { Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ViewEncapsulation } from '@angular/core';
-import { translate, TranslocoService } from '@ngneat/transloco';
+import { translate, TranslocoService } from '@jsverse/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
 
 interface EntityTypeCode {

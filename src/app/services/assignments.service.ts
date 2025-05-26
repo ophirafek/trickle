@@ -6,7 +6,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { Assignment } from '../../model/assignment.model';
 import { GeneralCodeService } from './general-codes.service';
 import { EmployeeService } from './employee.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { environment } from '../../environments/environment';
 
 @Injectable({

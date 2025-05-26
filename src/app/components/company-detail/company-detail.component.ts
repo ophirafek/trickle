@@ -7,7 +7,7 @@ import { CompanyService } from '../../services/company.service';
 import { LeadService } from '../../services/lead.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
 import { finalize } from 'rxjs/operators';
 

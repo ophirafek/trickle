@@ -3,7 +3,7 @@ import { Component, OnInit, Input, ViewChild, TemplateRef, OnChanges, SimpleChan
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs/operators';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 import { Company, Contact } from '../../../../model/types';
 import { CompanyService } from '../../../services/company.service';

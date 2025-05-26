@@ -1,6 +1,6 @@
 // src/app/components/header/header.component.ts
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
     selector: 'app-header',

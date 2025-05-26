@@ -2,7 +2,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Company } from '../../../../model/types';
 import { GeneralCode, GeneralCodeService } from '../../../services/general-codes.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 

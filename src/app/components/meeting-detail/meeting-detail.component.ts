@@ -7,7 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 @Component({
     selector: 'app-meeting-detail',
     templateUrl: './meeting-detail.component.html',
-    styleUrls: ['./meeting-detail.component.scss'],
+    styleUrls: ['./meeting-detail.component.css'],
     standalone: false
 })
 export class MeetingDetailComponent implements OnInit {

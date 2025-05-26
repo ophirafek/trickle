@@ -7,7 +7,7 @@ import { Employee } from '../../../../../model/md-types';
 import { AssignmentsService } from '../../../../services/assignments.service';
 import { GeneralCode, GeneralCodeService } from '../../../../services/general-codes.service';
 import { EmployeeService } from '../../../../services/employee.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs/operators';
 
