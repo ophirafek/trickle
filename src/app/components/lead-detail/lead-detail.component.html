@@ -2,7 +2,7 @@
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
     <mat-spinner [diameter]="48"></mat-spinner>
-    <p class="ml-4 text-gray-700">{{ 'COMMON.LOADING' | transloco }}</p>
+    <p class="ml-4 text-gray-700" transloco="COMMON.LOADING"></p>
   </div>
 
   <!-- Header -->
@@ -17,7 +17,7 @@
         <mat-icon>arrow_back</mat-icon>
       </button>
       <h1 class="text-xl font-bold text-gray-800">
-        {{ isNewLead ? ('LEADS.NEW_LEAD' | transloco) : ('LEADS.EDIT_LEAD' | transloco) }}
+        {{ isNewLead ? ('LEADS.NEW_LEAD' | transloco) : editingLead.leadName }}
       </h1>
     </div>
     <button 
@@ -35,208 +35,314 @@
 
   <!-- Main Content -->
   <main class="flex-1 p-6 overflow-auto">
-    <div class="bg-white rounded-lg shadow-md p-6 max-w-4xl mx-auto">
-      
-      <!-- Error message -->
-      <div *ngIf="error" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-        {{ error }}
+    <div class="bg-white rounded-lg shadow-md">
+      <!-- Company Bar -->
+      <div class="bg-gray-100 px-6 py-4 rounded-t-lg flex justify-between items-center">
+        <div class="flex items-center">
+          <span class="text-xl font-semibold text-gray-800">{{ editingLead.companyName || ('LEADS.NEW_LEAD' | transloco) }}</span>
+        </div>
       </div>
 
-      <!-- Lead Form -->
-      <form *ngIf="!loading" class="space-y-6">
-        
-        <!-- Basic Information Section -->
-        <div class="border border-gray-200 rounded-md overflow-hidden">
-          <div class="bg-gray-50 px-4 py-3">
-            <h3 class="font-medium text-gray-700">{{ 'LEADS.BASIC_INFORMATION' | transloco }}</h3>
-          </div>
-          <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            <!-- Lead Name -->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'LEADS.LEAD_NAME' | transloco }} <span class="text-red-500">*</span></mat-label>
-              <input matInput [(ngModel)]="editingLead.leadName" name="leadName" required>
-            </mat-form-field>
+      <!-- Tabs -->
+      <div class="border-b border-gray-200">
+        <nav class="flex px-6 -mb-px">
+          <button 
+            (click)="activeTab = 'basic'"
+            class="py-4 px-6 font-medium transition-colors"
+            [ngClass]="activeTab === 'basic' 
+              ? 'border-b-2 border-blue-600 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'"
+          >
+            {{ 'LEADS.BASIC_INFORMATION' | transloco }}
+          </button>
+          
+          <button 
+            (click)="activeTab = 'financial'"
+            class="py-4 px-6 font-medium transition-colors"
+            [ngClass]="activeTab === 'financial' 
+              ? 'border-b-2 border-blue-600 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'"
+          >
+            {{ 'LEADS.FINANCIAL_INFORMATION' | transloco }}
+          </button>
+          
+          <button 
+            (click)="activeTab = 'meetings'"
+            class="py-4 px-6 font-medium transition-colors"
+            [ngClass]="activeTab === 'meetings' 
+              ? 'border-b-2 border-blue-600 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'"
+          >
+            {{ 'COMPANY_DETAIL.TABS.MEETINGS' | transloco }}
+          </button>
+          
+          <button 
+            (click)="activeTab = 'notes'"
+            class="py-4 px-6 font-medium transition-colors"
+            [ngClass]="activeTab === 'notes' 
+              ? 'border-b-2 border-blue-600 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'"
+          >
+            {{ 'LEADS.NOTES' | transloco }}
+          </button>
+        </nav>
+      </div>
 
-            <!-- Company -->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'LEADS.COMPANY' | transloco }} <span class="text-red-500">*</span></mat-label>
-              <mat-select [(ngModel)]="editingLead.companyId" name="company" 
-                         [disabled]="!!preSelectedCompanyId"
-                         (selectionChange)="onCompanyChange()" required>
-                <mat-option *ngFor="let company of companies" [value]="company.id">
-                  {{ company.registrationName }}
-                </mat-option>
-              </mat-select>
-              <mat-hint *ngIf="preSelectedCompanyId">Company is pre-selected</mat-hint>
-            </mat-form-field>
+      <!-- Tab Content -->
+      <div class="p-6">
+        <!-- Error message -->
+        <div *ngIf="error" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+          {{ error }}
+        </div>
 
-            <!-- Lead Type -->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'LEADS.LEAD_TYPE' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="editingLead.leadTypeCode" name="leadType">
-                <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
-                <mat-option *ngFor="let type of leadTypes" [value]="type.codeNumber">
-                  {{ type.codeShortDescription }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+        <!-- Basic Information Tab Content -->
+        <div *ngIf="activeTab === 'basic'">
+          <div class="space-y-4">
+            <!-- Corporate Registration Numbers Section -->
+            <div class="border border-gray-200 rounded-md overflow-hidden">
+              <div 
+                class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+              >
+                <h3 class="font-medium text-gray-700">{{ 'LEADS.BASIC_INFORMATION' | transloco }}</h3>
+              </div>
+              
+              <div class="p-4 grid grid-cols-2 gap-4">
+                <div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.LEAD_NAME' | transloco }} <span class="text-red-500">*</span></mat-label>
+                    <input 
+                      matInput 
+                      [(ngModel)]="editingLead.leadName" 
+                      name="leadName" 
+                      required
+                    >
+                  </mat-form-field>
+                </div>
 
-            <!-- Lead Status -->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'LEADS.STATUS' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="editingLead.statusCode" name="status">
-                <mat-option *ngFor="let status of leadStatuses" [value]="status.codeNumber">
-                  {{ status.codeShortDescription }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+                <div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.COMPANY' | transloco }} <span class="text-red-500">*</span></mat-label>
+                    <mat-select 
+                      [(ngModel)]="editingLead.companyId" 
+                      name="company" 
+                      [disabled]="!!preSelectedCompanyId"
+                      (selectionChange)="onCompanyChange()" 
+                      required
+                    >
+                      <mat-option *ngFor="let company of companies" [value]="company.id">
+                        {{ company.registrationName }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-hint *ngIf="preSelectedCompanyId">Company is pre-selected</mat-hint>
+                  </mat-form-field>
+                </div>
 
+                <div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.LEAD_TYPE' | transloco }}</mat-label>
+                    <mat-select [(ngModel)]="editingLead.leadTypeCode" name="leadType">
+                      <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
+                      <mat-option *ngFor="let type of leadTypes" [value]="type.codeNumber">
+                        {{ type.codeShortDescription }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.STATUS' | transloco }}</mat-label>
+                    <mat-select [(ngModel)]="editingLead.statusCode" name="status">
+                      <mat-option *ngFor="let status of leadStatuses" [value]="status.codeNumber">
+                        {{ status.codeShortDescription }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.CONTACT' | transloco }}</mat-label>
+                    <mat-select [(ngModel)]="editingLead.contactId" name="contact">
+                      <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
+                      <mat-option *ngFor="let contact of companyContacts" [value]="contact.id">
+                        {{ contact.firstName }} {{ contact.lastName }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.OWNER' | transloco }}</mat-label>
+                    <mat-select [(ngModel)]="editingLead.ownerEmployeeId" name="owner">
+                      <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
+                      <mat-option *ngFor="let employee of employees" [value]="employee.id">
+                        {{ employee.name }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.MARKET' | transloco }}</mat-label>
+                    <mat-select [(ngModel)]="editingLead.marketCode" name="market">
+                      <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
+                      <mat-option *ngFor="let market of markets" [value]="market.codeNumber">
+                        {{ market.codeShortDescription }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+
+                <div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.REGION' | transloco }}</mat-label>
+                    <input matInput [(ngModel)]="editingLead.region" name="region">
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Contact and Owner Section -->
-        <div class="border border-gray-200 rounded-md overflow-hidden">
-          <div class="bg-gray-50 px-4 py-3">
-            <h3 class="font-medium text-gray-700">{{ 'LEADS.CONTACT_AND_OWNER' | transloco }}</h3>
-          </div>
-          <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            <!-- Contact -->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'LEADS.CONTACT' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="editingLead.contactId" name="contact">
-                <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
-                <mat-option *ngFor="let contact of companyContacts" [value]="contact.id">
-                  {{ contact.firstName }} {{ contact.lastName }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+        <!-- Financial Information Tab Content -->
+        <div *ngIf="activeTab === 'financial'">
+          <div class="space-y-4">
+            <div class="border border-gray-200 rounded-md overflow-hidden">
+              <div 
+                class="flex justify-between items-center p-4 cursor-pointer bg-gray-50"
+              >
+                <h3 class="font-medium text-gray-700">{{ 'LEADS.FINANCIAL_INFORMATION' | transloco }}</h3>
+              </div>
+              
+              <div class="p-4 space-y-4">
+                <!-- Currency Selection -->
+                <div class="grid grid-cols-3 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.CURRENCY' | transloco }}</mat-label>
+                    <mat-select [(ngModel)]="editingLead.currencyCode" name="currency">
+                      <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
+                      <mat-option *ngFor="let currency of currencies" [value]="currency.codeNumber">
+                        {{ currency.codeShortDescription }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
 
-            <!-- Owner Employee -->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'LEADS.OWNER' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="editingLead.ownerEmployeeId" name="owner">
-                <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
-                <mat-option *ngFor="let employee of employees" [value]="employee.id">
-                  {{ employee.name }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+                <!-- Sales Gap Value and Probability -->
+                <div class="grid grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.SALES_GAP_VALUE' | transloco }}</mat-label>
+                    <input matInput type="number" [(ngModel)]="editingLead.salesGapValue" 
+                           name="salesGap" min="0">
+                    <div matSuffix class="text-gray-600 ml-2">{{ getSelectedCurrencySymbol() }}</div>
+                  </mat-form-field>
 
-          </div>
-        </div>
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.PROBABILITY' | transloco }} <span class="text-red-500">*</span></mat-label>
+                    <input matInput type="number" [(ngModel)]="editingLead.probability" 
+                           name="probability" min="0" max="100" required>
+                    <div matSuffix>%</div>
+                    <mat-error *ngIf="editingLead.probability < 0 || editingLead.probability > 100">
+                      Probability must be between 0 and 100
+                    </mat-error>
+                  </mat-form-field>
+                </div>
 
-        <!-- Financial Information Section -->
-        <div class="border border-gray-200 rounded-md overflow-hidden">
-          <div class="bg-gray-50 px-4 py-3">
-            <h3 class="font-medium text-gray-700">{{ 'LEADS.FINANCIAL_INFORMATION' | transloco }}</h3>
-          </div>
-          <div class="p-4 space-y-4">
-            
-            <!-- Currency Selection (First) -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'LEADS.CURRENCY' | transloco }}</mat-label>
-                <mat-select [(ngModel)]="editingLead.currencyCode" name="currency">
-                  <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
-                  <mat-option *ngFor="let currency of currencies" [value]="currency.codeNumber">
-                    {{ currency.codeShortDescription }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
+                <!-- Market Values -->
+                <div class="grid grid-cols-2 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.EXPORT_MARKET_VALUE' | transloco }}</mat-label>
+                    <input matInput type="number" [(ngModel)]="editingLead.exportMarketValue" 
+                           name="exportMarketValue" min="0">
+                    <div matSuffix class="text-gray-600 ml-2">{{ getSelectedCurrencySymbol() }}</div>
+                    <mat-hint>{{ 'LEADS.EXPORT_MARKET_VALUE_HINT' | transloco }}</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.LOCAL_MARKET_VALUE' | transloco }}</mat-label>
+                    <input matInput type="number" [(ngModel)]="editingLead.localMarketValue" 
+                           name="localMarketValue" min="0">
+                    <div matSuffix class="text-gray-600 ml-2">{{ getSelectedCurrencySymbol() }}</div>
+                    <mat-hint>{{ 'LEADS.LOCAL_MARKET_VALUE_HINT' | transloco }}</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <!-- Activity Expansion -->
+                <div class="grid grid-cols-1 gap-4">
+                  <mat-form-field appearance="outline" class="w-full">
+                    <mat-label>{{ 'LEADS.ACTIVITY_EXPANSION' | transloco }}</mat-label>
+                    <textarea matInput [(ngModel)]="editingLead.activityExpansion" 
+                             name="activityExpansion" rows="3"
+                             [placeholder]="'LEADS.ACTIVITY_EXPANSION_PLACEHOLDER' | transloco"></textarea>
+                    <mat-hint>{{ 'LEADS.ACTIVITY_EXPANSION_HINT' | transloco }}</mat-hint>
+                  </mat-form-field>
+                </div>
+              </div>
             </div>
-
-            <!-- Sales Gap Value and Probability -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'LEADS.SALES_GAP_VALUE' | transloco }}</mat-label>
-                <input matInput type="number" [(ngModel)]="editingLead.salesGapValue" 
-                       name="salesGap" min="0">
-                <div matSuffix class="text-gray-600 ml-2">{{ getSelectedCurrencySymbol() }}</div>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'LEADS.PROBABILITY' | transloco }} <span class="text-red-500">*</span></mat-label>
-                <input matInput type="number" [(ngModel)]="editingLead.probability" 
-                       name="probability" min="0" max="100" required>
-                <div matSuffix>%</div>
-                <mat-error *ngIf="editingLead.probability < 0 || editingLead.probability > 100">
-                  Probability must be between 0 and 100
-                </mat-error>
-              </mat-form-field>
-            </div>
-
-            <!-- Market Values -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'LEADS.EXPORT_MARKET_VALUE' | transloco }}</mat-label>
-                <input matInput type="number" [(ngModel)]="editingLead.exportMarketValue" 
-                       name="exportMarketValue" min="0">
-                <div matSuffix class="text-gray-600 ml-2">{{ getSelectedCurrencySymbol() }}</div>
-                <mat-hint>{{ 'LEADS.EXPORT_MARKET_VALUE_HINT' | transloco }}</mat-hint>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'LEADS.LOCAL_MARKET_VALUE' | transloco }}</mat-label>
-                <input matInput type="number" [(ngModel)]="editingLead.localMarketValue" 
-                       name="localMarketValue" min="0">
-                <div matSuffix class="text-gray-600 ml-2">{{ getSelectedCurrencySymbol() }}</div>
-                <mat-hint>{{ 'LEADS.LOCAL_MARKET_VALUE_HINT' | transloco }}</mat-hint>
-              </mat-form-field>
-            </div>
-
-            <!-- Activity Expansion -->
-            <div class="grid grid-cols-1 gap-4">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'LEADS.ACTIVITY_EXPANSION' | transloco }}</mat-label>
-                <textarea matInput [(ngModel)]="editingLead.activityExpansion" 
-                         name="activityExpansion" rows="3"
-                         [placeholder]="'LEADS.ACTIVITY_EXPANSION_PLACEHOLDER' | transloco"></textarea>
-                <mat-hint>{{ 'LEADS.ACTIVITY_EXPANSION_HINT' | transloco }}</mat-hint>
-              </mat-form-field>
-            </div>
-
           </div>
         </div>
 
-        <!-- Additional Information Section -->
-        <div class="border border-gray-200 rounded-md overflow-hidden">
-          <div class="bg-gray-50 px-4 py-3">
-            <h3 class="font-medium text-gray-700">{{ 'LEADS.ADDITIONAL_INFORMATION' | transloco }}</h3>
-          </div>
-          <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            <!-- Market -->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'LEADS.MARKET' | transloco }}</mat-label>
-              <mat-select [(ngModel)]="editingLead.marketCode" name="market">
-                <mat-option [value]="0">{{ 'COMMON.NOT_SPECIFIED' | transloco }}</mat-option>
-                <mat-option *ngFor="let market of markets" [value]="market.codeNumber">
-                  {{ market.codeShortDescription }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-
-            <!-- Region -->
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'LEADS.REGION' | transloco }}</mat-label>
-              <input matInput [(ngModel)]="editingLead.region" name="region">
-            </mat-form-field>
-
-            <!-- Notes -->
-            <div class="md:col-span-2">
-              <mat-form-field appearance="outline" class="w-full">
-                <mat-label>{{ 'LEADS.NOTES' | transloco }}</mat-label>
-                <textarea matInput [(ngModel)]="editingLead.notes" name="notes" rows="4"></textarea>
-              </mat-form-field>
+        <!-- Meetings Tab Content -->
+        <div *ngIf="activeTab === 'meetings'">
+          <div class="space-y-4">
+            <div class="border border-gray-200 rounded-md overflow-hidden">
+              <div class="flex justify-between items-center p-4 bg-gray-50">
+                <h3 class="font-medium text-gray-700">{{ 'COMPANY_DETAIL.TABS.MEETINGS' | transloco }}</h3>
+                <button 
+                  mat-raised-button
+                  color="primary"
+                  class="flex items-center"
+                >
+                  <mat-icon class="mr-1">add</mat-icon>
+                  <span>{{ 'SCHEDULE_MEETING' | transloco }}</span>
+                </button>
+              </div>
+              
+              <div class="p-4">
+                <!-- Empty state for meetings -->
+                <div *ngIf="true" class="text-center py-8 bg-gray-50 rounded-lg">
+                  <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <mat-icon class="text-gray-400 text-3xl">event</mat-icon>
+                  </div>
+                  <p class="text-gray-700">No meetings scheduled yet</p>
+                  <p class="text-sm text-gray-500 mt-1">Schedule meetings to track your interactions with this lead</p>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
+        <!-- Notes Tab Content -->
+        <div *ngIf="activeTab === 'notes'">
+          <div class="space-y-4">
+            <div class="border border-gray-200 rounded-md overflow-hidden">
+              <div class="flex justify-between items-center p-4 bg-gray-50">
+                <h3 class="font-medium text-gray-700">{{ 'LEADS.NOTES' | transloco }}</h3>
+                <button 
+                  mat-raised-button
+                  color="primary"
+                  class="flex items-center"
+                >
+                  <mat-icon class="mr-1">add</mat-icon>
+                  <span>{{ 'COMPANY_DETAIL.ADD_NOTE' | transloco }}</span>
+                </button>
+              </div>
+              
+              <div class="p-4">
+                <mat-form-field appearance="outline" class="w-full">
+                  <mat-label>{{ 'LEADS.NOTES' | transloco }}</mat-label>
+                  <textarea matInput [(ngModel)]="editingLead.notes" name="notes" rows="4"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
           </div>
         </div>
 
         <!-- Form Actions -->
-        <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+        <div class="flex justify-end space-x-4 pt-4 border-t border-gray-200 mt-4">
           <button mat-button (click)="cancel()" [disabled]="saving">
             {{ 'BUTTONS.CANCEL' | transloco }}
           </button>
@@ -245,14 +351,14 @@
             color="primary" 
             (click)="save()" 
             [disabled]="!isValid() || saving"
-            class="flex items-center">
+            class="flex items-center"
+          >
             <mat-spinner *ngIf="saving" [diameter]="16" class="mr-2"></mat-spinner>
             <mat-icon *ngIf="!saving" class="mr-1">save</mat-icon>
             {{ saving ? ('COMMON.SAVING' | transloco) : ('BUTTONS.SAVE' | transloco) }}
           </button>
         </div>
-
-      </form>
+      </div>
     </div>
   </main>
 </div>

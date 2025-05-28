@@ -12,10 +12,10 @@ import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-lead-detail',
-    templateUrl: './lead-detail.component.html',
-    styleUrls: ['./lead-detail.component.css'],
-    standalone: false
+  standalone: false,
+  selector: 'app-lead-detail',
+  templateUrl: './lead-detail.component.html',
+  styleUrls: ['./lead-detail.component.css']
 })
 export class LeadDetailComponent implements OnInit {
   editingLead: Lead = this.getEmptyLead();
@@ -34,6 +34,7 @@ export class LeadDetailComponent implements OnInit {
   loading: boolean = false;
   saving: boolean = false;
   error: string | null = null;
+  activeTab: 'basic' | 'financial' | 'meetings' | 'notes' = 'basic';
   
   // Query parameters for pre-filled data
   preSelectedCompanyId: number | null = null;
