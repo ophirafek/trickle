@@ -1,0 +1,22 @@
+/* Optional styling for the component */
+:host {
+    display: block;
+    width: 100%;
+  }
+  
+  /* Style for disabled state */
+  .mat-mdc-form-field.disabled {
+    opacity: 0.6;
+  }
+  
+  /* Style for required label */
+  .required-indicator {
+    color: #f44336;
+    margin-left: 2px;
+  }
+  
+  /* Custom spinner size */
+  .mat-spinner {
+    display: inline-block;
+    margin-right: 8px;
+  }

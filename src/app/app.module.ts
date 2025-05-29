@@ -58,6 +58,7 @@ import { InsuredDetailsComponent } from './components/company-detail/insured-det
 import { AssignmentsListComponent } from './components/company-detail/insured-details/assignments-list/assignments-list.component';
 import { ContactListComponent } from './components/company-detail/contact-list/contact-list.component';
 import { GeneralInfoComponent } from './components/company-detail/general-info/general-info.component';
+import { GeneralCodeSelectComponent } from './components/general/general-code-select/general-code-select.component';
 
 const MaterialModules = [
   MatButtonModule,
@@ -114,6 +115,7 @@ const MaterialModules = [
     AssignmentsListComponent,
     ContactListComponent,
     GeneralInfoComponent,
+    GeneralCodeSelectComponent,
     
   ],
   imports: [

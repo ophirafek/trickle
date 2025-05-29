@@ -8,6 +8,7 @@ import { GeneralCodeService, GeneralCode } from '../../services/general-codes.se
 import { EmployeeService } from '../../services/employee.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
+import {GeneralCodeSelectComponent} from '../general/general-code-select/general-code-select.component';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
@@ -24,9 +25,11 @@ export class LeadDetailComponent implements OnInit {
   // Reference data
   companies: Company[] = [];
   leadTypes: GeneralCode[] = [];
+  leadSources: GeneralCode[] = []; // Added for lead sources
   leadStatuses: GeneralCode[] = [];
   markets: GeneralCode[] = [];
   currencies: GeneralCode[] = [];
+  rejectionReasons: GeneralCode[] = []; // Added for rejection reasons
   employees: Employee[] = [];
   companyContacts: Contact[] = [];
   
@@ -35,6 +38,9 @@ export class LeadDetailComponent implements OnInit {
   saving: boolean = false;
   error: string | null = null;
   activeTab: 'basic' | 'financial' | 'meetings' | 'notes' = 'basic';
+  
+  // Constants
+  rejectionStatusCode: number = 3; // Assuming 3 is "Rejected" status code, adjust as needed
   
   // Query parameters for pre-filled data
   preSelectedCompanyId: number | null = null;
@@ -105,22 +111,26 @@ export class LeadDetailComponent implements OnInit {
     const requests = {
       companies: this.companyService.getCompanies(),
       leadTypes: this.generalCodeService.getCodesByType(50),
+      leadSources: this.generalCodeService.getCodesByType(65), // Assuming 55 is lead source code type, adjust as needed
       leadStatuses: this.generalCodeService.getCodesByType(70),
       markets: this.generalCodeService.getCodesByType(75),
       currencies: this.generalCodeService.getCodesByType(26),
+      rejectionReasons: this.generalCodeService.getCodesByType(65), // Added rejection reasons from code 65
       employees: this.employeeService.getEmployees()
     };
 
     forkJoin(requests)
       .pipe(finalize(() => this.loading = false))
       .subscribe({
-        next: ({ companies, leadTypes, leadStatuses, markets, currencies, employees }) => {
-          this.companies = companies;
-          this.leadTypes = leadTypes;
-          this.leadStatuses = leadStatuses;
-          this.markets = markets;
-          this.currencies = currencies;
-          this.employees = employees;
+        next: (response) => {
+          this.companies = response.companies;
+          this.leadTypes = response.leadTypes;
+          this.leadSources = response.leadSources;
+          this.leadStatuses = response.leadStatuses;
+          this.markets = response.markets;
+          this.currencies = response.currencies;
+          this.rejectionReasons = response.rejectionReasons;
+          this.employees = response.employees;
           
           // Load contacts for pre-selected company
           if (this.editingLead.companyId) {
@@ -163,6 +173,20 @@ export class LeadDetailComponent implements OnInit {
     
     // Reset contact selection
     this.editingLead.contactId = 0;
+  }
+
+  // New method to handle rejection code change
+  onRejectionCodeChange(codeNumber: number): void {
+    if (codeNumber) {
+      const selectedReason = this.rejectionReasons.find(r => r.codeNumber === codeNumber);
+      if (selectedReason) {
+        // Auto-populate the rejection description with the code's description
+        this.editingLead.rejectionDetail = selectedReason.codeLongDescription || selectedReason.codeShortDescription;
+      }
+    } else {
+      // Clear the rejection detail if no rejection code is selected
+      this.editingLead.rejectionDetail = '';
+    }
   }
 
   getEmptyLead(): Lead {

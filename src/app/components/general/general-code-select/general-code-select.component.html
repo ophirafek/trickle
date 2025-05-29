@@ -1,0 +1,41 @@
+<mat-form-field [appearance]="appearance" class="w-full">
+    <!-- Label -->
+    <mat-label *ngIf="showLabel">
+      {{ label | transloco }}
+      <span class="text-red-500" *ngIf="required">*</span>
+    </mat-label>
+    
+    <!-- Select with loading state -->
+    <mat-select 
+      [value]="innerValue"
+      [disabled]="isDisabled || loading"
+      [required]="required"
+      [placeholder]="placeholder"
+      (selectionChange)="onValueChange($event)"
+      (blur)="markAsTouched()"
+    >
+      <!-- Loading indicator -->
+      <mat-option *ngIf="loading" [value]="null" disabled>
+        <span class="flex items-center">
+          <mat-spinner diameter="16" class="mr-2"></mat-spinner>
+          {{ 'COMMON.LOADING' | transloco }}
+        </span>
+      </mat-option>
+      
+      <!-- Empty option -->
+      <mat-option *ngIf="showEmptyOption && !loading" [value]="emptyOptionValue">
+        {{ emptyOptionText | transloco }}
+      </mat-option>
+      
+      <!-- Code options -->
+      <mat-option *ngFor="let code of codes" [value]="code.codeNumber">
+        {{ code.codeShortDescription }}
+      </mat-option>
+    </mat-select>
+    
+    <!-- Hint -->
+    <mat-hint *ngIf="hint">{{ hint | transloco }}</mat-hint>
+    
+    <!-- Error message -->
+    <mat-error *ngIf="errorMsg">{{ errorMsg }}</mat-error>
+  </mat-form-field>

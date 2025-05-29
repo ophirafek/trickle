@@ -370,7 +370,8 @@
     "CREATE_SUCCESS": "Lead created successfully",
     "CREATE_ERROR": "Failed to create lead",
     "UPDATE_SUCCESS": "Lead updated successfully",
-    "UPDATE_ERROR": "Failed to update lead"
+    "UPDATE_ERROR": "Failed to update lead",
+    "LEAD_SOURCE": "Lead Source"
   },
   "VALIDATION": {
     "REQUIRED_FIELD": "This field is required",
