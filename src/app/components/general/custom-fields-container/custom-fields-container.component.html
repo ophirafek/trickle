@@ -1,0 +1,43 @@
+<!-- Loading State -->
+<div *ngIf="loading" class="flex items-center justify-center py-4">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+    <span class="text-gray-600">Loading custom fields...</span>
+  </div>
+  
+  <!-- Error State -->
+  <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4">
+    {{ error }}
+  </div>
+  
+  <!-- No Custom Fields -->
+  <div *ngIf="!loading && !error && getGroupNames().length === 0" class="text-gray-500 py-2 text-center">
+    No custom fields are configured for this entity.
+  </div>
+  
+  <!-- Custom Fields -->
+  <div *ngIf="!loading && !error" [formGroup]="parentForm">
+    <div [formGroupName]="formGroupName">
+      <div *ngFor="let groupName of getGroupNames()" class="mb-4">
+        <!-- Only show groups with fields -->
+        <ng-container *ngIf="hasFields(groupName)">
+          <!-- Group Header -->
+          <div class="text-lg font-medium text-gray-700 mb-2" *ngIf="groupName !== 'General'">
+            {{ groupName }}
+          </div>
+          
+          <!-- Fields -->
+          <div class="space-y-4">
+            <div *ngFor="let field of getFieldsForGroup(groupName)">
+              <app-custom-field-value 
+                [field]="field.definition" 
+                [formControlName]="field.definition.name">
+              </app-custom-field-value>
+            </div>
+          </div>
+          
+          <!-- Divider between groups -->
+          <mat-divider *ngIf="groupName !== getGroupNames()[getGroupNames().length-1]" class="my-4"></mat-divider>
+        </ng-container>
+      </div>
+    </div>
+  </div>

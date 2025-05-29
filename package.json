@@ -21,6 +21,7 @@
     "@angular/platform-browser-dynamic": "^19.2.13",
     "@angular/router": "^19.2.13",
     "@jsverse/transloco": "^7.6.1",
+    "custom-field-lib": "file:public/custom-field-lib-0.0.1.tgz",
     "rxjs": "~7.8.0",
     "tailwindcss-rtl": "^0.9.0",
     "tslib": "^2.3.0",

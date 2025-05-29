@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Lead, Company, Contact } from '../../../model/types';
 import { Employee } from '../../../model/md-types';
@@ -8,9 +8,11 @@ import { GeneralCodeService, GeneralCode } from '../../services/general-codes.se
 import { EmployeeService } from '../../services/employee.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
-import {GeneralCodeSelectComponent} from '../general/general-code-select/general-code-select.component';
+import { GeneralCodeSelectComponent } from '../general/general-code-select/general-code-select.component';
+import { CustomFieldsContainerComponent } from '../general/custom-fields-container/custom-fields-container.component';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   standalone: false,
@@ -21,6 +23,9 @@ import { finalize } from 'rxjs/operators';
 export class LeadDetailComponent implements OnInit {
   editingLead: Lead = this.getEmptyLead();
   isNewLead: boolean = true;
+  leadForm: FormGroup;
+  
+  @ViewChild(CustomFieldsContainerComponent) customFieldsContainer!: CustomFieldsContainerComponent;
   
   // Reference data
   companies: Company[] = [];
@@ -37,7 +42,7 @@ export class LeadDetailComponent implements OnInit {
   loading: boolean = false;
   saving: boolean = false;
   error: string | null = null;
-  activeTab: 'basic' | 'financial' | 'meetings' | 'notes' = 'basic';
+  activeTab: 'basic' | 'financial' | 'meetings' | 'notes' | 'customFields' = 'basic';
   
   // Constants
   rejectionStatusCode: number = 3; // Assuming 3 is "Rejected" status code, adjust as needed
@@ -47,6 +52,7 @@ export class LeadDetailComponent implements OnInit {
   preSelectedCompanyName: string | null = null;
 
   constructor(
+    private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private companyService: CompanyService,
@@ -55,7 +61,47 @@ export class LeadDetailComponent implements OnInit {
     private employeeService: EmployeeService,
     private snackBar: MatSnackBar,
     private translocoService: TranslocoService
-  ) {}
+  ) {
+    // Initialize form
+    this.leadForm = this.fb.group({
+      leadId: [0],
+      leadName: ['', Validators.required],
+      companyId: [0, Validators.required],
+      companyName: [''],
+      leadTypeCode: [0],
+      leadSourceCode: [0],
+      contactId: [0],
+      currencyCode: [0],
+      marketCode: [0],
+      agentId: [0],
+      ownerEmployeeId: [0],
+      probability: [50, [Validators.required, Validators.min(0), Validators.max(100)]],
+      score: [0],
+      employees: [0],
+      actualSalesValue: [0],
+      salesGapValue: [0],
+      activityExpansion: [''],
+      exportMarketValue: [0],
+      localMarketValue: [0],
+      exportRatio: [0],
+      region: [''],
+      currentInsurerNo: [''],
+      externalStartDate: [new Date()],
+      statusCode: [1],
+      reasonRejectionCode: [0],
+      rejectionDetail: [''],
+      notes: [''],
+      additionalInfo: [''],
+      openingEffectiveDate: [new Date()],
+      closingEffectiveDate: [null],
+      openingRegistrationDate: [new Date()],
+      closingRegistrationDate: [null],
+      openingReference: [0],
+      closingReference: [0],
+      activeFlag: [true],
+      // Custom fields will be added dynamically
+    });
+  }
 
   ngOnInit(): void {
     this.loading = true;
@@ -81,8 +127,16 @@ export class LeadDetailComponent implements OnInit {
           if (this.preSelectedCompanyId) {
             this.editingLead.companyId = this.preSelectedCompanyId;
             this.editingLead.companyName = this.preSelectedCompanyName || '';
+            this.leadForm.patchValue({
+              companyId: this.preSelectedCompanyId,
+              companyName: this.preSelectedCompanyName || ''
+            });
           }
         });
+
+        // Update form values from empty lead
+        this.updateFormFromLead(this.editingLead);
+        this.loading = false;
       }
     });
     
@@ -94,10 +148,15 @@ export class LeadDetailComponent implements OnInit {
     this.leadService.getLead(id).subscribe({
       next: (lead) => {
         this.editingLead = lead;
+        // Update form values from lead
+        this.updateFormFromLead(lead);
+        
         // Load contacts for the lead's company
         if (lead.companyId) {
           this.loadCompanyContacts(lead.companyId);
         }
+        
+        this.loading = false;
       },
       error: (err) => {
         this.error = 'Failed to load lead details';
@@ -111,7 +170,7 @@ export class LeadDetailComponent implements OnInit {
     const requests = {
       companies: this.companyService.getCompanies(),
       leadTypes: this.generalCodeService.getCodesByType(50),
-      leadSources: this.generalCodeService.getCodesByType(65), // Assuming 55 is lead source code type, adjust as needed
+      leadSources: this.generalCodeService.getCodesByType(65), // Assuming 65 is lead source code type
       leadStatuses: this.generalCodeService.getCodesByType(70),
       markets: this.generalCodeService.getCodesByType(75),
       currencies: this.generalCodeService.getCodesByType(26),
@@ -162,17 +221,65 @@ export class LeadDetailComponent implements OnInit {
   }
 
   onCompanyChange(): void {
+    // Get companyId from form
+    const companyId = this.leadForm.get('companyId')?.value;
+    
     // Load contacts when company changes
-    this.loadCompanyContacts(this.editingLead.companyId);
+    this.loadCompanyContacts(companyId);
     
     // Update company name
-    const selectedCompany = this.companies.find(c => c.id === this.editingLead.companyId);
+    const selectedCompany = this.companies.find(c => c.id === companyId);
     if (selectedCompany) {
-      this.editingLead.companyName = selectedCompany.registrationName;
+      this.leadForm.patchValue({
+        companyName: selectedCompany.registrationName
+      });
     }
     
     // Reset contact selection
-    this.editingLead.contactId = 0;
+    this.leadForm.patchValue({
+      contactId: 0
+    });
+  }
+
+  // Update form values from lead object
+  updateFormFromLead(lead: Lead): void {
+    this.leadForm.patchValue({
+      leadId: lead.leadId || 0,
+      leadName: lead.leadName,
+      companyId: lead.companyId,
+      companyName: lead.companyName,
+      leadTypeCode: lead.leadTypeCode || 0,
+      leadSourceCode: lead.leadSourceCode || 0,
+      contactId: lead.contactId || 0,
+      currencyCode: lead.currencyCode || 0,
+      marketCode: lead.marketCode || 0,
+      agentId: lead.agentId || 0,
+      ownerEmployeeId: lead.ownerEmployeeId || 0,
+      probability: lead.probability,
+      score: lead.score || 0,
+      employees: lead.employees || 0,
+      actualSalesValue: lead.actualSalesValue || 0,
+      salesGapValue: lead.salesGapValue || 0,
+      activityExpansion: lead.activityExpansion || '',
+      exportMarketValue: lead.exportMarketValue || 0,
+      localMarketValue: lead.localMarketValue || 0,
+      exportRatio: lead.exportRatio || 0,
+      region: lead.region || '',
+      currentInsurerNo: lead.currentInsurerNo || '',
+      externalStartDate: lead.externalStartDate || new Date(),
+      statusCode: lead.statusCode || 1,
+      reasonRejectionCode: lead.reasonRejectionCode || 0,
+      rejectionDetail: lead.rejectionDetail || '',
+      notes: lead.notes || '',
+      additionalInfo: lead.additionalInfo || '',
+      openingEffectiveDate: lead.openingEffectiveDate || new Date(),
+      closingEffectiveDate: lead.closingEffectiveDate,
+      openingRegistrationDate: lead.openingRegistrationDate || new Date(),
+      closingRegistrationDate: lead.closingRegistrationDate,
+      openingReference: lead.openingReference || 0,
+      closingReference: lead.closingReference || 0,
+      activeFlag: lead.activeFlag !== undefined ? lead.activeFlag : true
+    });
   }
 
   // New method to handle rejection code change
@@ -181,11 +288,15 @@ export class LeadDetailComponent implements OnInit {
       const selectedReason = this.rejectionReasons.find(r => r.codeNumber === codeNumber);
       if (selectedReason) {
         // Auto-populate the rejection description with the code's description
-        this.editingLead.rejectionDetail = selectedReason.codeLongDescription || selectedReason.codeShortDescription;
+        this.leadForm.patchValue({
+          rejectionDetail: selectedReason.codeLongDescription || selectedReason.codeShortDescription
+        });
       }
     } else {
       // Clear the rejection detail if no rejection code is selected
-      this.editingLead.rejectionDetail = '';
+      this.leadForm.patchValue({
+        rejectionDetail: ''
+      });
     }
   }
 
@@ -236,16 +347,12 @@ export class LeadDetailComponent implements OnInit {
   }
 
   isValid(): boolean {
-    return !!(
-      this.editingLead.leadName?.trim() && 
-      this.editingLead.companyId &&
-      this.editingLead.probability >= 0 && 
-      this.editingLead.probability <= 100
-    );
+    return this.leadForm.valid;
   }
 
   save(): void {
     if (!this.isValid()) {
+      this.leadForm.markAllAsTouched();
       this.error = 'Please fill in all required fields correctly';
       return;
     }
@@ -253,67 +360,124 @@ export class LeadDetailComponent implements OnInit {
     this.saving = true;
     this.error = null;
 
+    // Create lead object from form values
+    const leadData: Lead = this.leadForm.value;
+
     if (this.isNewLead) {
       // Create new lead
-      this.leadService.createLead(this.editingLead).subscribe({
+      this.leadService.createLead(leadData).subscribe({
         next: (createdLead) => {
-          this.saving = false;
-          this.snackBar.open(
-            this.translocoService.translate('LEADS.CREATE_SUCCESS') || 'Lead created successfully',
-            this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
-            { duration: 3000, panelClass: ['success-snackbar'] }
-          );
-          
-          // Navigate back to the appropriate page
-          if (this.preSelectedCompanyId) {
-            // Navigate back to company detail with leads tab
-            this.router.navigate(['/companies', this.preSelectedCompanyId], { 
-              queryParams: { tab: 'leads' } 
-            });
+          // If we have custom fields, save them
+          if (this.customFieldsContainer) {
+            const customFieldValues = this.customFieldsContainer.prepareCustomFieldValues();
+            
+            if (customFieldValues.length > 0) {
+              // Update entityId with the new lead ID
+              customFieldValues.forEach(value => {
+                value.entityId = createdLead.leadId;
+              });
+              
+              // Save custom field values
+              this.saveCustomFieldValues(customFieldValues, createdLead);
+            } else {
+              this.handleSaveSuccess(createdLead);
+            }
           } else {
-            // Navigate to leads list
-            this.router.navigate(['/leads']);
+            this.handleSaveSuccess(createdLead);
           }
         },
         error: (err) => {
-          this.saving = false;
-          this.error = 'Failed to create lead. Please try again.';
-          console.error('Error creating lead:', err);
-          
-          this.snackBar.open(
-            this.translocoService.translate('LEADS.CREATE_ERROR') || 'Failed to create lead',
-            this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
-            { duration: 3000, panelClass: ['error-snackbar'] }
-          );
+          this.handleSaveError(err);
         }
       });
     } else {
       // Update existing lead
-      this.leadService.updateLead(this.editingLead.leadId || 0, this.editingLead).subscribe({
-        next: () => {
-          this.saving = false;
-          this.snackBar.open(
-            this.translocoService.translate('LEADS.UPDATE_SUCCESS') || 'Lead updated successfully',
-            this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
-            { duration: 3000, panelClass: ['success-snackbar'] }
-          );
-          
-          // Navigate back to leads list
-          this.router.navigate(['/leads']);
+      this.leadService.updateLead(leadData.leadId || 0, leadData).subscribe({
+        next: (updatedLead) => {
+          // If we have custom fields, save them
+          if (this.customFieldsContainer) {
+            const customFieldValues = this.customFieldsContainer.prepareCustomFieldValues();
+            
+            if (customFieldValues.length > 0) {
+              // Save custom field values
+              this.saveCustomFieldValues(customFieldValues, updatedLead);
+            } else {
+              this.handleSaveSuccess(updatedLead);
+            }
+          } else {
+            this.handleSaveSuccess(updatedLead);
+          }
         },
         error: (err) => {
-          this.saving = false;
-          this.error = 'Failed to update lead. Please try again.';
-          console.error('Error updating lead:', err);
-          
-          this.snackBar.open(
-            this.translocoService.translate('LEADS.UPDATE_ERROR') || 'Failed to update lead',
-            this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
-            { duration: 3000, panelClass: ['error-snackbar'] }
-          );
+          this.handleSaveError(err);
         }
       });
     }
+  }
+
+  /**
+   * Save custom field values
+   */
+  saveCustomFieldValues(customFieldValues: any[], lead: Lead): void {
+    // Use CustomFieldService to save the values
+    // Assuming customFieldService has a saveValues method
+    // This would need to be imported and injected if not already
+    this.customFieldsContainer['customFieldService'].saveValues(customFieldValues)
+      .subscribe({
+        next: () => {
+          this.handleSaveSuccess(lead);
+        },
+        error: (err) => {
+          console.error('Error saving custom fields:', err);
+          // Still mark the lead save as successful, just show a warning
+          this.snackBar.open(
+            this.translocoService.translate('LEADS.CUSTOM_FIELDS_ERROR') || 'Some custom fields could not be saved',
+            this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
+            { duration: 5000, panelClass: ['warning-snackbar'] }
+          );
+          this.handleSaveSuccess(lead);
+        }
+      });
+  }
+
+  /**
+   * Handle successful save
+   */
+  handleSaveSuccess(lead: Lead): void {
+    this.saving = false;
+    this.snackBar.open(
+      this.translocoService.translate(this.isNewLead ? 'LEADS.CREATE_SUCCESS' : 'LEADS.UPDATE_SUCCESS') || 
+        (this.isNewLead ? 'Lead created successfully' : 'Lead updated successfully'),
+      this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
+      { duration: 3000, panelClass: ['success-snackbar'] }
+    );
+    
+    // Navigate back to the appropriate page
+    if (this.preSelectedCompanyId) {
+      // Navigate back to company detail with leads tab
+      this.router.navigate(['/companies', this.preSelectedCompanyId], { 
+        queryParams: { tab: 'leads' } 
+      });
+    } else {
+      // Navigate to leads list
+      this.router.navigate(['/leads']);
+    }
+  }
+
+  /**
+   * Handle save error
+   */
+  handleSaveError(err: any): void {
+    this.saving = false;
+    this.error = 'Failed to save lead. Please try again.';
+    console.error('Error saving lead:', err);
+    
+    this.snackBar.open(
+      this.translocoService.translate(this.isNewLead ? 'LEADS.CREATE_ERROR' : 'LEADS.UPDATE_ERROR') || 
+        (this.isNewLead ? 'Failed to create lead' : 'Failed to update lead'),
+      this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
+      { duration: 3000, panelClass: ['error-snackbar'] }
+    );
   }
 
   cancel(): void {
@@ -337,10 +501,12 @@ export class LeadDetailComponent implements OnInit {
    * Get the symbol/short name of the selected currency
    */
   getSelectedCurrencySymbol(): string {
-    if (!this.editingLead.currencyCode || this.editingLead.currencyCode === 0) 
+    const currencyCode = this.leadForm.get('currencyCode')?.value;
+    
+    if (!currencyCode || currencyCode === 0) 
       return 'NIS';
     
-    const selectedCurrency = this.currencies.find(c => c.codeNumber === this.editingLead.currencyCode);
+    const selectedCurrency = this.currencies.find(c => c.codeNumber === currencyCode);
     return selectedCurrency ? selectedCurrency.codeShortDescription : 'NIS';
   }
 }

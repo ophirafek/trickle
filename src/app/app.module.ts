@@ -59,6 +59,8 @@ import { AssignmentsListComponent } from './components/company-detail/insured-de
 import { ContactListComponent } from './components/company-detail/contact-list/contact-list.component';
 import { GeneralInfoComponent } from './components/company-detail/general-info/general-info.component';
 import { GeneralCodeSelectComponent } from './components/general/general-code-select/general-code-select.component';
+import { CustomFieldValueComponent } from './components/general/custom-field-value/custom-field-value.component';
+import { CustomFieldsContainerComponent } from './components/general/custom-fields-container/custom-fields-container.component';
 
 const MaterialModules = [
   MatButtonModule,
@@ -116,6 +118,8 @@ const MaterialModules = [
     ContactListComponent,
     GeneralInfoComponent,
     GeneralCodeSelectComponent,
+    CustomFieldValueComponent,
+    CustomFieldsContainerComponent,
     
   ],
   imports: [
