@@ -28,7 +28,7 @@
           color="primary"
           [routerLink]="['/companies', 'import']"
         >
-          <mat-icon>upload</mat-icon>
+          <mat-icon>cloud_upload</mat-icon>
           <span transloco="COMPANIES.IMPORT_COMPANIES"></span>
         </button>
       </div>
@@ -309,7 +309,7 @@
             mat-row 
             *matRowDef="let company; columns: displayedColumns;"
             class="cursor-pointer hover:bg-gray-50"
-            [routerLink]="['/companies', company.id]"
+            [routerLink]="['/companies', company.companyId]"
           ></tr>
           
           <!-- When no data matches the filter -->

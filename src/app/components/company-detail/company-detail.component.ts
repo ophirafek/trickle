@@ -10,13 +10,20 @@ import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
 import { finalize } from 'rxjs/operators';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
+import { GeneralInfoComponent } from './general-info/general-info.component';
+import { ContactListComponent } from './contact-list/contact-list.component';
+import { LeadsListComponent } from '../leads-list/leads-list.component';
+import { InsuredDetailsComponent } from './insured-details/insured-details.component';
 
 @Component({
     selector: 'app-company-detail',
     templateUrl: './company-detail.component.html',
     styleUrls: ['./company-detail.component.css'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule,GeneralInfoComponent,ContactListComponent,LeadsListComponent,InsuredDetailsComponent]
 })
 export class CompanyDetailComponent implements OnInit {
   editingCompany: Company = this.getEmptyCompany();
@@ -193,7 +200,7 @@ export class CompanyDetailComponent implements OnInit {
     this.contactsLoading = true;
     this.contactError = null;
     
-    this.companyService.getCompanyContacts(this.editingCompany.id)
+    this.companyService.getCompanyContacts(this.editingCompany.companyId)
       .pipe(
         finalize(() => {
           this.contactsLoading = false;
@@ -239,6 +246,7 @@ export class CompanyDetailComponent implements OnInit {
   getEmptyCompany(): Company {
     return {
       id: 0,
+      companyId: 0,
       idTypeCode: 0,
       registrationName: '',
       website: '',
@@ -378,7 +386,7 @@ export class CompanyDetailComponent implements OnInit {
     this.leadLoading = true;
     this.leadError = null;
     
-    this.leadService.getLeadsByCompany(this.editingCompany.id)
+    this.leadService.getLeadsByCompany(this.editingCompany.companyId)
       .pipe(
         finalize(() => {
           this.leadLoading = false;

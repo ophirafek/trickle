@@ -1,12 +1,15 @@
 // src/app/components/header/header.component.ts
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { TranslocoService } from '@jsverse/transloco';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
 
 @Component({
     selector: 'app-header',
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule]
 })
 export class HeaderComponent implements OnInit {
   @Input() showMenuToggle: boolean = false;

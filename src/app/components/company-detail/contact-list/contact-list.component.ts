@@ -9,11 +9,15 @@ import { Company, Contact } from '../../../../model/types';
 import { CompanyService } from '../../../services/company.service';
 import { GeneralCode, GeneralCodeService } from '../../../services/general-codes.service';
 
+import { MaterialModule } from '../../../core/modules/material.module';
+import { SharedModule } from '../../../core/modules/shared.module';
+
 @Component({
     selector: 'app-contact-list',
     templateUrl: './contact-list.component.html',
     styleUrls: ['./contact-list.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule]
 })
 export class ContactListComponent implements OnInit, OnChanges {
   @Input() company!: Company;

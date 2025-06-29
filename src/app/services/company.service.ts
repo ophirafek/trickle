@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Company, Contact, Note, ImportResult } from '../../model/types';
 import { environment } from '../../environments/environment';
+import { CompanyImport } from '../../model/company-import.model';
 
 @Injectable({
   providedIn: 'root'
@@ -58,7 +59,7 @@ export class CompanyService {
         catchError(this.handleError<any>(`deleteCompany id=${id}`))
       );
   }
-  importCompanies(companies: Company[]): Observable<any> {
+  importCompanies(companies: CompanyImport[]): Observable<any> {
     //const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
     //const options = { headers: headers };
     
@@ -70,7 +71,7 @@ export class CompanyService {
       );
   }
 
-  importSingleCompany(company: Company): Observable<ImportResult> {
+  importSingleCompany(company: CompanyImport): Observable<ImportResult> {
    
   
     return this.importCompanies([company]).pipe(

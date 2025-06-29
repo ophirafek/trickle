@@ -6,11 +6,16 @@ import { TranslocoService } from '@jsverse/transloco';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 
+import { MaterialModule } from '../../../core/modules/material.module';
+import { SharedModule } from '../../../core/modules/shared.module';
+import { AssignmentsListComponent } from './assignments-list/assignments-list.component';
+
 @Component({
     selector: 'app-insured-details',
     templateUrl: './insured-details.component.html',
     styleUrls: ['./insured-details.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule,AssignmentsListComponent]
 })
 export class InsuredDetailsComponent implements OnInit, OnChanges {
   @Input() company!: Company;

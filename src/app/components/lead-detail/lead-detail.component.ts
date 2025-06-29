@@ -13,20 +13,23 @@ import { CustomFieldsContainerComponent } from '../general/custom-fields-contain
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
 
 @Component({
-  standalone: false,
+  standalone: true,
   selector: 'app-lead-detail',
   templateUrl: './lead-detail.component.html',
-  styleUrls: ['./lead-detail.component.css']
+  styleUrls: ['./lead-detail.component.css'],
+  imports: [MaterialModule, SharedModule,GeneralCodeSelectComponent, CustomFieldsContainerComponent]
 })
 export class LeadDetailComponent implements OnInit {
   editingLead: Lead = this.getEmptyLead();
   isNewLead: boolean = true;
   leadForm: FormGroup;
-  
+
   @ViewChild(CustomFieldsContainerComponent) customFieldsContainer!: CustomFieldsContainerComponent;
-  
+
   // Reference data
   companies: Company[] = [];
   leadTypes: GeneralCode[] = [];
@@ -37,16 +40,16 @@ export class LeadDetailComponent implements OnInit {
   rejectionReasons: GeneralCode[] = []; // Added for rejection reasons
   employees: Employee[] = [];
   companyContacts: Contact[] = [];
-  
+
   // UI state
   loading: boolean = false;
   saving: boolean = false;
   error: string | null = null;
   activeTab: 'basic' | 'financial' | 'meetings' | 'notes' | 'customFields' = 'basic';
-  
+
   // Constants
   rejectionStatusCode: number = 3; // Assuming 3 is "Rejected" status code, adjust as needed
-  
+
   // Query parameters for pre-filled data
   preSelectedCompanyId: number | null = null;
   preSelectedCompanyName: string | null = null;
@@ -105,11 +108,11 @@ export class LeadDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    
+
     // Check route parameters and query parameters
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
-      
+
       if (id && id !== 'new') {
         // Editing existing lead
         this.isNewLead = false;
@@ -118,12 +121,12 @@ export class LeadDetailComponent implements OnInit {
         // Creating new lead
         this.isNewLead = true;
         this.editingLead = this.getEmptyLead();
-        
+
         // Check for query parameters (company pre-selection)
         this.route.queryParams.subscribe(queryParams => {
           this.preSelectedCompanyId = queryParams['companyId'] ? parseInt(queryParams['companyId'], 10) : null;
           this.preSelectedCompanyName = queryParams['companyName'] || null;
-          
+
           if (this.preSelectedCompanyId) {
             this.editingLead.companyId = this.preSelectedCompanyId;
             this.editingLead.companyName = this.preSelectedCompanyName || '';
@@ -139,7 +142,7 @@ export class LeadDetailComponent implements OnInit {
         this.loading = false;
       }
     });
-    
+
     // Load reference data
     this.loadReferenceData();
   }
@@ -150,12 +153,12 @@ export class LeadDetailComponent implements OnInit {
         this.editingLead = lead;
         // Update form values from lead
         this.updateFormFromLead(lead);
-        
+
         // Load contacts for the lead's company
         if (lead.companyId) {
           this.loadCompanyContacts(lead.companyId);
         }
-        
+
         this.loading = false;
       },
       error: (err) => {
@@ -190,7 +193,7 @@ export class LeadDetailComponent implements OnInit {
           this.currencies = response.currencies;
           this.rejectionReasons = response.rejectionReasons;
           this.employees = response.employees;
-          
+
           // Load contacts for pre-selected company
           if (this.editingLead.companyId) {
             this.loadCompanyContacts(this.editingLead.companyId);
@@ -223,10 +226,10 @@ export class LeadDetailComponent implements OnInit {
   onCompanyChange(): void {
     // Get companyId from form
     const companyId = this.leadForm.get('companyId')?.value;
-    
+
     // Load contacts when company changes
     this.loadCompanyContacts(companyId);
-    
+
     // Update company name
     const selectedCompany = this.companies.find(c => c.id === companyId);
     if (selectedCompany) {
@@ -234,7 +237,7 @@ export class LeadDetailComponent implements OnInit {
         companyName: selectedCompany.registrationName
       });
     }
-    
+
     // Reset contact selection
     this.leadForm.patchValue({
       contactId: 0
@@ -370,13 +373,13 @@ export class LeadDetailComponent implements OnInit {
           // If we have custom fields, save them
           if (this.customFieldsContainer) {
             const customFieldValues = this.customFieldsContainer.prepareCustomFieldValues();
-            
+
             if (customFieldValues.length > 0) {
               // Update entityId with the new lead ID
               customFieldValues.forEach(value => {
                 value.entityId = createdLead.leadId;
               });
-              
+
               // Save custom field values
               this.saveCustomFieldValues(customFieldValues, createdLead);
             } else {
@@ -397,7 +400,7 @@ export class LeadDetailComponent implements OnInit {
           // If we have custom fields, save them
           if (this.customFieldsContainer) {
             const customFieldValues = this.customFieldsContainer.prepareCustomFieldValues();
-            
+
             if (customFieldValues.length > 0) {
               // Save custom field values
               this.saveCustomFieldValues(customFieldValues, updatedLead);
@@ -446,17 +449,17 @@ export class LeadDetailComponent implements OnInit {
   handleSaveSuccess(lead: Lead): void {
     this.saving = false;
     this.snackBar.open(
-      this.translocoService.translate(this.isNewLead ? 'LEADS.CREATE_SUCCESS' : 'LEADS.UPDATE_SUCCESS') || 
-        (this.isNewLead ? 'Lead created successfully' : 'Lead updated successfully'),
+      this.translocoService.translate(this.isNewLead ? 'LEADS.CREATE_SUCCESS' : 'LEADS.UPDATE_SUCCESS') ||
+      (this.isNewLead ? 'Lead created successfully' : 'Lead updated successfully'),
       this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
       { duration: 3000, panelClass: ['success-snackbar'] }
     );
-    
+
     // Navigate back to the appropriate page
     if (this.preSelectedCompanyId) {
       // Navigate back to company detail with leads tab
-      this.router.navigate(['/companies', this.preSelectedCompanyId], { 
-        queryParams: { tab: 'leads' } 
+      this.router.navigate(['/companies', this.preSelectedCompanyId], {
+        queryParams: { tab: 'leads' }
       });
     } else {
       // Navigate to leads list
@@ -471,10 +474,10 @@ export class LeadDetailComponent implements OnInit {
     this.saving = false;
     this.error = 'Failed to save lead. Please try again.';
     console.error('Error saving lead:', err);
-    
+
     this.snackBar.open(
-      this.translocoService.translate(this.isNewLead ? 'LEADS.CREATE_ERROR' : 'LEADS.UPDATE_ERROR') || 
-        (this.isNewLead ? 'Failed to create lead' : 'Failed to update lead'),
+      this.translocoService.translate(this.isNewLead ? 'LEADS.CREATE_ERROR' : 'LEADS.UPDATE_ERROR') ||
+      (this.isNewLead ? 'Failed to create lead' : 'Failed to update lead'),
       this.translocoService.translate('BUTTONS.CLOSE') || 'Close',
       { duration: 3000, panelClass: ['error-snackbar'] }
     );
@@ -484,8 +487,8 @@ export class LeadDetailComponent implements OnInit {
     // Navigate back to the appropriate page
     if (this.preSelectedCompanyId) {
       // Navigate back to company detail with leads tab
-      this.router.navigate(['/companies', this.preSelectedCompanyId], { 
-        queryParams: { tab: 'leads' } 
+      this.router.navigate(['/companies', this.preSelectedCompanyId], {
+        queryParams: { tab: 'leads' }
       });
     } else {
       // Navigate to leads list
@@ -502,10 +505,10 @@ export class LeadDetailComponent implements OnInit {
    */
   getSelectedCurrencySymbol(): string {
     const currencyCode = this.leadForm.get('currencyCode')?.value;
-    
-    if (!currencyCode || currencyCode === 0) 
+
+    if (!currencyCode || currencyCode === 0)
       return 'NIS';
-    
+
     const selectedCurrency = this.currencies.find(c => c.codeNumber === currencyCode);
     return selectedCurrency ? selectedCurrency.codeShortDescription : 'NIS';
   }

@@ -7,6 +7,8 @@ import { LeadsComponent } from './components/leads/leads.component';
 import { MeetingsComponent } from './components/meetings/meetings.component';
 import { CompanyDetailComponent } from './components/company-detail/company-detail.component';
 import { LeadDetailComponent } from './components/lead-detail/lead-detail.component';
+import { TasksComponent } from './components/tasks/tasks.component';
+import { TasksDetailComponent } from './components/tasks-detail/tasks-detail.component';
 
 const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
@@ -17,6 +19,9 @@ const routes: Routes = [
   { path: 'leads/new', component: LeadDetailComponent }, // New lead creation
   { path: 'leads/:id', component: LeadDetailComponent }, // Edit existing lead
   { path: 'meetings', component: MeetingsComponent },
+  { path: 'tasks', component: TasksComponent },
+  { path: 'tasks/new', component: TasksDetailComponent }, // New task creation
+  { path: 'tasks/:id', component: TasksDetailComponent }, // Edit existing task
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' }
 ];
 

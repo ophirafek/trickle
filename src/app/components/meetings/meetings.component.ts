@@ -3,13 +3,16 @@ import { Meeting, Company } from '../../../model/types';
 import { MeetingService } from '../../services/meeting.service';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MaterialModule } from '../../core/modules/material.module';
+import { MeetingDetailComponent } from '../meeting-detail/meeting-detail.component';
+import { SharedModule } from '../../core/modules/shared.module';
 
 @Component({
     selector: 'app-meetings',
     templateUrl: './meetings.component.html',
     styleUrls: ['./meetings.component.css'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule,MeetingDetailComponent]
 })
 export class MeetingsComponent implements OnInit {
   meetings: Meeting[] = [];

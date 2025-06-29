@@ -9,12 +9,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { MaterialModule } from '../../core/modules/material.module';
+import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../../core/modules/shared.module';
 
 @Component({
     selector: 'app-leads-list',
     templateUrl: './leads-list.component.html',
     styleUrls: ['./leads-list.component.css'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule]
+
 })
 export class LeadsListComponent implements OnInit, OnChanges {
   @Input() leads: Lead[] = [];

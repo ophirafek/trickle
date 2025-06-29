@@ -2,37 +2,39 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { Company } from '../../../model/types';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
 
 @Component({
   selector: 'app-company-list',
   templateUrl: './company-list.component.html',
-  styleUrls: ['./company-list.component.scss']
+  imports: [MaterialModule, SharedModule]
 })
 export class CompanyListComponent implements OnInit {
   // Table configuration
   dataSource = new MatTableDataSource<Company>([]);
   displayedColumns: string[] = [
-    'registrationName', 
-    'primaryId', 
-    'country', 
-    'businessField', 
-    'status', 
-    'entityType', 
-    'obligatoryAmount', 
+    'registrationName',
+    'primaryId',
+    'country',
+    'businessField',
+    'status',
+    'entityType',
+    'obligatoryAmount',
     'actions'
   ];
-  
+
   // Filter state
   showFilters = true;
   showAdvancedFilters = false;
   filterForm: FormGroup;
-  
+
   // Company data
   allCompanies: Company[] = [];
   countries: string[] = ['United States', 'United Kingdom', 'Germany', 'Canada', 'France'];
   businessFields: string[] = ['Technology', 'Manufacturing', 'Healthcare', 'Finance', 'Retail', 'Business Services'];
   statuses: string[] = ['Active', 'Inactive', 'On Hold'];
-  
+
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({
       companyName: [''],
@@ -45,69 +47,69 @@ export class CompanyListComponent implements OnInit {
       obligatoryMax: ['']
     });
   }
-  
+
   ngOnInit(): void {
     // Initialize mock data
     this.allCompanies = this.getMockCompanies();
     this.dataSource.data = this.allCompanies;
-    
+
     // Set up filter predicate for the table
     this.dataSource.filterPredicate = this.createFilterPredicate();
   }
-  
+
   toggleFilters(): void {
     this.showFilters = !this.showFilters;
   }
-  
+
   toggleAdvancedFilters(): void {
     this.showAdvancedFilters = !this.showAdvancedFilters;
   }
-  
+
   applyFilters(): void {
     const formValues = this.filterForm.value;
-    
+
     let filteredCompanies = this.allCompanies;
-    
+
     // Filter by company name
     if (formValues.companyName) {
-      filteredCompanies = filteredCompanies.filter(company => 
+      filteredCompanies = filteredCompanies.filter((company:any) =>
         company.registrationName.toLowerCase().includes(formValues.companyName.toLowerCase())
       );
     }
-    
+
     // Filter by primary ID
     if (formValues.primaryId) {
-      filteredCompanies = filteredCompanies.filter(company => 
+      filteredCompanies = filteredCompanies.filter((company:any) =>
         (company.registrationNumber && company.registrationNumber.toLowerCase().includes(formValues.primaryId.toLowerCase())) ||
         (company.vatNumber && company.vatNumber.toLowerCase().includes(formValues.primaryId.toLowerCase())) ||
         (company.dunsNumber && company.dunsNumber.toLowerCase().includes(formValues.primaryId.toLowerCase()))
       );
     }
-    
+
     // Filter by country
     if (formValues.country) {
-      filteredCompanies = filteredCompanies.filter(company => 
+      filteredCompanies = filteredCompanies.filter((company:any) =>
         this.getCountryName(company.countryCode) === formValues.country
       );
     }
-    
+
     // Filter by business field
     if (formValues.businessField) {
-      filteredCompanies = filteredCompanies.filter(company => 
+      filteredCompanies = filteredCompanies.filter((company:any) =>
         this.getBusinessFieldName(company.businessFieldCode) === formValues.businessField
       );
     }
-    
+
     // Filter by status
     if (formValues.companyStatus) {
-      filteredCompanies = filteredCompanies.filter(company => 
+      filteredCompanies = filteredCompanies.filter((company:any) =>
         this.getStatusName(company.companyStatusCode) === formValues.companyStatus
       );
     }
-    
+
     // Filter by entity type
     if (formValues.entityType) {
-      filteredCompanies = filteredCompanies.filter(company => {
+      filteredCompanies = filteredCompanies.filter((company:any) => {
         if (formValues.entityType === 'debtor') {
           return company.isDebtor;
         } else if (formValues.entityType === 'insured') {
@@ -120,37 +122,37 @@ export class CompanyListComponent implements OnInit {
         return true;
       });
     }
-    
+
     // Filter by obligatory amount
     if (formValues.obligatoryMin) {
       const min = parseFloat(formValues.obligatoryMin);
-      filteredCompanies = filteredCompanies.filter(company => {
+      filteredCompanies = filteredCompanies.filter((company:any) => {
         const amount = this.getObligatoryAmountValue(company.obligatoryAmount);
         return amount >= min;
       });
     }
-    
+
     if (formValues.obligatoryMax) {
       const max = parseFloat(formValues.obligatoryMax);
-      filteredCompanies = filteredCompanies.filter(company => {
+      filteredCompanies = filteredCompanies.filter((company:any) => {
         const amount = this.getObligatoryAmountValue(company.obligatoryAmount);
         return amount <= max;
       });
     }
-    
+
     this.dataSource.data = filteredCompanies;
   }
-  
+
   clearFilters(): void {
     this.filterForm.reset();
     this.dataSource.data = this.allCompanies;
   }
-  
+
   openCustomerManagement(company: Company): void {
     // This would be implemented to navigate to customer management view
     console.log('Opening customer management for:', company);
   }
-  
+
   getPrimaryIdType(company: Company): string {
     switch (company.idTypeCode) {
       case 1: return 'Registration Number';
@@ -159,7 +161,7 @@ export class CompanyListComponent implements OnInit {
       default: return 'Registration Number';
     }
   }
-  
+
   getPrimaryId(company: Company): string {
     switch (company.idTypeCode) {
       case 1: return company.registrationNumber;
@@ -168,7 +170,7 @@ export class CompanyListComponent implements OnInit {
       default: return company.registrationNumber;
     }
   }
-  
+
   getStatusName(statusCode: number): string {
     switch (statusCode) {
       case 1: return 'Active';
@@ -177,7 +179,7 @@ export class CompanyListComponent implements OnInit {
       default: return 'Unknown';
     }
   }
-  
+
   getStatusClass(statusCode: number): string {
     switch (statusCode) {
       case 1: return 'status-active';
@@ -186,7 +188,7 @@ export class CompanyListComponent implements OnInit {
       default: return '';
     }
   }
-  
+
   getBusinessFieldName(fieldCode: number): string {
     switch (fieldCode) {
       case 1: return 'Technology';
@@ -198,7 +200,7 @@ export class CompanyListComponent implements OnInit {
       default: return 'Unknown';
     }
   }
-  
+
   getCountryName(countryCode: number): string {
     switch (countryCode) {
       case 1: return 'United States';
@@ -209,8 +211,8 @@ export class CompanyListComponent implements OnInit {
       default: return 'Unknown';
     }
   }
-  
-  getEntityTypes(company: Company): string[] {
+
+  getEntityTypes(company: any): string[] {
     const types: string[] = [];
     if (company.isDebtor) types.push('debtor');
     if (company.isInsuredCompany) types.push('insured');
@@ -218,7 +220,7 @@ export class CompanyListComponent implements OnInit {
     if (company.isAgent) types.push('agent');
     return types;
   }
-  
+
   getObligatoryAmountValue(obligatoryAmount: any): number {
     if (typeof obligatoryAmount === 'number') {
       return obligatoryAmount;
@@ -227,7 +229,7 @@ export class CompanyListComponent implements OnInit {
     }
     return 0;
   }
-  
+
   getObligatoryAmountDisplay(obligatoryAmount: any): string {
     if (typeof obligatoryAmount === 'number') {
       return `$${obligatoryAmount.toLocaleString()}`;
@@ -236,17 +238,17 @@ export class CompanyListComponent implements OnInit {
     }
     return '$0';
   }
-  
+
   private createFilterPredicate(): (data: Company, filter: string) => boolean {
     return (data: Company, filter: string): boolean => {
       // Custom filter logic would go here
       return true;
     };
   }
-  
-  private getMockCompanies(): Company[] {
+
+  private getMockCompanies(): any[] {
     return [
-      { 
+      {
         id: 1,
         idTypeCode: 1,
         registrationNumber: 'REG-123456',
@@ -275,7 +277,7 @@ export class CompanyListComponent implements OnInit {
         isPotentialCustomer: false,
         isAgent: false
       },
-      { 
+      {
         id: 2,
         idTypeCode: 2,
         registrationNumber: '',
@@ -304,7 +306,7 @@ export class CompanyListComponent implements OnInit {
         isPotentialCustomer: false,
         isAgent: false
       },
-      { 
+      {
         id: 3,
         idTypeCode: 3,
         registrationNumber: '',
@@ -333,7 +335,7 @@ export class CompanyListComponent implements OnInit {
         isPotentialCustomer: true,
         isAgent: false
       },
-      { 
+      {
         id: 4,
         idTypeCode: 1,
         registrationNumber: 'REG-789123',
@@ -362,7 +364,7 @@ export class CompanyListComponent implements OnInit {
         isPotentialCustomer: true,
         isAgent: false
       },
-      { 
+      {
         id: 5,
         idTypeCode: 3,
         registrationNumber: '',

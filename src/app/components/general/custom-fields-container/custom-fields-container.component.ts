@@ -7,11 +7,14 @@ import { MatDividerModule } from '@angular/material/divider';
 import { CustomFieldValueComponent } from '../custom-field-value/custom-field-value.component';
 import { CustomFieldService } from 'custom-field-lib';
 import { environment } from '../../../../environments/environment';
+import { MaterialModule } from '../../../core/modules/material.module';
+import { SharedModule } from '../../../core/modules/shared.module';
 
 @Component({
   selector: 'app-custom-fields-container',
   templateUrl: './custom-fields-container.component.html',
-  standalone: false
+  standalone: true,
+  imports: [MaterialModule,SharedModule,CustomFieldValueComponent]
 })
 export class CustomFieldsContainerComponent implements OnInit {
   @Input() entityType: string = '';

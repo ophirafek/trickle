@@ -1,4 +1,7 @@
 /* Tailwind CSS imports */
+@import '@fontsource/inter';
+@import '@fontsource/roboto';
+@import 'material-design-icons/iconfont/material-icons.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

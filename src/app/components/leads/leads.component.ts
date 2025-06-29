@@ -7,12 +7,17 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { SharedModule } from '../../core/modules/shared.module';
+import { MaterialModule } from '../../core/modules/material.module';
+import { LeadsListComponent } from '../leads-list/leads-list.component';
 
 @Component({
     selector: 'app-leads',
     templateUrl: './leads.component.html',
     styleUrls: ['./leads.component.css'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule,LeadsListComponent]
+
 })
 export class LeadsComponent implements OnInit {
   @Input() company: any; // Accept the company object as input

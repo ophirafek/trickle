@@ -6,12 +6,16 @@ import { MeetingService } from '../../services/meeting.service';
 import { LeadService } from '../../services/lead.service';
 import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@jsverse/transloco';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
+import { CompanyCardComponent } from '../company-card/company-card.component';
 
 @Component({
     selector: 'app-dashboard',
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule, SharedModule,CompanyCardComponent]
 })
 export class DashboardComponent implements OnInit {
   companies: Company[] = [];

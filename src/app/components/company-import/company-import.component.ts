@@ -3,7 +3,7 @@ import { read, utils, writeFileXLSX } from 'xlsx';
 
 
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Company, Employee, ImportResult } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { EmployeeService } from  '../../services/employee.service';
@@ -13,13 +13,16 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ThemePalette } from '@angular/material/core';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { MatTableDataSource } from '@angular/material/table';
-
+import { CompanyImport } from '../../../model/company-import.model';
 import { TranslocoService } from '@jsverse/transloco';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
 @Component({
     selector: 'app-company-import',
     templateUrl: './company-import.component.html',
     styleUrls: ['./company-import.component.css'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule,RouterLink]
 })
 export class CompanyImportComponent implements OnInit {
   @ViewChild('stepper') stepper!: MatStepper;
@@ -69,7 +72,6 @@ export class CompanyImportComponent implements OnInit {
   
   // Optional fields
   optionalFields = [
-    { key: 'dunsNumber', label: 'DUNS Number' },
     { key: 'streetAddress', label: 'Street Address' },
     { key: 'city', label: 'City' },
     { key: 'postalCode', label: 'ZIP/Postal Code' },
@@ -82,6 +84,7 @@ export class CompanyImportComponent implements OnInit {
   private selectedFile: File | null = null;
   employees: Employee[] = [];
   companyTeamAssignments: { [key: number]: number } = {}; // Maps row index to employee ID
+  mappingError: string = '';
   // Combined fields for review display
   get displayFields() {
     return [...this.mandatoryFields, ...this.optionalFields].filter(field => 
@@ -118,11 +121,20 @@ export class CompanyImportComponent implements OnInit {
   ];
   
   this.optionalFields = [
-    { key: 'dunsNumber', label: 'COMPANY_DETAIL.DUNS_NUMBER' },
     { key: 'streetAddress', label: 'COMPANY_DETAIL.STREET_ADDRESS' },
     { key: 'city', label: 'COMPANY_DETAIL.CITY' },
     { key: 'postalCode', label: 'COMPANY_DETAIL.POSTAL_CODE' },
-    { key: 'website', label: 'COMPANY_DETAIL.WEBSITE' }
+    { key: 'website', label: 'COMPANY_DETAIL.WEBSITE' },
+    { key: 'phoneNumber', label: 'COMPANY_DETAIL.PHONE_NUMBER' },
+    { key: 'businessDomain', label: 'LEADS.BUSINESS_DOMAIN' },
+    { key: 'score', label: 'LEADS.SCORE' },
+    { key: 'actualSalesValue', label: 'LEADS.ACTUAL_SALES_VALUE' },
+    { key: 'numOfEmployees', label: 'LEADS.NUM_OF_EMPLOYEES' },
+    { key: 'contactName1', label: 'IMPORT.CONTACT_NAME_1' },
+    { key: 'contactRole1', label: 'IMPORT.CONTACT_ROLE_1' },
+    { key: 'contactName2', label: 'IMPORT.CONTACT_NAME_2' },
+    { key: 'contactRole2', label: 'IMPORT.CONTACT_ROLE_2' }
+
   ];
   this.employeeService.getEmployees().subscribe({
     next: (employees) => {
@@ -153,12 +165,35 @@ export class CompanyImportComponent implements OnInit {
   
   get canProceedToOptionalMapping(): boolean {
     // Check if all mandatory fields are mapped
-    return this.mandatoryFields.every(field => !!this.fieldMapping[field.key]);
+    return this.mandatoryFields.every(field => !!this.fieldMapping[field.key]) &&
+           this.validateMandatoryMappings();;
   }
   
   get canProceedToReview(): boolean {
     // Optional fields don't need to be mapped to proceed
-    return this.canProceedToOptionalMapping;
+    if (!this.canProceedToOptionalMapping) {
+      return false;
+    }
+    
+    // Check contact field pairs - if one is mapped, the other must also be mapped
+    const contactName1Mapped = !!this.fieldMapping['contactName1'];
+    const contactRole1Mapped = !!this.fieldMapping['contactRole1'];
+    
+    if ((contactName1Mapped && !contactRole1Mapped) || (!contactName1Mapped && contactRole1Mapped)) {
+      // One is mapped but the other isn't - can't proceed
+      return false;
+    }
+    
+    const contactName2Mapped = !!this.fieldMapping['contactName2'];
+    const contactRole2Mapped = !!this.fieldMapping['contactRole2'];
+    
+    if ((contactName2Mapped && !contactRole2Mapped) || (!contactName2Mapped && contactRole2Mapped)) {
+      // One is mapped but the other isn't - can't proceed
+      return false;
+    }
+    
+    // All checks passed
+    return true;
   }
   
   get canImport(): boolean {
@@ -327,7 +362,12 @@ if (this.fileName.endsWith('.csv')) {
     for (let i = 1; i < lines.length; i++) {
       if (!lines[i].trim()) continue;
       
-      const values = lines[i].split(',').map(v => v.trim());
+      const values = lines[i].split(',').map(v => {
+        const trimmed = v.trim();
+        return trimmed.startsWith('"') && trimmed.endsWith('"') 
+          ? trimmed.slice(1, -1) 
+          : trimmed;}
+        );
       const rowData: any = {};
       
       headers.forEach((header, index) => {
@@ -390,9 +430,47 @@ if (this.fileName.endsWith('.csv')) {
     }
   }
   
+validateMandatoryMappings(): boolean {
+  // Reset any previous mapping errors
+  this.mappingError = '';
+  
+  // Check for duplicate mappings in mandatory fields
+  const usedSourceFields = new Map<string, string>();
+  
+  for (const field of this.mandatoryFields) {
+    const sourceField = this.fieldMapping[field.key];
+    
+    // First check if all mandatory fields are mapped
+    if (!sourceField) {
+      this.mappingError = this.translocoService.translate('IMPORT.VALIDATION_ERRORS.UNMAPPED_MANDATORY_FIELD', {
+        field: this.translocoService.translate(field.label)
+      });
+      return false;
+    }
+    
+    // Then check for duplicate mappings
+    if (usedSourceFields.has(sourceField)) {
+      // Found a duplicate mapping
+      const existingField = usedSourceFields.get(sourceField);
+      this.mappingError = this.translocoService.translate('IMPORT.VALIDATION_ERRORS.DUPLICATE_MAPPING', {
+        sourceField: sourceField,
+        field1: this.translocoService.translate(field.label),
+        field2: this.translocoService.translate(existingField ?? '')
+      });
+      return false;
+    }
+    
+    usedSourceFields.set(sourceField, field.label);
+  }
+  
+  return true;
+}
   validateRows(): void {
     this.rowIssues = [];
     
+    // Check for duplicate mappings in mandatory fields
+  
+  
     this.fileData.forEach((row, index) => {
       const issues: string[] = [];
       
@@ -411,7 +489,6 @@ if (this.fileName.endsWith('.csv')) {
         // Then check if the value exists in the row
         const value = row[sourceField];
         
-        // This is where the bug is - we need to check for empty strings too
         if (!value || value.toString().trim() === '') {
           issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.MISSING_FIELD', { 
             field: this.translocoService.translate(field.label) 
@@ -419,12 +496,135 @@ if (this.fileName.endsWith('.csv')) {
         }
       });
       
-      // We don't validate optional fields as they are optional
-      
+      // Validate optional fields that have been mapped
+      this.optionalFields.forEach(field => {
+        const sourceField = this.fieldMapping[field.key];
+        
+        // Only validate if the field has been mapped
+        if (sourceField) {
+          const value = row[sourceField];
+          // Skip empty optional fields
+          if (!value || value.toString().trim() === '') {
+            return;
+          }
+          
+          // Specific validations based on field type
+          switch (field.key) {
+            case 'website':
+              // Basic URL validation
+              try {
+                const url = value.toString().toLowerCase();
+                if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('www.')) {
+                  issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.INVALID_WEBSITE', { 
+                    value: value 
+                  }));
+                }
+              } catch (e) {
+                issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.INVALID_WEBSITE', { 
+                  value: value 
+                }));
+              }
+              break;
+              
+              case 'phoneNumber':
+                // More flexible phone number validation
+                const phonePattern = /^[+]?[0-9()\s.\-]{7,20}$/;
+                if (!phonePattern.test(value.toString())) {
+                  issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.INVALID_PHONE', { 
+                    value: value 
+                  }));
+                }
+                break;
+              
+            case 'score':
+              // Numeric validation for score
+              const scoreNum = parseFloat(value);
+              if (isNaN(scoreNum)) {
+                issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.INVALID_NUMBER', { 
+                  field: this.translocoService.translate(field.label),
+                  value: value 
+                }));
+              }
+              break;
+              
+            case 'actualSalesValue':
+              // Numeric validation for sales value
+              const salesNum = parseFloat(value);
+              if (isNaN(salesNum)) {
+                issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.INVALID_NUMBER', { 
+                  field: this.translocoService.translate(field.label),
+                  value: value 
+                }));
+              }
+              break;
+              
+            case 'numOfEmployees':
+              // Integer validation for employee count
+              const employeeCount = parseInt(value, 10);
+              if (isNaN(employeeCount) || employeeCount.toString() !== value.toString()) {
+                issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.INVALID_INTEGER', { 
+                  field: this.translocoService.translate(field.label),
+                  value: value 
+                }));
+              }
+              break;
+              
+            case 'postalCode':
+              // Basic postal code validation - allow alphanumeric with spaces and hyphens
+              const postalPattern = /^[a-zA-Z0-9\s-]+$/;
+              if (!postalPattern.test(value.toString())) {
+                issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.INVALID_POSTAL_CODE', { 
+                  value: value 
+                }));
+              }
+              break;
+          }
+        }
+      });
+          // Validate contact pairs - both fields should be either filled or empty
+    // Contact pair 1
+      this.validateContactPairs(row, issues);
+
       if (issues.length > 0) {
         this.rowIssues.push({ index, issues });
       }
     });
+  }
+
+  private validateContactPairs(row: any, issues: string[]) {
+    const contactName1Field = this.fieldMapping['contactName1'];
+    const contactRole1Field = this.fieldMapping['contactRole1'];
+
+    this.validateContactPair(contactName1Field, contactRole1Field, row, issues);
+
+    // Contact pair 2
+    const contactName2Field = this.fieldMapping['contactName2'];
+    const contactRole2Field = this.fieldMapping['contactRole2'];
+
+    this.validateContactPair(contactName2Field, contactRole2Field, row, issues);
+
+  }
+
+  private validateContactPair(contactNameInputField: string, contactRoleInputField: string, row: any, issues: string[]) {
+    if (contactNameInputField && contactRoleInputField) {
+      const contactName = row[contactNameInputField];
+      const contactRole = row[contactRoleInputField];
+
+      const hasName = contactName && contactName.toString().trim() !== '';
+      const hasRole = contactRole && contactRole.toString().trim() !== '';
+
+      if (hasName !== hasRole) {
+        if (hasName) {
+          issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.MISSING_CONTACT_ROLE', {
+            contactName: contactName
+          }));
+        } else {
+          issues.push(this.translocoService.translate('IMPORT.VALIDATION_ERRORS.MISSING_CONTACT_NAME', {
+            contactRole: contactRole
+          }));
+        }
+      }
+    }
   }
 
   toggleAllRows(): void {
@@ -444,7 +644,7 @@ if (this.fileName.endsWith('.csv')) {
     if (!this.canImport) return;
     
     const selectedData = this.fileData.filter((_, index) => this.selectedRows[index]);
-    const mappedCompanies: Company[] = selectedData.map(row => {
+    const mappedCompanies: CompanyImport[] = selectedData.map(row => {
       const company: any = {};
       
       // Map mandatory fields
@@ -471,7 +671,7 @@ if (this.fileName.endsWith('.csv')) {
           company.assignedTeamMemberName = employee.name;
         }
       }
-      return company as Company;
+      return company as CompanyImport;
     });
     
     // Reset import state
@@ -491,7 +691,7 @@ if (this.fileName.endsWith('.csv')) {
     this.importCompaniesSequentially(mappedCompanies, 0);
   }
 
-  importCompaniesSequentially(companies: Company[], index: number): void {
+  importCompaniesSequentially(companies: CompanyImport[], index: number): void {
     this.stepper.selected!.completed = true;
     if (index >= companies.length) {
       // All companies processed

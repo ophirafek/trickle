@@ -3,12 +3,15 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { GeneralCodeService, GeneralCode } from '../../../services/general-codes.service';
 
 import { TranslocoService } from '@jsverse/transloco';
+import { MaterialModule } from '../../../core/modules/material.module';
+import { SharedModule } from '../../../core/modules/shared.module';
 
 @Component({
-  standalone: false,
+  standalone: true,
   selector: 'app-general-code-select',
   templateUrl: './general-code-select.component.html',
   styleUrls: ['./general-code-select.component.css'],
+  imports: [MaterialModule,SharedModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

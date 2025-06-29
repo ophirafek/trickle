@@ -6,6 +6,7 @@
     "DASHBOARD": "Dashboard",
     "COMPANIES": "Companies",
     "LEADS": "Leads",
+    "TASKS": "Tasks",
     "MEETINGS": "Meetings"
   },
   "HEADER": {
@@ -337,8 +338,21 @@
       "DUPLICATE_ENTRY": "Duplicate entry found",
       "FORMAT_ERROR": "Incorrect format for {{field}}",
       "EMPLOYEE_LOAD_ERROR": "Failed to load employees list",
-      "FORMAT_EXCEL": "Excel files (.xlsx, .xls)"
-    }
+      "FORMAT_EXCEL": "Excel files (.xlsx, .xls)",
+      "INVALID_WEBSITE": "Invalid website format: {{value}}",
+      "INVALID_PHONE": "Invalid phone number format: {{value}}",
+      "INVALID_NUMBER": "Invalid number for {{field}}: {{value}}",
+      "INVALID_INTEGER": "Invalid integer for {{field}}: {{value}}",
+      "INVALID_POSTAL_CODE": "Invalid postal code format: {{value}}",
+      "DUPLICATE_MAPPING": "Column '{{sourceField}}' is mapped to both '{{field1}}' and '{{field2}}'. Each column should be mapped to only one field.",
+      "MISSING_CONTACT_ROLE": "Missing contact role for {{contactName}}",
+      "MISSING_CONTACT_NAME": "Missing contact name for {{contactRole}}"
+ 
+    },
+    "CONTACT_NAME_1": "Primary Contact Name",
+    "CONTACT_ROLE_1": "Primary Contact Role",
+    "CONTACT_NAME_2": "Secondary Contact Name",
+    "CONTACT_ROLE_2": "Secondary Contact Role"
   },
   "LEADS": {
     "NEW_LEAD": "New Lead",
@@ -371,7 +385,11 @@
     "CREATE_ERROR": "Failed to create lead",
     "UPDATE_SUCCESS": "Lead updated successfully",
     "UPDATE_ERROR": "Failed to update lead",
-    "LEAD_SOURCE": "Lead Source"
+    "LEAD_SOURCE": "Lead Source",
+    "BUSINESS_DOMAIN": "Business Domain",
+    "SCORE": "Lead Score",
+    "ACTUAL_SALES_VALUE": "Actual Sales Value",
+    "NUM_OF_EMPLOYEES": "Number of Employees"
   },
   "VALIDATION": {
     "REQUIRED_FIELD": "This field is required",

@@ -8,6 +8,7 @@ export interface MenuItem {
 export interface Company {
   // existing fields
   id: number;
+  companyId: number;
   idTypeCode: number;
   registrationName: string;
   // new fields
@@ -148,6 +149,25 @@ export interface Lead {
   contactName?: string;
   ownerName?: string;
   companyName?: string;
+}
+
+export interface Task {
+  id: number;
+  userId?: number;
+  taskCode?: string;
+  taskIdentifier?: string;
+  queueEntryDate?: Date;
+  taskTransferUserID?: number;
+  queueExitDate?: Date;
+  dueDate?: Date;
+  priorityCode?: number;
+  remarks?: string;
+  statusCode?: number;
+  openingRegDate?: Date;
+  closingRegDate?: Date;
+  openingRef?: number;
+  closingRef?: number;
+  activeFlag?: boolean;
 }
 
 export interface QuickAction {

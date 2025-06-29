@@ -10,6 +10,8 @@ import { EmployeeService } from '../../../../services/employee.service';
 import { TranslocoService } from '@jsverse/transloco';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs/operators';
+import { MaterialModule } from '../../../../core/modules/material.module';
+import { SharedModule } from '../../../../core/modules/shared.module';
 
 interface NewAssignment {
   assignmentTypeCode: number;
@@ -17,30 +19,31 @@ interface NewAssignment {
 }
 
 @Component({
-    selector: 'app-assignments-list',
-    templateUrl: './assignments-list.component.html',
-    styleUrls: ['./assignments-list.component.scss'],
-    standalone: false
+  selector: 'app-assignments-list',
+  templateUrl: './assignments-list.component.html',
+  styleUrls: ['./assignments-list.component.scss'],
+  standalone: true,
+  imports: [MaterialModule, SharedModule]
 })
 export class AssignmentsListComponent implements OnInit, OnChanges {
   @Input() company!: Company;
-  
+
   // General codes
   assignmentTypes: GeneralCode[] = [];
-  
+
   // Employees and assignments
   employees: Employee[] = [];
   companyAssignments: Assignment[] = [];
-  
+
   // UI control
   loading = false;
-  
+
   // New assignment dialog
   newAssignment: NewAssignment = {
     assignmentTypeCode: 0,
     employeeID: 0
   };
-  
+
   @ViewChild('assignmentDialog') assignmentDialog!: TemplateRef<any>;
   @ViewChild('editAssignmentDialog') editAssignmentDialog!: TemplateRef<any>;
 
@@ -59,20 +62,20 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     this.loadInitialData();
   }
-  
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['company'] && !changes['company'].firstChange) {
       // Load assignments when company changes
       this.loadCompanyAssignments();
     }
   }
-  
+
   /**
    * Load all required data for the component
    */
   loadInitialData(): void {
     this.loading = true;
-    
+
     // Load assignment types and employees in parallel
     Promise.all([
       this.generalCodesService.getCodesByType(90).toPromise(),
@@ -80,7 +83,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
     ]).then(([assignmentTypes, employees]) => {
       this.assignmentTypes = assignmentTypes || [];
       this.employees = employees || [];
-      
+
       // Load assignments
       this.loadCompanyAssignments();
     }).catch(error => {
@@ -94,7 +97,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
       this.loading = false;
     });
   }
-  
+
   /**
    * Load assignments for the current company
    */
@@ -103,7 +106,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
       this.companyAssignments = [];
       return;
     }
-    
+
     this.loading = true;
     this.assignmentsService.getCompanyAssignments(this.company.id)
       .pipe(
@@ -123,7 +126,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
         }
       );
   }
-  
+
   /**
    * Open dialog to add a new assignment
    */
@@ -133,7 +136,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
       assignmentTypeCode: 0,
       employeeID: 0
     };
-    
+
     const dialogRef = this.dialog.open(this.assignmentDialog, {
       width: '600px'
     });
@@ -144,13 +147,13 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
       }
     });
   }
-  
+
   /**
    * Open dialog to edit an existing assignment
    */
   openEditDialog(assignment: Assignment): void {
     this.editingAssignment = { ...assignment };
-    
+
     const dialogRef = this.dialog.open(this.editAssignmentDialog, {
       width: '600px'
     });
@@ -162,7 +165,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
       this.editingAssignment = null;
     });
   }
-  
+
   /**
    * Save a new assignment
    */
@@ -170,7 +173,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
     if (!this.company || !this.company.id) {
       return;
     }
-    
+
     const newAssignment: Assignment = {
       id: 0, // Will be set by the server
       companyID: this.company.id,
@@ -180,7 +183,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
       openingRegDate: new Date(),
       activeFlag: 1
     };
-    
+
     this.loading = true;
     this.assignmentsService.createAssignment(newAssignment)
       .pipe(
@@ -205,7 +208,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
         }
       );
   }
-  
+
   /**
    * Deactivate an assignment
    */
@@ -240,7 +243,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
         );
     }
   }
-  
+
   /**
    * Update an employee assignment
    */
@@ -284,7 +287,7 @@ export class AssignmentsListComponent implements OnInit, OnChanges {
       ...assignment,
       employeeID: newEmployeeId
     };
-    
+
     this.updateAssignment(updatedAssignment);
   }
 

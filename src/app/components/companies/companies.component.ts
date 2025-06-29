@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
@@ -10,6 +10,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ViewEncapsulation } from '@angular/core';
 import { translate, TranslocoService } from '@jsverse/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
 
 interface EntityTypeCode {
   code: number;
@@ -19,17 +21,13 @@ interface EntityTypeCode {
   color: string; // For styling
 }
 
-// Add these constants to your class
-
-
-
-
 @Component({
     selector: 'app-companies',
     templateUrl: './companies.component.html',
     styleUrls: ['./companies.component.css'],
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule,RouterLink]
 })
 export class CompaniesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -426,6 +424,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
   getEmptyCompany(): Company {
     return {
       id: 0,
+      companyId: 0,
       registrationName: '',
       website: '',
       companyStatusCode: 1, // Default status code for Active

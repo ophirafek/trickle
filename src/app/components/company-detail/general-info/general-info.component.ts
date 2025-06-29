@@ -8,11 +8,15 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs/operators';
 
+import { MaterialModule } from '../../../core/modules/material.module';
+import { SharedModule } from '../../../core/modules/shared.module';
+
 @Component({
     selector: 'app-general-info',
     templateUrl: './general-info.component.html',
     styleUrls: ['./general-info.component.scss'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule]
 })
 export class GeneralInfoComponent implements OnInit, OnChanges {
   @Input() company!: Company;

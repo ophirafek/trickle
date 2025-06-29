@@ -1,12 +1,15 @@
 import { Component, Input } from '@angular/core';
 import { Company } from '../../../model/types';
 import { Router } from '@angular/router';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
 
 @Component({
     selector: 'app-company-card',
     templateUrl: './company-card.component.html',
     styleUrls: ['./company-card.component.css'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule]
 })
 export class CompanyCardComponent {
   @Input() company!: Company;

@@ -3,12 +3,16 @@ import { Meeting, Attendee, Company } from '../../../model/types';
 import { CompanyService } from '../../services/company.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MaterialModule } from '../../core/modules/material.module';
+import { SharedModule } from '../../core/modules/shared.module';
 
 @Component({
     selector: 'app-meeting-detail',
     templateUrl: './meeting-detail.component.html',
     styleUrls: ['./meeting-detail.component.css'],
-    standalone: false
+    standalone: true,
+    imports: [MaterialModule,SharedModule]
+
 })
 export class MeetingDetailComponent implements OnInit {
   @Input() meeting: Meeting | null = null;

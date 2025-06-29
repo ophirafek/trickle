@@ -1,0 +1,17 @@
+<div class="p-6">
+    <div class="min-h-screen bg-gray-50">
+       <app-tasks-list
+          [tasks]="filteredTasks" 
+          [loading]="loading"
+          (taskSelected)="openTaskDetail($event)"
+          (addTaskClicked)="createNewTask()">
+       </app-tasks-list>
+      
+      <!-- <app-task-detail 
+        *ngIf="currentView === 'details' && selectedTask"
+        [task]="selectedTask"
+        [currentUser]="currentUser"
+        (backToList)="onBackToList()">
+      </app-task-detail> -->
+    </div>
+</div>
