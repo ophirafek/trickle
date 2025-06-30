@@ -29,8 +29,8 @@
       
       <!-- Lead ID Column -->
       <ng-container matColumnDef="leadId">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Lead ID
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.LEAD_ID' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           {{ lead.leadId }}
@@ -39,8 +39,8 @@
 
       <!-- Lead Name Column -->
       <ng-container matColumnDef="leadName">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Lead Name
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.LEAD_NAME' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           {{ lead.leadName }}
@@ -49,8 +49,8 @@
 
       <!-- Lead Type Column -->
       <ng-container matColumnDef="leadType">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Lead Type
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.LEAD_TYPE' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           {{ lead.leadTypeName || getLeadTypeName(lead.leadTypeCode) }}
@@ -59,8 +59,8 @@
 
       <!-- Lead Status Column -->
       <ng-container matColumnDef="leadStatus">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Lead Status
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.STATUS' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
@@ -72,21 +72,21 @@
 
       <!-- Sales Gap Value Column -->
       <ng-container matColumnDef="salesGapValue">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Sales Gap Value
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.SALES_GAP_VALUE' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           <div class="flex items-center">
             <mat-icon class="text-sm mr-1">attach_money</mat-icon>
-            <span>{{ lead.salesGapValue | currency:'USD':'symbol':'1.0-0' }}</span>
+            <span>{{ lead.salesGapValue }}</span>
           </div>
         </td>
       </ng-container>
 
       <!-- Probability Column -->
       <ng-container matColumnDef="probability">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Probability
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.PROBABILITY' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           <div class="flex items-center">
@@ -100,8 +100,8 @@
 
       <!-- Market Column -->
       <ng-container matColumnDef="market">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Market
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.MARKET' | transloco}}  
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           {{ lead.marketName || getMarketName(lead.marketCode) }}
@@ -110,8 +110,8 @@
 
       <!-- Contact Name Column -->
       <ng-container matColumnDef="contactName">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Contact Name
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.CONTACT' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           {{ lead.contactName || getContactName(lead.contactId) }}
@@ -120,8 +120,8 @@
 
       <!-- Owner Column -->
       <ng-container matColumnDef="owner">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Owner
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+          {{'LEADS.OWNER' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           <div class="flex items-center">
@@ -133,8 +133,8 @@
 
       <!-- Actions Column -->
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
-          Actions
+        <th mat-header-cell *matHeaderCellDef class="py-3 px-4 text-start text-sm font-medium text-gray-500 uppercase tracking-wider border-b">
+        {{'COMMON.ACTIONS' | transloco}}
         </th>
         <td mat-cell *matCellDef="let lead" class="py-3 px-4 text-sm text-gray-900">
           <div class="flex space-x-2">

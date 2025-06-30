@@ -7,7 +7,8 @@
     "COMPANIES": "Companies",
     "LEADS": "Leads",
     "TASKS": "Tasks",
-    "MEETINGS": "Meetings"
+    "MEETINGS": "Meetings",
+    "GL_ACCOUNTS": "GL Accounts"
   },
   "HEADER": {
     "SEARCH": "Search...",
@@ -107,7 +108,8 @@
       "CONTACTS": "Contacts",
       "NOTES": "Notes",
       "LEADS": "Leads",
-      "INSURED": "Insured Companies"
+      "INSURED": "Insured Companies",
+    "GL_ACCOUNTS": "GL Accounts"
     },
     "ID_TYPE": "ID Type",
     "ID_TYPE_PLACEHOLDER": "Select ID type",
@@ -263,7 +265,33 @@
     "FAX_NUMBER_PLACEHOLDER": "Enter fax number",
     
     "YEARS_ACTIVE": "Years Active",
-    "YEARS_ACTIVE_PLACEHOLDER": "Enter years active"
+    "YEARS_ACTIVE_PLACEHOLDER": "Enter years active",
+    "GL_ACCOUNTS": {
+      "TITLE": "GL Accounts",
+      "ADD_ACCOUNT": "Add Account",
+      "NEW_ACCOUNT": "New GL Account",
+      "EDIT_ACCOUNT": "Edit GL Account",
+      "ACCOUNT_NUMBER": "Account Number",
+      "ACCOUNT_TYPE": "Account Type",
+      "OPENING_DATE": "Opening Date",
+      "CLOSING_DATE": "Closing Date",
+      "STATUS": "Status",
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive",
+      "NO_ACCOUNTS": "No GL accounts found for this company",
+      "LOAD_ERROR": "Error loading GL accounts",
+      "LOAD_TYPES_ERROR": "Error loading account types",
+      "CREATE_SUCCESS": "GL account created successfully",
+      "CREATE_ERROR": "Error creating GL account",
+      "UPDATE_SUCCESS": "GL account updated successfully",
+      "UPDATE_ERROR": "Error updating GL account",
+      "DELETE_SUCCESS": "GL account deleted successfully",
+      "DELETE_ERROR": "Error deleting GL account",
+      "DEACTIVATE_SUCCESS": "GL account deactivated successfully",
+      "DEACTIVATE_ERROR": "Error deactivating GL account",
+      "ACTIVATE_SUCCESS": "GL account activated successfully",
+      "ACTIVATE_ERROR": "Error activating GL account"
+    }
   },
   "IMPORT": {
     "TITLE": "Import Companies",
@@ -355,6 +383,7 @@
     "CONTACT_ROLE_2": "Secondary Contact Role"
   },
   "LEADS": {
+    "LEAD_ID": "Lead ID",
     "NEW_LEAD": "New Lead",
     "EDIT_LEAD": "Edit Lead",
     "CREATE_LEAD": "Create Lead",

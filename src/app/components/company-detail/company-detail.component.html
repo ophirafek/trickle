@@ -1,4 +1,4 @@
-<!-- Updated company-detail.component.html with async contact loading -->
+<!-- Updated company-detail.component.html with GL Accounts tab -->
 <div class="h-screen flex flex-col bg-gray-50">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="fixed inset-0 bg-white bg-opacity-70 flex items-center justify-center z-50">
@@ -15,7 +15,7 @@
         (click)="navigateToCompanies()"
         class="mr-2"
       >
-        <mat-icon>arrow_back</mat-icon>
+        <mat-icon>{{this.dir.value == 'rtl' ? 'arrow_forward' : 'arrow_back'}}</mat-icon>
       </button>
       <h1 class="text-xl font-bold text-gray-800">
         {{ isNewCompany ? ('COMPANY_DETAIL.NEW_COMPANY' | transloco) : editingCompany.registrationName }}
@@ -95,6 +95,20 @@
             <!-- Loading indicator for insured tab -->
             <mat-spinner *ngIf="insuredLoading" [diameter]="16" class="ml-2"></mat-spinner>
           </button>
+          
+          <!-- GL Accounts Tab (shown for all companies) -->
+          <button 
+            *ngIf="!isNewCompany"
+            (click)="navigateToTab('glaccounts')"
+            class="py-4 px-6 font-medium transition-colors flex items-center"
+            [ngClass]="activeTab === 'glaccounts' 
+              ? 'border-b-2 border-blue-600 text-blue-600' 
+              : 'text-gray-500 hover:text-gray-700'"
+          >
+            {{ 'COMPANY_DETAIL.TABS.GL_ACCOUNTS' | transloco }} ({{ editingCompany.glAccounts.length || 0 }})
+            <!-- Loading indicator for GL accounts tab -->
+            <mat-spinner *ngIf="glAccountsLoading" [diameter]="16" class="ml-2"></mat-spinner>
+          </button>
         </nav>
       </div>
 
@@ -130,30 +144,29 @@
         </div>
 
         <!-- Leads Tab Content -->
-     <!-- Leads Tab Content -->
-     <div *ngIf="activeTab === 'leads'">
-      <!-- Loading indicator for leads -->
-      <div *ngIf="leadLoading" class="flex items-center justify-center p-8">
-        <mat-spinner [diameter]="32"></mat-spinner>
-        <p class="ml-4 text-gray-700">{{ 'COMMON.LOADING' | transloco }}</p>
-      </div>
-      
-      <!-- Lead error message -->
-      <div *ngIf="leadError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
-        {{ leadError }}
-      </div>
-      
-      <!-- Using leads-list component -->
-      <app-leads-list
-        *ngIf="!leadLoading || (companyLeads && companyLeads.length > 0)"
-        [leads]="companyLeads"
-        [loading]="leadLoading"
-        [companyId]="editingCompany.id"
-        (leadSelected)="editLead($event)"
-        (addLeadClicked)="createNewLead()"
-        (leadDeleted)="onLeadDeleted($event)">
-      </app-leads-list>
-    </div>
+        <div *ngIf="activeTab === 'leads'">
+          <!-- Loading indicator for leads -->
+          <div *ngIf="leadLoading" class="flex items-center justify-center p-8">
+            <mat-spinner [diameter]="32"></mat-spinner>
+            <p class="ml-4 text-gray-700">{{ 'COMMON.LOADING' | transloco }}</p>
+          </div>
+          
+          <!-- Lead error message -->
+          <div *ngIf="leadError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+            {{ leadError }}
+          </div>
+          
+          <!-- Using leads-list component -->
+          <app-leads-list
+            *ngIf="!leadLoading || (companyLeads && companyLeads.length > 0)"
+            [leads]="companyLeads"
+            [loading]="leadLoading"
+            [companyId]="editingCompany.id"
+            (leadSelected)="editLead($event)"
+            (addLeadClicked)="createNewLead()"
+            (leadDeleted)="onLeadDeleted($event)">
+          </app-leads-list>
+        </div>
         
         <!-- Insured Details Tab Content -->
         <div *ngIf="activeTab === 'insured'">
@@ -173,6 +186,26 @@
             *ngIf="!insuredLoading" 
             [company]="editingCompany">
           </app-insured-details>
+        </div>
+        
+        <!-- GL Accounts Tab Content -->
+        <div *ngIf="activeTab === 'glaccounts'">
+          <!-- Loading indicator for GL accounts -->
+          <div *ngIf="glAccountsLoading" class="flex items-center justify-center p-8">
+            <mat-spinner [diameter]="32"></mat-spinner>
+            <p class="ml-4 text-gray-700">{{ 'COMMON.LOADING' | transloco }}</p>
+          </div>
+          
+          <!-- GL accounts error message -->
+          <div *ngIf="glAccountsError" class="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg">
+            {{ glAccountsError }}
+          </div>
+          
+          <!-- Use the gl-accounts component and pass the company as input -->
+          <app-gl-accounts
+            *ngIf="!glAccountsLoading"
+            [company]="editingCompany">
+          </app-gl-accounts>
         </div>
       </div>
     </div>

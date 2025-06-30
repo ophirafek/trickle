@@ -1,3 +1,5 @@
+import { GLAccount } from "./gl-account.model";
+
 export interface MenuItem {
   id: string;
   icon: string;
@@ -29,6 +31,7 @@ export interface Company {
   dunsNumber: string;
   contacts: Contact[];
   notes: Note[];
+  glAccounts: GLAccount[];
   isInsured: boolean;
   isDebtor: boolean;
   isPotentialClient: boolean;

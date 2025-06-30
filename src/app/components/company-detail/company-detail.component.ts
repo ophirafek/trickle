@@ -1,4 +1,4 @@
-// Updated company-detail.component.ts with async contact loading
+// Updated company-detail.component.ts with GL Accounts tab
 
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemePalette } from '@angular/material/core';
 import { TranslocoService } from '@jsverse/transloco';
 import { GeneralCodeService, GeneralCode } from '../../services/general-codes.service';
+import { GLAccountService } from '../../services/gl-account.service';
 import { finalize } from 'rxjs/operators';
 import { MaterialModule } from '../../core/modules/material.module';
 import { SharedModule } from '../../core/modules/shared.module';
@@ -16,6 +17,8 @@ import { GeneralInfoComponent } from './general-info/general-info.component';
 import { ContactListComponent } from './contact-list/contact-list.component';
 import { LeadsListComponent } from '../leads-list/leads-list.component';
 import { InsuredDetailsComponent } from './insured-details/insured-details.component';
+import { GLAccountsComponent } from './gl-accounts/gl-accounts.component';
+import { Directionality } from '@angular/cdk/bidi';
 
 @Component({
     selector: 'app-company-detail',
@@ -23,7 +26,15 @@ import { InsuredDetailsComponent } from './insured-details/insured-details.compo
     styleUrls: ['./company-detail.component.css'],
     encapsulation: ViewEncapsulation.None,
     standalone: true,
-    imports: [MaterialModule,SharedModule,GeneralInfoComponent,ContactListComponent,LeadsListComponent,InsuredDetailsComponent]
+    imports: [
+      MaterialModule,
+      SharedModule,
+      GeneralInfoComponent,
+      ContactListComponent,
+      LeadsListComponent,
+      InsuredDetailsComponent,
+      GLAccountsComponent
+    ]
 })
 export class CompanyDetailComponent implements OnInit {
   editingCompany: Company = this.getEmptyCompany();
@@ -45,11 +56,16 @@ export class CompanyDetailComponent implements OnInit {
   insuredLoaded: boolean = false;
   insuredError: string | null = null;
   
+  // For GL accounts management
+  glAccountsLoading: boolean = false;
+  glAccountsLoaded: boolean = false;
+  glAccountsError: string | null = null;
+  
   // Form validation
   formIsValid: boolean = true;
   
-  // Active tab - Updated to remove 'address' and 'notes'
-  activeTab: 'general' | 'contacts' | 'leads' | 'insured' = 'general';
+  // Active tab - Updated to include 'glaccounts'
+  activeTab: 'general' | 'contacts' | 'leads' | 'insured' | 'glaccounts' = 'general';
   
   // Loading state
   loading: boolean = false;
@@ -61,9 +77,11 @@ export class CompanyDetailComponent implements OnInit {
     private leadService: LeadService,
     private translocoService: TranslocoService,
     private generalCodeService: GeneralCodeService,
+    private glAccountService: GLAccountService,
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    public dir: Directionality
   ) {}
 
   ngOnInit(): void {
@@ -107,7 +125,7 @@ export class CompanyDetailComponent implements OnInit {
    * Load data specific to the active tab
    * This allows for lazy loading of tab content
    */
-  loadTabData(tab: 'general' | 'contacts' | 'leads' | 'insured'): void {
+  loadTabData(tab: 'general' | 'contacts' | 'leads' | 'insured' | 'glaccounts'): void {
     // Only load data if we have a company with an ID (not a new company)
     if (this.isNewCompany || !this.editingCompany.id) {
       return;
@@ -133,6 +151,12 @@ export class CompanyDetailComponent implements OnInit {
         // We only need to ensure the loading has started
         if (!this.insuredLoaded && !this.insuredLoading && this.editingCompany.isInsured) {
           this.loadInsuredData();
+        }
+        break;
+      case 'glaccounts':
+        // GL accounts data loading
+        if (!this.glAccountsLoaded && !this.glAccountsLoading) {
+          this.loadGLAccountsData();
         }
         break;
     }
@@ -187,6 +211,9 @@ export class CompanyDetailComponent implements OnInit {
     if (this.editingCompany.isInsured) {
       this.loadInsuredData();
     }
+    
+    // Start loading GL accounts data
+    this.loadGLAccountsData();
   }
 
   /**
@@ -254,6 +281,7 @@ export class CompanyDetailComponent implements OnInit {
       dunsNumber: '',
       contacts: [],
       notes: [],
+      glAccounts: [],
       isInsured: false,
       isDebtor: false,
       isPotentialClient: false,
@@ -261,7 +289,7 @@ export class CompanyDetailComponent implements OnInit {
     };
   }
   
-  navigateToTab(tab: 'general' | 'contacts' | 'leads' | 'insured'): void {
+  navigateToTab(tab: 'general' | 'contacts' | 'leads' | 'insured' | 'glaccounts'): void {
     this.activeTab = tab;
     
     // Update the URL without reloading the component
@@ -285,6 +313,11 @@ export class CompanyDetailComponent implements OnInit {
         break;
       case 'insured':
         if (this.insuredLoading || this.insuredLoaded) {
+          return;
+        }
+        break;
+      case 'glaccounts':
+        if (this.glAccountsLoading || this.glAccountsLoaded) {
           return;
         }
         break;
@@ -452,6 +485,45 @@ export class CompanyDetailComponent implements OnInit {
       //   });
     }, 100);
   }
+  
+  /**
+   * Load GL accounts data
+   * This is a placeholder for the actual implementation
+   */
+  loadGLAccountsData(): void {
+    if (!this.editingCompany || !this.editingCompany.companyId) {
+      return;
+    }
+    
+    this.glAccountsLoading = true;
+    this.glAccountsError = null;
+    
+    // In a real app, you would load the GL accounts data here
+    // GLAccountService would be used to fetch the data
+    // For now, we'll simulate the loading process
+    
+    this.glAccountService.getCompanyGLAccounts(this.editingCompany.companyId)
+    .pipe(
+      finalize(() => {
+        this.glAccountsLoading = false;
+        this.glAccountsLoaded = true;
+      })
+    )
+    .subscribe({
+      next: (accounts) => {
+        this.editingCompany.glAccounts = accounts;
+      },
+      error: (err) => {
+        this.glAccountsError = this.translocoService.translate('COMPANY_DETAIL.GL_ACCOUNTS_LOAD_ERROR');
+        console.error('Error loading GL accounts:', err);
+        
+        this.snackBar.open(
+          this.translocoService.translate('COMPANY_DETAIL.GL_ACCOUNTS_LOAD_ERROR'),
+          this.translocoService.translate('BUTTONS.CLOSE'),
+          { duration: 3000, panelClass: ['error-snackbar'] }
+        );
+      }
+    });  }
 
   getLeadStatusColor(status: string): ThemePalette {
     const colorMap: { [key: string]: ThemePalette } = {
@@ -464,37 +536,35 @@ export class CompanyDetailComponent implements OnInit {
     return colorMap[status] || 'primary';
   }
 
-// Update the createNewLead method in company-detail.component.ts
-
-createNewLead(): void {
-  if (!this.editingCompany) return;
-  
-  // Navigate to the leads creation page with company information pre-filled
-  this.router.navigate(['/leads/new'], {
-    queryParams: {
-      companyId: this.editingCompany.id,
-      companyName: this.editingCompany.registrationName
-    }
-  });
-}
-
-// Update the editLead method in company-detail.component.ts
-editLead(lead: Lead): void {
-  // Check if lead has an ID (existing lead)
-  if (lead.leadId) {
-    // Navigate to edit the lead
-    this.router.navigate(['/leads', lead.leadId]);
-  } else {
-    // Handle case when lead might not have ID
-    console.error('Cannot edit lead without an ID');
-    this.snackBar.open('Cannot edit this lead', 'Close', {
-      duration: 3000,
-      panelClass: ['error-snackbar']
+  // Update the createNewLead method in company-detail.component.ts
+  createNewLead(): void {
+    if (!this.editingCompany) return;
+    
+    // Navigate to the leads creation page with company information pre-filled
+    this.router.navigate(['/leads/new'], {
+      queryParams: {
+        companyId: this.editingCompany.id,
+        companyName: this.editingCompany.registrationName
+      }
     });
   }
-}
 
- 
+  // Update the editLead method in company-detail.component.ts
+  editLead(lead: Lead): void {
+    // Check if lead has an ID (existing lead)
+    if (lead.leadId) {
+      // Navigate to edit the lead
+      this.router.navigate(['/leads', lead.leadId]);
+    } else {
+      // Handle case when lead might not have ID
+      console.error('Cannot edit lead without an ID');
+      this.snackBar.open('Cannot edit this lead', 'Close', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    }
+  }
+
   deleteLead(leadId: number): void {
     if (confirm(this.translocoService.translate('COMMON.CONFIRM_DELETE'))) {
       this.leadLoading = true;

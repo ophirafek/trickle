@@ -432,6 +432,7 @@ export class CompaniesComponent implements OnInit, AfterViewInit {
       dunsNumber: '',
       contacts: [],
       notes: [],
+      glAccounts:[], 
       isInsured: false,
       isAgent: false,
       isDebtor: false,

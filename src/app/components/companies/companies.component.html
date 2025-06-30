@@ -14,7 +14,7 @@
   <div>
     <div class="mb-6 flex justify-between items-center">
       <h1 class="text-2xl font-semibold text-gray-800" transloco="COMPANIES.TITLE"></h1>
-      <div class="space-x-2">
+      <div class="flex gap-2">
         <button 
           mat-raised-button 
           color="primary"
@@ -183,7 +183,7 @@
 </div>
   
   <!-- Filter action buttons - always at the bottom of the filter section -->
-  <div class="flex justify-end space-x-2 mt-4 pt-3 border-t border-gray-200">
+  <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-gray-200">
     <button mat-flat-button color="default" (click)="clearFilters()" [disabled]="!hasActiveFilters()">
       <mat-icon class="mr-1">clear</mat-icon>
       <span transloco="COMPANIES.CLEAR_FILTERS"></span>
@@ -213,7 +213,7 @@
           
           <!-- Registration Info Column -->
           <ng-container matColumnDef="registrationInfo">
-            <th mat-header-cell *matHeaderCellDef> {{ 'COMPANY_DETAIL.REGISTRATION_INFO' | transloco }} </th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> {{ 'COMPANY_DETAIL.REGISTRATION_INFO' | transloco }} </th>
             <td mat-cell *matCellDef="let company"> 
               <ng-container *ngIf="company.idTypeCode && company.registrationNumber">
                 <span class="font-medium">{{ getIdTypeName(company.idTypeCode) }}:</span> 
@@ -243,7 +243,7 @@
           <!-- Entity Type Column (New) -->
 <!-- Entity Type Column -->
 <ng-container matColumnDef="entityType">
-  <th mat-header-cell *matHeaderCellDef> {{ 'COMPANY_DETAIL.ENTITY_TYPE' | transloco }} </th>
+  <th mat-header-cell *matHeaderCellDef mat-sort-header>  {{ 'COMPANY_DETAIL.ENTITY_TYPE' | transloco }} </th>
   <td mat-cell *matCellDef="let company" class="entity-type-cell"> 
     <div class="flex flex-wrap gap-1">
       <ng-container *ngFor="let entityType of ENTITY_TYPES">
@@ -279,7 +279,7 @@
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef class="text-right"> {{ 'COMMON.ACTIONS' | transloco }} </th>
             <td mat-cell *matCellDef="let company" class="text-right">
-              <button mat-icon-button color="primary" matTooltip="{{ 'COMMON.CALL' | transloco }}">
+             <!-- <button mat-icon-button color="primary" matTooltip="{{ 'COMMON.CALL' | transloco }}">
                 <mat-icon>phone</mat-icon>
               </button>
               <button mat-icon-button color="primary" matTooltip="{{ 'COMMON.EMAIL' | transloco }}">
@@ -290,7 +290,7 @@
               </button>
               <button mat-icon-button [matMenuTriggerFor]="companyMenu">
                 <mat-icon>more_vert</mat-icon>
-              </button>
+              </button>-->
               <mat-menu #companyMenu="matMenu">
                 <button mat-menu-item [routerLink]="['/companies', company.id]" [queryParams]="{tab: 'general'}">
                   <mat-icon>edit</mat-icon>

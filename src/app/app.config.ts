@@ -8,6 +8,9 @@ import { Interceptor } from './core/interceptors/interceptor.service';
 import { languageInterceptor } from './services/language-interceptor.service';
 import { DefaultTranspiler, provideTransloco, TRANSLOCO_CONFIG, TRANSLOCO_TRANSPILER, translocoConfig } from '@jsverse/transloco';
 import { TranslocoHttpLoader } from '../transloco/transloco-loader';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+
+import { MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS } from '@angular/material-moment-adapter';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -30,6 +33,20 @@ export const appConfig: ApplicationConfig = {
     {
       provide: TRANSLOCO_TRANSPILER,
       useClass: DefaultTranspiler
+    },
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE, MAT_MOMENT_DATE_ADAPTER_OPTIONS] },
+    {
+      provide: MAT_DATE_FORMATS, useValue: {
+        parse: {
+          dateInput: 'DD/MM/YYYY',
+        },
+        display: {
+          dateInput: 'DD/MM/YYYY',
+          monthYearLabel: 'MMM YYYY',
+          dateA11yLabel: 'LL',
+          monthYearA11yLabel: 'MMMM YYYY',
+        }
+      }
     }
   ]
 };

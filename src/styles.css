@@ -187,11 +187,19 @@ html[dir='rtl'] .mat-sidenav-container {
   direction: rtl;
   text-align: right;
 }
-
+html[dir='rtl'] {
+  --mat-sys-title-small-font: "Inter", sans-serif; /* Ensure title font is set */
+  --mat-sys-body-large-font: "Inter", sans-serif; /* Ensure body font is set */
+  --mat-sys-body-medium-font: "Inter", sans-serif; /* Ensure body medium font is set */
+  --mat-sys-label-large-font: "Inter", sans-serif; /* Ensure label large font is set */
+  --mat-sys-body-small-font: "Inter", sans-serif; /* Ensure body small font is set */
+  --mat-sys-title-large-font: "Inter", sans-serif; /* Ensure title large font is set */
+}
 /* Fix for content positioning */
 html[dir='rtl'] .mat-sidenav-content {
   margin-left: 0 !important; /* Override inline styles */
   margin-right: 0 !important; /* When closed */
+  
 }
 
 /* Adjust when sidebar is open */
